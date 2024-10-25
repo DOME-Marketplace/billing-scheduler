@@ -1,0 +1,20 @@
+
+# Spring Configuration
+server: 
+  port: 8080
+
+application:
+  name: "@project.artifactId@"
+
+build: 
+  version: "@project.version@"
+  timestamp: "@timestamp@"
+
+# Scheduling Task Configuration  
+scheduling:
+  cron: "0 30 16 * * ?"
+
+# Logging Configuration
+logging:
+  level:
+    it.eng.dome: ${LOG_LEVEL:DEBUG}
