@@ -1,11 +1,11 @@
 FROM openjdk:17-jdk-alpine
 
-RUN addgroup -S dome && adduser -S bengine -G dome
+RUN addgroup -S dome && adduser -S bscheduler -G dome
 
-USER bengine:dome
+USER bscheduler:dome
 
-COPY ./target/billing-engine*.jar /usr/app/billing-engine.jar
+COPY ./target/billing-scheduler*.jar /usr/app/billing-scheduler.jar
 
 EXPOSE 8080/tcp 
 
-ENTRYPOINT ["java","-jar","/billing-engine.jar"]
+ENTRYPOINT ["java","-jar","/billing-scheduler.jar"]
