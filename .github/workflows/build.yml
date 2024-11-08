@@ -39,18 +39,18 @@ jobs:
               <servers>
                   <server>
                       <id>almesl-snapshots</id>
-                      <username>pvitale</username>
-                      <password>Sandro_2015</password>
+                      <username>${{ secrets.MAVEN_REPO_USERNAME }}</username>
+                      <password>${{ secrets.MAVEN_REPO_PASSWORD }}</password>
                   </server>
                   <server>
                       <id>almesl-releases</id>
-                      <username>pvitale</username>
-                      <password>Sandro_2015</password>
+                      <username>${{ secrets.MAVEN_REPO_USERNAME }}</username>
+                      <password>${{ secrets.MAVEN_REPO_PASSWORD }}</password>
                   </server>
                   <server>
                       <id>nexus</id>
-                      <username>pvitale</username>
-                      <password>Sandro_2015</password>
+                      <username>${{ secrets.MAVEN_REPO_USERNAME }}</username>
+                      <password>${{ secrets.MAVEN_REPO_PASSWORD }}</password>
                   </server>
               </servers>
               <profiles>
