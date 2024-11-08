@@ -39,17 +39,17 @@ jobs:
               <servers>
                   <server>
                       <id>almesl-snapshots</id>
-                      <username>${{ vars.MAVEN_REPO_USERNAME }}</username>
+                      <username>${{ secrets.MAVEN_REPO_USERNAME }}</username>
                       <password>${{ secrets.MAVEN_REPO_PASSWORD }}</password>
                   </server>
                   <server>
                       <id>almesl-releases</id>
-                      <username>${{ vars.MAVEN_REPO_USERNAME }}</username>
+                      <username>${{ secrets.MAVEN_REPO_USERNAME }}</username>
                       <password>${{ secrets.MAVEN_REPO_PASSWORD }}</password>
                   </server>
                   <server>
                       <id>nexus</id>
-                      <username>${{ vars.MAVEN_REPO_USERNAME }}</username>
+                      <username>${{ secrets.MAVEN_REPO_USERNAME }}</username>
                       <password>${{ secrets.MAVEN_REPO_PASSWORD }}</password>
                   </server>
               </servers>
