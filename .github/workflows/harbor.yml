@@ -123,8 +123,8 @@ jobs:
           distribution: "temurin"
           cache: maven
 		       
-       - name: Set up Maven settings
-         run: |
+      - name: Set up Maven settings
+        run: |
            cat > ~/.m2/settings.xml <<EOF
            <?xml version="1.0" encoding="UTF-8"?>
            <settings xmlns="http://maven.apache.org/SETTINGS/1.1.0"
