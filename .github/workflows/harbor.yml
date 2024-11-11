@@ -123,6 +123,15 @@ jobs:
           distribution: "temurin"
           cache: maven
 
+      - name: Get version from pom.xml
+        id: get_version
+        run: |
+          VERSION=$(grep -m1 '<version>' pom.xml | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
+          echo "version=$VERSION" >> $GITHUB_ENV
+  
+      - name: Echo Maven version
+        run: echo "La versione Maven è ${{ env.version }}"
+
       - name: Get Image Version
         run: |
           mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false -DinteractiveMode=false
