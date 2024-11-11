@@ -123,6 +123,16 @@ jobs:
           distribution: "temurin"
           cache: maven
 
+      - name: Get Image Version
+        run: |
+          mvn help:evaluate -Dexpression=project.version -q -DforceStdout
+          echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> "$GITHUB_OUTPUT"
+          id: getVersion
+ 
+      - name: Print Image Version
+        run: |
+          echo "The image version is ${{ steps.getVersion.outputs.version }}"
+
       - name: Set up Maven settings
         run: |
            cat > ~/.m2/settings.xml <<EOF
@@ -206,16 +216,6 @@ jobs:
 
       - name: Build Maven (skipTests)   
         run: mvn -B package --file pom.xml -DskipTests
-
-      - name: Get Image Version
-        run: |
-          mvn help:evaluate -Dexpression=project.version -q -DforceStdout
-          echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> "$GITHUB_OUTPUT"
-        id: getVersion
-
-      - name: Print Image Version
-        run: |
-          echo "The image version is ${{ steps.getVersion.outputs.version }}"
 
       - name: Login to Harbor
         uses: docker/login-action@v3
