@@ -123,13 +123,14 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Extract version from pom.xml
+      - name: Get version from pom.xml
         id: get_version
         run: |
-          sudo apt-get install -y libxml2-utils
-          VERSION=$(xmllint --xpath "string(//project/version)" pom.xml)
-          echo "Project version is $VERSION"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          VERSION=$(sed -n 's/.*<version>\(.*\)<\/version>.*/\1/p' pom.xml | head -n 1)
+          echo "version=$VERSION" >> $GITHUB_ENV
+  
+      - name: Echo Project version
+        run: echo "La versione Maven è ${{ env.version }}"
 
       - name: Set up Maven settings
         run: |
@@ -223,10 +224,10 @@ jobs:
           password: ${{ secrets.HARBOR_PASSWORD_BILLING }}
 
       - name: Build and Tag Image
-        run: docker build -t ${{ env.REPOSITORY }}/dome/${{ env.IMAGE_NAME }}:${{ steps.getVersion.outputs.version }} .    
+        run: docker build -t ${{ env.REPOSITORY }}/dome/${{ env.IMAGE_NAME }}:${{ env.version }} .    
       
       - name: Push Image to Harbor
-        run: docker push ${{ env.REPOSITORY }}/dome/${{ env.IMAGE_NAME }}:${{ steps.getVersion.outputs.version }}
+        run: docker push ${{ env.REPOSITORY }}/dome/${{ env.IMAGE_NAME }}:${{ env.version }}
       
       - name: Remove Image
-        run: docker rmi ${{ env.REPOSITORY }}/dome/${{ env.IMAGE_NAME }}:${{ steps.getVersion.outputs.version }}
+        run: docker rmi ${{ env.REPOSITORY }}/dome/${{ env.IMAGE_NAME }}:${{ env.version }}
