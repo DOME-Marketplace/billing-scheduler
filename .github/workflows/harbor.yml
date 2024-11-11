@@ -122,7 +122,7 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           cache: maven
-		       
+
       - name: Set up Maven settings
         run: |
            cat > ~/.m2/settings.xml <<EOF
