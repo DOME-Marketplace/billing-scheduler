@@ -125,9 +125,10 @@ jobs:
 
       - name: Get Image Version
         run: |
-          mvn help:evaluate -Dexpression=project.version -q -DforceStdout
+          mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false -DinteractiveMode=false
           echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> "$GITHUB_OUTPUT"
- 
+          id: getVersion
+  
       - name: Print Image Version
         run: |
           echo "The image version is ${{ steps.getVersion.outputs.version }}"
