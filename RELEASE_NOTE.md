@@ -3,7 +3,7 @@
 **Release Notes** of the *Billing Scheduler* software:
 
 
-### <code>0.0.2</code> :calendar: 08/11/2024
+### <code>0.0.2</code> :calendar: 11/11/2024
 **Feature**
 * Add swagger UI for REST APIs.
 
