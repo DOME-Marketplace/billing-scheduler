@@ -2,7 +2,7 @@ package it.eng.dome.billing.scheduler.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,20 +18,16 @@ public class BillingSchedulerControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-
-    @Value("${application.name}")
-    private String appName;
-
-    @Value("${build.version}")
-    private String buildVersion;
+    
+    @Autowired
+    private BuildProperties buildProperties;
 
     @Test
     public void shouldReturnExpectedMessage() throws Exception {
 
         mockMvc.perform(get("/scheduler/info").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.version").value(buildVersion))
-            .andExpect(jsonPath("$.name").value(appName));
+            .andExpect(jsonPath("$.version").value(buildProperties.getVersion()))
+            .andExpect(jsonPath("$.name").value(buildProperties.getName()));
     }
 }
