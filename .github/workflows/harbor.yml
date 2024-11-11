@@ -43,18 +43,18 @@ jobs:
               <servers>
                   <server>
                       <id>almesl-snapshots</id>
-                      <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
-                      <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
+                      <username>${{ vars.ENG_LDAP_USERNAME }}</username>
+                      <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
                   </server>
                   <server>
                       <id>almesl-releases</id>
-                      <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
-                      <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
+                      <username>${{ vars.ENG_LDAP_USERNAME }}</username>
+                      <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
                   </server>
                   <server>
                       <id>nexus</id>
-                      <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
-                      <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
+                      <username>${{ vars.ENG_LDAP_USERNAME }}</username>
+                      <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
                   </server>
               </servers>
               <profiles>
@@ -152,18 +152,18 @@ jobs:
                <servers>
                    <server>
                        <id>almesl-snapshots</id>
-                       <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
-                       <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
+                       <username>${{ vars.ENG_LDAP_USERNAME }}</username>
+                       <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
                    </server>
                    <server>
                        <id>almesl-releases</id>
-                       <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
-                       <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
+                       <username>${{ vars.ENG_LDAP_USERNAME }}</username>
+                       <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
                    </server>
                    <server>
                        <id>nexus</id>
-                       <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
-                       <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
+                       <username>${{ vars.ENG_LDAP_USERNAME }}</username>
+                       <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
                    </server>
                </servers>
                <profiles>
