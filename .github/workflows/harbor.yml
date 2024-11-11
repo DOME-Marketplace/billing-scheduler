@@ -204,9 +204,6 @@ jobs:
            </settings>
            EOF
 
-      - name: Build Maven (skipTests)   
-        run: mvn -B package --file pom.xml -DskipTests
-
       - name: Get Image Version
         run: |
           mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false -DinteractiveMode=false
@@ -217,6 +214,9 @@ jobs:
         run: |
           echo "The image version is ${{ steps.getVersion.outputs.version }}"
 
+      - name: Build Maven (skipTests)   
+		run: mvn -B package --file pom.xml -DskipTests
+			
       - name: Login to Harbor
         uses: docker/login-action@v3
         with:
