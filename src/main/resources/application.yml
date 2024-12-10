@@ -12,9 +12,14 @@ build:
 
 # Scheduling Task Configuration  
 scheduling:
-  cron: "0 30 16 * * ?"
+  cron: "0 02 21 * * ?"
 
 # Logging Configuration
 logging:
   level:
     it.eng.dome: ${LOG_LEVEL:DEBUG}
+
+tmforumapi:
+  tmf_endpoint: ${TMF_ENDPOINT:https://dome-dev.eng.it}
+
+  tmf637_inventory_path: tmf-api/productInventory/v4

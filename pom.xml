@@ -38,11 +38,13 @@
         </dependency>
         
         <!-- TMForum SDK dependencies -->
-        <dependency>
-            <groupId>it.eng.dome.tmforum-sdk</groupId>
-            <artifactId>tmf622-v4</artifactId>
-            <version>1.0.0</version>
-        </dependency> 
+
+        <!-- TMF637 Product Inventory -->
+		<dependency>
+			<groupId>it.eng.dome.tmforum-sdk</groupId>
+			<artifactId>tmf637-v4</artifactId>
+			<version>1.0.0</version>
+		</dependency>
         
         <!-- Springdoc OpenAPI dependency -->
 	    <dependency>

@@ -16,12 +16,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @RestController
 @RequestMapping("/scheduler")
+@Tag(name = "Billing Scheduler Controller", description = "APIs to manage the billing-scheduler")
 public class BillingSchedulerController {
 
 	private static final Logger log = LoggerFactory.getLogger(BillingSchedulerController.class);
