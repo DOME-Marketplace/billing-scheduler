@@ -22,7 +22,9 @@ public final class TmfApiFactory implements InitializingBean {
 	
 	@Value( "${tmforumapi.tmf637_inventory_path}" )
 	private String tmf637ProductInventoryPath;
-
+	
+	@Value( "${tmforumapi.tmf678_customer_bill_path}" )
+	private String tmf678CustomerBillPath;
 	
 	public it.eng.dome.tmforum.tmf637.v4.ApiClient getTMF637ProductInventoryApiClient() {
 		final it.eng.dome.tmforum.tmf637.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf637.v4.Configuration.getDefaultApiClient();
@@ -31,6 +33,12 @@ public final class TmfApiFactory implements InitializingBean {
 		return apiClient;
 	}
 
+	public it.eng.dome.tmforum.tmf678.v4.ApiClient getTMF678ProductInventoryApiClient() {
+		final it.eng.dome.tmforum.tmf678.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf678.v4.Configuration.getDefaultApiClient();
+		apiClient.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillPath);
+		log.debug("Invoke Customer Billing API at endpoint: " + apiClient.getBasePath());
+		return apiClient;
+	}
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -38,7 +46,8 @@ public final class TmfApiFactory implements InitializingBean {
 		log.info("Billing Engine is using the following TMForum endpoint prefix: " + tmfEndpoint);	
 		
 		Assert.state(!StringUtils.isBlank(tmfEndpoint), "Billing Scheduler not properly configured. tmf_endpoint property has no value.");
-		Assert.state(!StringUtils.isBlank(tmf637ProductInventoryPath), "Billing Scheduler not properly configured. tmf637_inventory_path property has no value.");
+		Assert.state(!StringUtils.isBlank(tmf637ProductInventoryPath), "Billing Scheduler not properly configured. The tmf637_inventory_path property has no value.");
+		Assert.state(!StringUtils.isBlank(tmf678CustomerBillPath), "Billing Scheduler not properly configured. The tmf678_customer_bill_path property has no value.");
 
 		if (tmfEndpoint.endsWith("/")) {
 			tmfEndpoint = removeFinalSlash(tmfEndpoint);		
@@ -47,6 +56,10 @@ public final class TmfApiFactory implements InitializingBean {
 		if (tmf637ProductInventoryPath.startsWith("/")) {
 			tmf637ProductInventoryPath = removeInitialSlash(tmf637ProductInventoryPath);
 		}
+		
+		if (tmf678CustomerBillPath.startsWith("/")) {
+			tmf678CustomerBillPath = removeInitialSlash(tmf678CustomerBillPath);
+		}	
 			
 	}
 	

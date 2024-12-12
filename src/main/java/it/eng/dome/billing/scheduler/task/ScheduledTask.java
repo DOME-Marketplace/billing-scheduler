@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import it.eng.dome.billing.scheduler.service.BillingService;
-import it.eng.dome.tmforum.tmf637.v4.ApiException;
 
 
 @Component
@@ -26,7 +25,7 @@ public class ScheduledTask {
 	protected BillingService billingService;
 
     @Scheduled(cron = "${scheduling.cron}")
-    public void billingCycleTask() throws ApiException{
+    public void billingCycleTask() throws Exception{
         log.info("Starting the billing cycle process at {}", dateformat.format(new Date()));
         
         billingService.calculateBuilling();
