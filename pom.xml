@@ -45,6 +45,12 @@
 			<artifactId>tmf637-v4</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<!-- TMF678 Customer Bill -->
+		<dependency>
+			<groupId>it.eng.dome.tmforum-sdk</groupId>
+			<artifactId>tmf678-v4</artifactId>
+			<version>1.0.0</version>
+		</dependency>
         
         <!-- Springdoc OpenAPI dependency -->
 	    <dependency>
