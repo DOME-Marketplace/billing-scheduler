@@ -12,7 +12,7 @@ build:
 
 # Scheduling Task Configuration  
 scheduling:
-  cron: "0 02 21 * * ?"
+  cron: "30 18 19 * * ?"
 
 # Logging Configuration
 logging:
@@ -23,3 +23,4 @@ tmforumapi:
   tmf_endpoint: ${TMF_ENDPOINT:https://dome-dev.eng.it}
 
   tmf637_inventory_path: tmf-api/productInventory/v4
+  tmf678_customer_bill_path: tmf-api/customerBillManagement/v4
