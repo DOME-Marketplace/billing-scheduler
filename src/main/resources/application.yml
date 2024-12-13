@@ -1,7 +1,7 @@
 
 # Spring Configuration
 server: 
-  port: 8080
+  port: 8180
 
 application:
   name: "@project.artifactId@"
@@ -12,13 +12,38 @@ build:
 
 # Scheduling Task Configuration  
 scheduling:
-  cron: "30 18 19 * * ?"
+  cron: "20 46 11 * * ?"
 
 # Logging Configuration
 logging:
   level:
     it.eng.dome: ${LOG_LEVEL:DEBUG}
 
+# Spring Boot Actuator
+management:
+  server:
+    port: 9001
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: "*"
+      base-path: /
+      path-mapping:
+        health: health
+  endpoint:
+    health:
+      enabled: true
+      show-details: never
+  health:
+    probes:
+      enabled: true	
+
+# Billing Service
+billing:
+  invoicing_service: ${INVOICING_SERVICE:http://localhost:8080}
+
+# TMForum Endpoints
 tmforumapi:
   tmf_endpoint: ${TMF_ENDPOINT:https://dome-dev.eng.it}
 

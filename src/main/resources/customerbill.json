@@ -1,0 +1,35 @@
+{
+    "billDate": "2024-12-13T12:45:15.443Z",
+    "billNo": "id-sdfs23423",
+    "lastUpdate": "2024-12-13T13:01:47.227430803Z",
+    "nextBillDate": "2024-12-13T12:45:15.443Z",
+    "paymentDueDate": "2024-12-13T12:45:15.443Z",
+    "amountDue": {
+        "unit": "EUR",
+        "value": 21.0
+    },
+    "billingAccount": {
+        "id": "urn:ngsi-ld:billing-account:3dc56c89-8acc-4600-b4aa-21f4c3eb7497",
+        "href": "urn:ngsi-ld:billing-account:3dc56c89-8acc-4600-b4aa-21f4c3eb7497",
+        "name": "My Billing Account"
+    },
+    "billingPeriod": {
+        "endDateTime": "2024-12-13T12:45:15.443Z",
+        "startDateTime": "2024-12-13T12:45:15.443Z"
+    },
+    "relatedParty": [
+        {
+            "id": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "href": "https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "name": "FICODES",
+            "role": "Seller",
+            "@type": "RelatedParty",
+            "@referredType": "Individual"
+        }
+    ],
+    "remainingAmount": {
+        "unit": "EUR",
+        "value": 31.0
+    },
+    "state": "new"
+}

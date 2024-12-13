@@ -1,26 +1,32 @@
 package it.eng.dome.billing.scheduler.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import it.eng.dome.billing.scheduler.tmf.TmfApiFactory;
-import it.eng.dome.tmforum.tmf637.v4.ApiClient;
-import it.eng.dome.tmforum.tmf637.v4.ApiException;
 import it.eng.dome.tmforum.tmf637.v4.api.ProductApi;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductStatusType;
 import it.eng.dome.tmforum.tmf678.v4.api.AppliedCustomerBillingRateApi;
 import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRate;
-
-
 
 @Component(value = "billingService")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -33,6 +39,9 @@ public class BillingService implements InitializingBean {
 	
 	private ProductApi productApi;
 	private AppliedCustomerBillingRateApi appliedCustomerBillingRate;
+	
+	@Autowired
+	protected BillingFactory billing;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -67,6 +76,7 @@ public class BillingService implements InitializingBean {
 						if (!isExpired() && !isBilled()) { //TODO missing condition 2
 							
 							bill(product);
+							
 						}else {
 							logger.info("Bill for productId {} has already been billed", product.getId());
 						}
@@ -110,6 +120,12 @@ public class BillingService implements InitializingBean {
 		
 		// Invocazione dell'invoicing in modalità consuntiva (input Bill -> output Bill) 
 		
+		//TODO get the product order ini other way!!!
+		String orderJson = getJson();
+		ResponseEntity<String> response = invoicing(orderJson);	
+		logger.info("Status code {}", response.getStatusCode());
+		logger.info("Order with Tax \n {} ", response.getBody() );
+		
 		// save the bill (AppliedCustomerBillRate) in TMForum
 		logger.info("Save AppliedCustomerBillRate in TMForum");
 	}
@@ -125,4 +141,26 @@ public class BillingService implements InitializingBean {
 	
 	Persistenza del Bill su tmforum 
 	 */	
+	
+	RestTemplate restTemplate = new RestTemplate();
+	
+	private ResponseEntity<String> invoicing(String productOrder) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<String> request = new HttpEntity<>(productOrder, headers);
+		return restTemplate.postForEntity(billing.invoicingService + "/invoicing/applyTaxes", request, String.class);
+	}
+	
+	/* TO DELETE */
+
+	private String getJson() {
+		String file = "src/main/resources/productorder.json";
+		try {
+			return new String(Files.readAllBytes(Paths.get(file)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

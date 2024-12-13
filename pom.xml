@@ -49,8 +49,14 @@
 		<dependency>
 			<groupId>it.eng.dome.tmforum-sdk</groupId>
 			<artifactId>tmf678-v4</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
+		<!-- TMF622 Ordering -->
+        <dependency>
+            <groupId>it.eng.dome.tmforum-sdk</groupId>
+            <artifactId>tmf622-v4</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         
         <!-- Springdoc OpenAPI dependency -->
 	    <dependency>
@@ -58,7 +64,11 @@
 	        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 	        <version>2.1.0</version>
 	    </dependency>
-	          
+	    <!-- Spring Boot Actuator -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
     </dependencies>
 
     <build>

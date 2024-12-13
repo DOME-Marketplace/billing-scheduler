@@ -1,0 +1,86 @@
+{
+    "description": "Product Order 1 items one discounted",
+    "orderDate": "2024-11-12T17:43:15.0766836+01:00",
+    "agreement": [],
+    "channel": [],
+    "note": [],
+    "orderTotalPrice": [
+        {
+            "price": {
+                "dutyFreeAmount": {
+                    "unit": "EUR",
+                    "value": 75.0
+                }
+            },
+            "priceAlteration": []
+        }
+    ],
+    "payment": [],
+    "productOfferingQualification": [],
+    "productOrderItem": [
+        {
+            "id": "item-1",
+            "quantity": 5,
+            "action": "add",
+            "itemPrice": [],
+            "itemTerm": [],
+            "itemTotalPrice": [
+                {
+                    "description": "8CPU, 32GB RAM, 40GB HD: 30 eu per m, recurring prepaid",
+                    "name": "Alessio Price LARGE",
+                    "priceType": "recurring-prepaid",
+                    "recurringChargePeriod": "month",
+                    "price": {
+                        "dutyFreeAmount": {
+                            "unit": "EUR",
+                            "value": 150.0
+                        }
+                    },
+                    "priceAlteration": [
+                        {
+                            "applicationDuration": 6,
+                            "description": "Six months 50% special price",
+                            "name": "Six months 50% special price",
+                            "priceType": "discount",
+                            "unitOfMeasure": "month",
+                            "price": {
+                                "dutyFreeAmount": {
+                                    "unit": "EUR",
+                                    "value": 75.0
+                                }
+                            }
+                        }
+                    ],
+                    "productOfferingPrice": {
+                        "id": "urn:ngsi-ld:product-offering-price:0334ec18-9992-4e53-8b94-a260c0868781",
+                        "href": "urn:ngsi-ld:product-offering-price:8333cf95-f03c-4a36-a304-89fa963ad134"
+                    }
+                }
+            ],
+            "payment": [],
+            "productOffering": {
+                "id": "urn:ngsi-ld:product-offering:6dc9b3de-4310-44ca-a41a-4df8d3fcc130",
+                "href": "urn:ngsi-ld:product-offering:f2abcdb7-6c66-48a6-b3d6-862cdf6a464f"
+            },
+            "productOrderItem": [],
+            "productOrderItemRelationship": [],
+            "qualification": []
+        }
+    ],
+    "quote": [],
+    "relatedParty": [
+        {
+            "id": "urn:ngsi-ld:organization:df55d895-fe24-47fc-9506-39e532279997",
+            "href": "urn:ngsi-ld:organization:df55d895-fe24-47fc-9506-39e532279997",
+            "role": "seller",
+            "@referredType": "organization"
+        },
+        {
+            "id": "urn:ngsi-ld:organization:98a67a91-0e05-4dda-af43-253de1e4863d",
+            "href": "urn:ngsi-ld:organization:98a67a91-0e05-4dda-af43-253de1e4863d",
+            "role": "buyer",
+            "@referredType": "organization"
+        }
+    ],
+    "state": "inProgress"
+}
