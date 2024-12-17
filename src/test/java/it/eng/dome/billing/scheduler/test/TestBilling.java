@@ -1,10 +1,15 @@
 package it.eng.dome.billing.scheduler.test;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import it.eng.dome.tmforum.tmf620.v4.ApiException;
+import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
+import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.api.ProductApi;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
@@ -23,10 +28,126 @@ public class TestBilling {
 
     public static String tmfEndpoint = "https://dome-dev.eng.it";
 	
-
 	private static String tmf637ProductInventoryPath = "tmf-api/productInventory/v4";
-
+	private static String tmf620CatalgPath = "tmf-api/productCatalogManagement/v4";
+	
 	public static void main(String[] args) {
+		try {
+			final it.eng.dome.tmforum.tmf637.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf637.v4.Configuration.getDefaultApiClient();
+			apiClient.setBasePath(tmfEndpoint + "/" + tmf637ProductInventoryPath);
+					
+			ProductApi productApi = new ProductApi(apiClient);
+			List<Product> products = productApi.listProduct(/*"id,name"*/ null, null, null);
+			
+			int count = 0;
+			for (Product product : products) {
+				System.out.println("----------------------------------------------------------");
+				System.out.println("item # " + ++count);
+				//System.out.println("product id: " + product.getId() + " - " + product.getName() + " -> STATUS: " + product.getStatus());
+				
+				if (product.getStatus() == ProductStatusType.ACTIVE) {
+					// System.out.println("product id active: " + product.getId()); 
+					List<ProductPrice> pprices = product.getProductPrice();
+					for (ProductPrice pprice : pprices) {
+						System.out.println(">> ProductPrice: " + pprice.getName());		
+						System.out.println("calcolare se effettuare il bill verificando la scadenza ... ");
+						if ("recurring".equals(pprice.getPriceType().toLowerCase()))  {
+							if (pprice.getProductOfferingPrice() != null) {
+								// check on ProductOfferingPrice 
+								// GET recurringChargePeriodType + recurringChargePeriodLength
+								System.out.println("ProductOfferingPrice recurring .... " + product.getId());
+								System.out.println(pprice.getProductOfferingPrice().getId());
+								int period = getPeriod(pprice.getProductOfferingPrice().getId());
+								System.out.println("period: " + period);
+								if ((period > 0) && isExpiredTime(product.getOrderDate(), period)) {
+									System.out.println("RecurringChargePeriod recurring .... " + product.getId());
+								}
+							}else if (pprice.getRecurringChargePeriod() != null) {// check on RecurringChargePeriod
+															
+								//get number of days								
+								int period = getNumberOfDays(pprice.getRecurringChargePeriod());
+								System.out.println(":::: " + period + " -> " + pprice.getRecurringChargePeriod());
+								if ((period > 0) && isExpiredTime(product.getOrderDate(), period)) {
+									System.out.println("RecurringChargePeriod recurring .... " + product.getId());
+								}
+							}							
+						}
+					}
+				}
+			}
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private static int getPeriod(String id) {
+		final it.eng.dome.tmforum.tmf620.v4.ApiClient apiClient2 = it.eng.dome.tmforum.tmf620.v4.Configuration.getDefaultApiClient();;
+		apiClient2.setBasePath(tmfEndpoint + "/" + tmf620CatalgPath);
+		ProductOfferingPriceApi poffering = new ProductOfferingPriceApi(apiClient2);
+		try {
+			ProductOfferingPrice pop = poffering.retrieveProductOfferingPrice(id, null);
+			System.out.println("--->>>" + pop.getName() + " >> " + pop.getRecurringChargePeriodType() +" " + pop.getRecurringChargePeriodLength());
+			//System.out.println("num days: " + getNumberOfDays(pop.getRecurringChargePeriodType()));
+			return pop.getRecurringChargePeriodLength() * getNumberOfDays(pop.getRecurringChargePeriodType());
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
+	private static boolean isExpiredTime(OffsetDateTime start, int period) {
+		OffsetDateTime now = OffsetDateTime.parse("2024-10-06T10:03:38.983Z"); // OffsetDateTime.now();
+		System.out.println("check isExpiredTime: " + start + " " + now);
+		long days = ChronoUnit.DAYS.between(start, now);
+		System.out.println("Difference in days: " + days);
+		if (days > 0 && days % period == 0) {
+			System.out.println("multiplo");
+			return true;
+		}else {
+			System.out.println("non multiplo");
+			return false;
+		}
+	}
+	
+	private static int getNumberOfDays(String s) {
+		String[] data = s.split("\\s+");
+		if (data.length == 2) {
+			if (data[0].matches("-?\\d+")) { // if data[0] is a number
+				return getDays(Integer.parseInt(data[0]),  data[1]);
+			}
+		}else if (data.length == 1) {
+			return getDays(1, data[0]);
+		}		
+		return 0;
+	}
+	
+	private static int getDays(int number, String unit) {
+		switch (unit) {
+			case "day":
+	        case "days":
+	        case "daily":
+	            return number * 1;
+	        case "week":
+	        case "weeks":
+	        case "weekly":
+	            return number * 7;
+	        case "month":
+	        case "months":
+	        case "monthly":
+	            return number * 30;
+	        case "year":
+	        case "years":
+	            return number * 365; 
+	        default:
+	            return 0;
+	    }
+	}
+
+	public static void main1(String[] args) {
 				
 		try {
 			final it.eng.dome.tmforum.tmf637.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf637.v4.Configuration.getDefaultApiClient();

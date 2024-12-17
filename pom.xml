@@ -57,7 +57,13 @@
             <artifactId>tmf622-v4</artifactId>
             <version>1.0.0</version>
         </dependency>
-        
+        <!-- TMF620 Catalog -->
+		<dependency>
+			<groupId>it.eng.dome.tmforum-sdk</groupId>
+			<artifactId>tmf620-v4</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		
         <!-- Springdoc OpenAPI dependency -->
 	    <dependency>
 	        <groupId>org.springdoc</groupId>
