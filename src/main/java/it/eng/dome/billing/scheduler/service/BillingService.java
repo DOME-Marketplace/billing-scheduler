@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -69,6 +70,8 @@ public class BillingService implements InitializingBean {
 
 		//TODO - how to improve filtering of product
 		
+		List<String> billing = new ArrayList<String>();
+		
 		for (Product product : products) {			
 			logger.debug("Analyze productId: " + product.getId() + " with status: " + product.getStatus());
 			
@@ -85,10 +88,12 @@ public class BillingService implements InitializingBean {
 					if ("recurring".equals(pprice.getPriceType().toLowerCase())) {
 												
 						// Condition 2 -> verify that the bill is not expired and is already calculated
-						if (!isExpired() && !isBilled()) { //TODO missing condition 2
-							
+						if (!isExpired() && !isBilled()) { //TODO missing condition 2							
 							// start bill process
-							bill(product);
+							String bill = bill(product);
+							if (bill != null) {
+								billing.add(bill);
+							}
 							
 						}else {
 							logger.info("Bill for productId {} has already been billed or expired", product.getId());
@@ -109,12 +114,16 @@ public class BillingService implements InitializingBean {
 			}
 		}	
 		
+		//result of AppliedCustomerBillRate
+		logger.info("Number of AppliedCustomerBillRate created successful: {}", billing.size());
+		
 		// TEST customerBill
-		List<CustomerBill> customers = customerBill.listCustomerBill(null, null, null);
-		logger.debug("number of customerBill found: " + customers.size());
-		for (CustomerBill customerBill : customers) {
-			logger.debug("customerId: " + customerBill.getId());
-		}
+//		List<CustomerBill> customers = customerBill.listCustomerBill(null, null, null);
+//		logger.debug("Another different call to get CustomerBill");
+//		logger.debug("Number of customerBill found: " + customers.size());
+//		for (CustomerBill customerBill : customers) {
+//			logger.debug("customerId: " + customerBill.getId());
+//		}
 		return null;
 	}
 	
@@ -130,6 +139,8 @@ public class BillingService implements InitializingBean {
 				//TODO verify type=recurringCharge ???
 				//TODO verify periodCoverage
 				if ((appliedCustomerBillingRate.getType().startsWith("recurring")) && isPeriodCoverage(appliedCustomerBillingRate.getPeriodCoverage())) {
+
+					//TODO check if it is already billed
 					logger.info(appliedCustomerBillingRate.toJson());
 					return false;
 				}
@@ -157,35 +168,41 @@ public class BillingService implements InitializingBean {
 		return false;
 	}
 	
-	private void bill(Product product) {
+	private String bill(Product product) {
 		logger.info("Start bill process for productId: " + product.getId());
 		// Invocazione del billing in modalità consuntiva (input Product -> output Bill) 
 		
 		// Invocazione dell'invoicing in modalità consuntiva (input Bill -> output Bill) 
 		
-		//TODO get the product order ini other way!!!
+		//TODO get the product order in another way!!!
 		String orderJson = getProductOrderJson();
 		ResponseEntity<String> response = invoicing(orderJson);	
 		logger.info("Status code {}", response.getStatusCode());
-		logger.info("Order with Tax \n {} ", response.getBody() );
+		//logger.info("Order with Tax \n {} ", response.getBody() );
 		
 		
 		// save the bill (AppliedCustomerBillRate) in TMForum
-		logger.info("Save AppliedCustomerBillRate in TMForum");
+		logger.info("Saving AppliedCustomerBillRate in TMForum");
 		String acbrJson = getAppliedCustomerBillingrateJson();
-		System.out.println("Payload for AppliedCustomerBillRate:\n" + acbrJson);
+		//System.out.println("Payload for AppliedCustomerBillRate:\n" + acbrJson);
 		
 		try {
 			AppliedCustomerBillingRateCreate acbr = AppliedCustomerBillingRateCreate.fromJson(acbrJson);
-			appliedCustomerBillingRate.createAppliedCustomerBillingRate(acbr);
+			acbr.setName("Test Applied Customer Bill Rate #" + (int)Math.round(Math.random() * 100));
+			acbr.setDescription("Applied Customer Bill Rate for prod: " + product.getId());
+			AppliedCustomerBillingRate created = appliedCustomerBillingRate.createAppliedCustomerBillingRate(acbr);
+			logger.info("AppliedCustomerBillRate saved with id: {}", created.getId());
+			return created.getId();
 		} catch (ApiException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
 			logger.info("AppliedCustomerBillingRate not saved!");
 			logger.error(e.getMessage());
+			return null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
 	}
 
