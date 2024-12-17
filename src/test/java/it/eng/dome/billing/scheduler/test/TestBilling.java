@@ -31,6 +31,8 @@ public class TestBilling {
 	private static String tmf637ProductInventoryPath = "tmf-api/productInventory/v4";
 	private static String tmf620CatalgPath = "tmf-api/productCatalogManagement/v4";
 	
+	static OffsetDateTime now = OffsetDateTime.parse("2024-10-12T11:04:38.983Z"); // OffsetDateTime.now();
+	
 	public static void main(String[] args) {
 		try {
 			final it.eng.dome.tmforum.tmf637.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf637.v4.Configuration.getDefaultApiClient();
@@ -59,16 +61,21 @@ public class TestBilling {
 								System.out.println(pprice.getProductOfferingPrice().getId());
 								int period = getPeriod(pprice.getProductOfferingPrice().getId());
 								System.out.println("period: " + period);
-								if ((period > 0) && isExpiredTime(product.getOrderDate(), period)) {
-									System.out.println("RecurringChargePeriod recurring .... " + product.getId());
+								if ((period > 0) && isExpiredTime(product.getStartDate(), period)) {
+									System.out.println("ProductOfferingPrice product for billing .... " + product.getId());
 								}
 							}else if (pprice.getRecurringChargePeriod() != null) {// check on RecurringChargePeriod
 															
 								//get number of days								
 								int period = getNumberOfDays(pprice.getRecurringChargePeriod());
 								System.out.println(":::: " + period + " -> " + pprice.getRecurringChargePeriod());
-								if ((period > 0) && isExpiredTime(product.getOrderDate(), period)) {
-									System.out.println("RecurringChargePeriod recurring .... " + product.getId());
+								if ((period > 0) && isExpiredTime(product.getStartDate(), period)) {
+									System.out.println("RecurringChargePeriod product for billing .... " + product.getId());
+									TimePeriod tp = new TimePeriod();
+									tp.setStartDateTime(now);
+									tp.setEndDateTime(now.plusDays(period));
+									System.out.println("AppliedCustomerBillingRate: " + product.getId() + " " + pprice.getName());
+									System.out.println(tp);
 								}
 							}							
 						}
@@ -100,7 +107,7 @@ public class TestBilling {
 	}
 	
 	private static boolean isExpiredTime(OffsetDateTime start, int period) {
-		OffsetDateTime now = OffsetDateTime.parse("2024-10-06T10:03:38.983Z"); // OffsetDateTime.now();
+		
 		System.out.println("check isExpiredTime: " + start + " " + now);
 		long days = ChronoUnit.DAYS.between(start, now);
 		System.out.println("Difference in days: " + days);
