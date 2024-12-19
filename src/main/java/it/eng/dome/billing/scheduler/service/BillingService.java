@@ -287,6 +287,7 @@ public void calculateBuilling() throws Exception {
 	}
 	
 	private boolean isAlreadyBilled(Product product, TimePeriod tp, List<ProductPrice> productPrices) {
+		logger.info("Verifying product is billed ...");
 		boolean isBilled = false;
 		try {
 			List<AppliedCustomerBillingRate> billed = appliedCustomerBillingRate.listAppliedCustomerBillingRate("product,periodCoverage", null, null);
@@ -294,26 +295,29 @@ public void calculateBuilling() throws Exception {
 			
 			for (AppliedCustomerBillingRate bill : billed) {
 				String id = bill.getProduct().getId();
-				logger.info("Product Id to verify: {}", product.getId());
-				logger.info("AppliedCustomerBillingRate loop: {}", id);
+				logger.info("ProductId to verify: {}", product.getId());
+
 				if(id.equals(product.getId())) {
-					logger.info("Same product");
-					logger.info("TimePeriod fix: {}", tp);
-					logger.info("TimePeriod var: {}", bill.getPeriodCoverage());
+					logger.debug("Step 1 - found AppliedCustomerBillingRate with the same ProductId");
 					if (tp.equals(bill.getPeriodCoverage())) { 
-						logger.info("Same TimePeriod");
+						logger.debug("Step 2 - found PeriodCoverage with the same TimePeriod");
+						
 						//TODO check productPrices
+						
+						logger.info("Found product already billed");
+						return true;
+					}else {
+						logger.debug("Stopped verifying: different TimePeriod");
 					}
-					return true;
 				}else {
-					logger.info("Different product");
+					logger.debug("Stopped verifying: different ProductId");
 				}
 			}
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
+			return isBilled;
 		}
-		logger.info("RESULT --> isAlreadyBilled {}", isBilled);
+		logger.info("Product needs to be billed");
 		return isBilled;
 	}
 	
