@@ -35,7 +35,7 @@ public class TestBilling {
 	private static String tmf637ProductInventoryPath = "tmf-api/productInventory/v4";
 	private static String tmf620CatalgPath = "tmf-api/productCatalogManagement/v4";
 	
-	static OffsetDateTime now = OffsetDateTime.parse("2024-08-17T10:04:30.983Z"); // OffsetDateTime.now();
+	static OffsetDateTime now = OffsetDateTime.parse("2024-08-24T01:04:30.983Z"); // OffsetDateTime.now();
 	
 	public static void main(String[] args) {
 		try {
@@ -62,7 +62,7 @@ public class TestBilling {
 					Map<String, List<ProductPrice>> productPrices = new HashMap<>();
 					
 					for (ProductPrice pprice : pprices) {
-						//System.out.println(">> ProductPrice: " + pprice.getName());		
+						System.out.println(">> ProductPrice: " + pprice.getName());		
 						//System.out.println("checking productPrice ... ");
 						if ("recurring".equals(pprice.getPriceType().toLowerCase()))  {
 							//System.out.println("priceType = recurring for productPrice");
@@ -149,21 +149,6 @@ public class TestBilling {
 		}
 	}
 	
-	private static int getPeriod(String id) {
-		final it.eng.dome.tmforum.tmf620.v4.ApiClient apiClient2 = it.eng.dome.tmforum.tmf620.v4.Configuration.getDefaultApiClient();;
-		apiClient2.setBasePath(tmfEndpoint + "/" + tmf620CatalgPath);
-		ProductOfferingPriceApi poffering = new ProductOfferingPriceApi(apiClient2);
-		try {
-			ProductOfferingPrice pop = poffering.retrieveProductOfferingPrice(id, null);
-			System.out.println("--->>>" + pop.getName() + " >> " + pop.getRecurringChargePeriodType() +" " + pop.getRecurringChargePeriodLength());
-			//System.out.println("num days: " + getNumberOfDays(pop.getRecurringChargePeriodType()));
-			return pop.getRecurringChargePeriodLength() * getNumberOfDays(pop.getRecurringChargePeriodType());
-		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return 0;
-		}
-	}
 	
 	private static String getRecurringPeriod(String id) {
 		final it.eng.dome.tmforum.tmf620.v4.ApiClient apiClient2 = it.eng.dome.tmforum.tmf620.v4.Configuration.getDefaultApiClient();;
@@ -181,71 +166,6 @@ public class TestBilling {
 		}
 	}
 	
-	private static OffsetDateTime getNextBillingTimeProductOfferingPrice(OffsetDateTime t, String id) {
-		final it.eng.dome.tmforum.tmf620.v4.ApiClient apiClient2 = it.eng.dome.tmforum.tmf620.v4.Configuration.getDefaultApiClient();;
-		apiClient2.setBasePath(tmfEndpoint + "/" + tmf620CatalgPath);
-		ProductOfferingPriceApi poffering = new ProductOfferingPriceApi(apiClient2);
-		try {
-			ProductOfferingPrice pop = poffering.retrieveProductOfferingPrice(id, null);
-			System.out.println("--->>>" + pop.getName() + " >> " + pop.getRecurringChargePeriodType() +" " + pop.getRecurringChargePeriodLength());
-			//System.out.println("num days: " + getNumberOfDays(pop.getRecurringChargePeriodType()));
-			return nextBillingTime(t, pop.getRecurringChargePeriodLength(), pop.getRecurringChargePeriodType());
-		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	private static boolean isBillingTime(OffsetDateTime start, int period) {
-		
-		//System.out.println("check isBillingTime : " + start + " " + now);
-		long days = ChronoUnit.DAYS.between(start, now);
-		System.out.println("Difference in days: " + days);
-		if (days > 0 && days % period == 0) {
-			System.out.println("multiplo");
-			return true;
-		}else {
-			System.out.println("non multiplo");
-			return false;
-		}
-	}
-	
-	private static int getNumberOfDays(String s) {
-		String[] data = s.split("\\s+");
-		if (data.length == 2) {
-			if (data[0].matches("-?\\d+")) { // if data[0] is a number
-				return getDays(Integer.parseInt(data[0]),  data[1]);
-			}
-		}else if (data.length == 1) {
-			return getDays(1, data[0]);
-		}		
-		return 0;
-	}
-	
-	private static int getDays(int number, String unit) {
-		switch (unit) {
-			case "day":
-	        case "days":
-	        case "daily":
-	            return number * 1;
-	        case "week":
-	        case "weeks":
-	        case "weekly":
-	            return number * 7;
-	        case "month":
-	        case "months":
-	        case "monthly":
-	            return number * 30;
-	        case "year":
-	        case "years":
-	            return number * 365; 
-	        default:
-	            return 0;
-	    }
-	}
-	
-	
 	private static OffsetDateTime getNextBillingTime(OffsetDateTime t, String s) {
 		String[] data = s.split("\\s+");
 		if (data.length == 2) {
@@ -258,17 +178,6 @@ public class TestBilling {
 		return null;
 	}
 
-	private static String getUnit(String s) {
-		String[] data = s.split("\\s+");
-		if (data.length == 2) {
-			if (data[0].matches("-?\\d+")) { // if data[0] is a number
-				return data[1];
-			}
-		}else if (data.length == 1) {
-			return data[0];
-		}
-		return null;
-	}
 	
 	private static OffsetDateTime getPreviousBillingTime(OffsetDateTime t, String s) {
 		String[] data = s.split("\\s+");
@@ -305,7 +214,7 @@ public class TestBilling {
 	}
 	
 	private static OffsetDateTime nextBillingTime(OffsetDateTime time, int number, String unit) {
-		if (time.isAfter(now)) {
+		if ((time.toLocalDate().equals(now.toLocalDate()) || (time.isAfter(now)))) {
 			return time;
 		}else {
 		

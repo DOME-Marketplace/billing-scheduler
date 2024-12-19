@@ -1,51 +1,54 @@
-{
-   "date": "2024-12-12T10:36:39.687299018Z",
-   "name": "My first bill created with TMForum",
-   "description":"Billing for test",
-   "isBilled": false,
-   "type": "recurringCharge",
-   "rateType": "month",
-   "appliedTax":[
-      {
-         "taxCategory":"VAT",
-         "taxRate":23.0,
-         "taxAmount":{
-            "unit":"EUR",
-            "value":10.0
-         }
-      }
-   ],   
-   "bill": {
-       "id": "urn:ngsi-ld:customer-bill:5ac35058-d722-4fef-809b-b3e63f9a0513",
-       "href": "urn:ngsi-ld:customer-bill:5ac35058-d722-4fef-809b-b3e63f9a0513"   
-   },
-   "billingAccount":{
-      "id":"urn:ngsi-ld:billing-account:3dc56c89-8acc-4600-b4aa-21f4c3eb7497",
-      "href": "urn:ngsi-ld:billing-account:3dc56c89-8acc-4600-b4aa-21f4c3eb7497",
-      "name":"My Billing Account"
-   },
-   "characteristic": [
-    {
-      "name": "my char",
-      "valueType": "type",
-      "value": "test"
-    }
-   ],
-   "periodCoverage": {
-       "endDateTime":"2025-12-12T15:18:52.0658494Z",
-       "startDateTime":"2024-12-12T15:18:52.0658494Z"
-    },
-   "product":{
-      "id":"urn:ngsi-ld:product:435a0aef-e305-40c0-8017-53a4d445a312",
-      "href": "urn:ngsi-ld:product:435a0aef-e305-40c0-8017-53a4d445a312",
-      "name": "New Product Example"
-   },
-   "taxIncludedAmount":{
-      "unit":"EUR",
-      "value":21.0
-   },
-   "taxExcludedAmount":{
-      "unit":"EUR",
-      "value":23.0
-   }
-}
+[
+	{
+	   "id": "urn:ngsi-ld:applied-customer-billing-rate:3c72b46d-4aed-461e-b967-69abf3531b40",
+       "href": "urn:ngsi-ld:applied-customer-billing-rate:3c72b46d-4aed-461e-b967-69abf3531b40",
+	   "date": "2024-12-12T10:36:39.687299018Z",
+	   "name": "My first bill created with TMForum",
+	   "description":"Billing for test",
+	   "isBilled": false,
+	   "type": "recurringCharge",
+	   "appliedTax":[
+	      {
+	         "taxCategory":"VAT",
+	         "taxRate":23.0,
+	         "taxAmount":{
+	            "unit":"EUR",
+	            "value":10.0
+	         }
+	      }
+	   ],   
+	   "bill": {
+	       "id": "urn:ngsi-ld:customer-bill:5ac35058-d722-4fef-809b-b3e63f9a0513",
+	       "href": "urn:ngsi-ld:customer-bill:5ac35058-d722-4fef-809b-b3e63f9a0513"   
+	   },
+	   "billingAccount":{
+	      "id":"urn:ngsi-ld:billing-account:3dc56c89-8acc-4600-b4aa-21f4c3eb7497",
+	      "href": "urn:ngsi-ld:billing-account:3dc56c89-8acc-4600-b4aa-21f4c3eb7497",
+	      "name":"My Billing Account"
+	   },
+	   "characteristic": [
+	    {
+	      "name": "my char",
+	      "valueType": "type",
+	      "value": "test"
+	    }
+	   ],
+	   "periodCoverage": {
+	       "endDateTime":"2025-12-12T15:18:52.065849400Z",
+	       "startDateTime":"2024-12-12T15:18:52.065849400Z"
+	    },
+	   "product":{
+	      "id":"urn:ngsi-ld:product:51abe945-9f26-44f7-9985-8214e2a57235",
+	      "href": "urn:ngsi-ld:product:51abe945-9f26-44f7-9985-8214e2a57235",
+	      "name": "New Product Example"
+	   },
+	   "taxIncludedAmount":{
+	      "unit":"EUR",
+	      "value":21.0
+	   },
+	   "taxExcludedAmount":{
+	      "unit":"EUR",
+	      "value":23.0
+	   }
+	}
+]
