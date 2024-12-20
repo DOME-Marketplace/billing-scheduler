@@ -23,6 +23,10 @@ public class BillingFactory implements InitializingBean {
     @Value("${billing.invoicing_service}")
     public String invoicingService;
     
+    
+    @Value("${billing.billing_engine}")
+    public String billinEngine;
+    
     //RestTemplate restTemplate = new RestTemplate();
 
 	@Override
