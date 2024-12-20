@@ -35,7 +35,7 @@ public class TestBilling {
 	private static String tmf637ProductInventoryPath = "tmf-api/productInventory/v4";
 	private static String tmf620CatalgPath = "tmf-api/productCatalogManagement/v4";
 	
-	static OffsetDateTime now = OffsetDateTime.parse("2024-08-24T01:04:30.983Z"); // OffsetDateTime.now();
+	static OffsetDateTime now = OffsetDateTime.parse("2024-12-31T13:14:33.213Z"); // OffsetDateTime.now();
 	
 	public static void main(String[] args) {
 		try {
