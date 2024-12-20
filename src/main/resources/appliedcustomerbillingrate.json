@@ -1,7 +1,7 @@
 [
 	{
-	   "id": "urn:ngsi-ld:applied-customer-billing-rate:3c72b46d-4aed-461e-b967-69abf3531b40",
-       "href": "urn:ngsi-ld:applied-customer-billing-rate:3c72b46d-4aed-461e-b967-69abf3531b40",
+       "id": "urn:ngsi-ld:applied-customer-billing-rate:3c72b46d-4aed-461e-b967-69abf3531b40",
+	   "href": "urn:ngsi-ld:applied-customer-billing-rate:3c72b46d-4aed-461e-b967-69abf3531b40",
 	   "date": "2024-12-12T10:36:39.687299018Z",
 	   "name": "My first bill created with TMForum",
 	   "description":"Billing for test",
