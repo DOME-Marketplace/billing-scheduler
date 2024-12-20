@@ -12,7 +12,7 @@ build:
 
 # Scheduling Task Configuration  
 scheduling:
-  cron: "20 46 11 * * ?"
+  cron: "00 * * * * ?"
 
 # Logging Configuration
 logging:
@@ -41,11 +41,14 @@ management:
 
 # Billing Service
 billing:
-  invoicing_service: ${INVOICING_SERVICE:http://localhost:8080}
+  invoicing_service: ${INVOICING_SERVICE:http://localhost:8380}
+  billing_engine: ${BILLING_ENGINE:http://localhost:8080}
 
 # TMForum Endpoints
 tmforumapi:
   tmf_endpoint: ${TMF_ENDPOINT:https://dome-dev.eng.it}
 
+  tmf620_catalog_path: tmf-api/productCatalogManagement/v4
   tmf637_inventory_path: tmf-api/productInventory/v4
   tmf678_customer_bill_path: tmf-api/customerBillManagement/v4
+
