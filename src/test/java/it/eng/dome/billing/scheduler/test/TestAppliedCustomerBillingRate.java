@@ -56,7 +56,7 @@ public class TestAppliedCustomerBillingRate {
 	}
 	
 	private static String getJson() {
-		String file = "src/main/resources/appliedcustomerbillingrate.json";
+		String file = "src/test/resources/appliedcustomerbillingrate.json";
 		try {
 			return new String(Files.readAllBytes(Paths.get(file)));
 		} catch (IOException e) {

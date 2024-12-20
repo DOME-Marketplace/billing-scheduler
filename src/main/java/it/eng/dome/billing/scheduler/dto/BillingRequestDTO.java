@@ -14,7 +14,7 @@ public class BillingRequestDTO {
 	
 	private Product product;
 	private TimePeriod timePeriod;
-	private ArrayList<ProductPrice> productPrice;
+	private List<ProductPrice> productPrice;
 	
 	public BillingRequestDTO(){}
 	
@@ -22,7 +22,7 @@ public class BillingRequestDTO {
 	public BillingRequestDTO(@JsonProperty("product") Product pr, @JsonProperty("timePeriod") TimePeriod tp, @JsonProperty("productPrice") List<ProductPrice> ppl) {
 		this.setProduct(pr);
 		this.setTimePeriod(tp);
-		this.setProductPrice(new ArrayList<ProductPrice>(ppl));
+		this.setProductPrice(ppl);
 	}
 
 	public Product getProduct() {
@@ -41,11 +41,11 @@ public class BillingRequestDTO {
 		this.timePeriod = timePeriod;
 	}
 
-	public ArrayList<ProductPrice> getProductPrice() {
+	public List<ProductPrice> getProductPrice() {
 		return productPrice;
 	}
 
-	public void setProductPrice(ArrayList<ProductPrice> productPrice) {
+	public void setProductPrice(List<ProductPrice> productPrice) {
 		this.productPrice = productPrice;
-	}	
+	}
 }

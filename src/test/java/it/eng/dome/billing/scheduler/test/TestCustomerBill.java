@@ -64,7 +64,7 @@ public class TestCustomerBill {
 	}
 	
 	private static String getJson() {
-		String file = "src/main/resources/customerbill.json";
+		String file = "src/test/resources/customerbill.json";
 		try {
 			return new String(Files.readAllBytes(Paths.get(file)));
 		} catch (IOException e) {

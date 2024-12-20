@@ -4,12 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,7 +154,7 @@ public class BillingService implements InitializingBean {
 					String key = entry.getKey();
 					TimePeriod tp = timePeriods.get(key).get(0);
 
-					if (timePeriods.get(key).size() > 0) {
+					if (!timePeriods.get(key).isEmpty()) {
 						logger.debug("TimePeriodo - startDate: " + tp.getStartDateTime() + " - endDate: " + tp.getEndDateTime());
 						List<ProductPrice> pps = entry.getValue();
 						for (ProductPrice pp : pps) {
@@ -327,16 +324,5 @@ public class BillingService implements InitializingBean {
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> request = new HttpEntity<>(payload, headers);
 		return restTemplate.postForEntity(billing.billinEngine + "/billing/bill", request, String.class);
-	}
-
-	private String getAppliedCustomerBillingrateJson() {
-		String file = "src/main/resources/appliedcustomerbillingrate.json";
-		try {
-			return new String(Files.readAllBytes(Paths.get(file)));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
 	}
 }
