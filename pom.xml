@@ -12,7 +12,7 @@
 
     <groupId>it.eng.dome.billing</groupId>
     <artifactId>scheduler</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <name>Billing Scheduler</name>
     <description>Billing Scheduler for DOME project</description>
 

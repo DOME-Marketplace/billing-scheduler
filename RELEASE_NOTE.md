@@ -3,6 +3,13 @@
 **Release Notes** of the *Billing Proxy* software:
 
 
+### <code>0.0.3</code> :calendar: 20/12/2024
+**Feature**
+* Verify if there are product to start the bill process.
+* Invoke `invoicing-service` and `billing-engine` services to get the bill objects.
+* Save billing (`AppliedCustomerBillingRate`) in the **TMForum APIs**. 
+
+
 ### <code>0.0.2</code> :calendar: 11/11/2024
 **Feature**
 * Add swagger UI for REST APIs.
