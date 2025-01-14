@@ -32,7 +32,7 @@ public class TestCustomerBill {
 			
 			CustomerBillExtensionApi customerCreate = new CustomerBillExtensionApi(apiClient);
 			
-			//saveCustomerBilling(customerCreate);
+			saveCustomerBilling(customerCreate);
 			
 			
 			customers = customer.listCustomerBill(null, null, null);
@@ -48,7 +48,7 @@ public class TestCustomerBill {
 
 	}
 	
-	private static void saveCustomerBilling(CustomerBillExtensionApi create) {
+	protected static void saveCustomerBilling(CustomerBillExtensionApi create) {
 		System.out.println("saving customerBill ...");
 		
 		try {

@@ -1,6 +1,5 @@
 package it.eng.dome.billing.scheduler;
 
-import it.eng.dome.billing.scheduler.controller.BillingSchedulerController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

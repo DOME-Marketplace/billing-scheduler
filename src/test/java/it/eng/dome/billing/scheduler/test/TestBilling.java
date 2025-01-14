@@ -1,7 +1,6 @@
 package it.eng.dome.billing.scheduler.test;
 
 import java.net.URI;
-import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -282,7 +281,7 @@ public class TestBilling {
 							BillRef bill = new BillRef().id("Bi-123").href("Bi-123");
 							
 							BillingAccountRef bar = new BillingAccountRef().id("bar-123423").name("billing accoun test");
-							
+							System.out.println(bar.getAtBaseType());
 							ProductRef pr = new ProductRef().id("my-prod-id1").name("CSPs wonderful fiber service");
 							
 							AppliedCustomerBillingRate acbr = new AppliedCustomerBillingRate();
@@ -322,10 +321,6 @@ public class TestBilling {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	private static void bill() {
-		System.out.println("calculate the bill");
 	}
 
 }

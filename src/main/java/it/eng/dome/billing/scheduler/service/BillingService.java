@@ -1,8 +1,5 @@
 package it.eng.dome.billing.scheduler.service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -24,8 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import it.eng.dome.billing.scheduler.dto.BillingRequestDTO;
 import it.eng.dome.billing.scheduler.tmf.TmfApiFactory;
+import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
 import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.api.ProductApi;
@@ -73,13 +70,12 @@ public class BillingService implements InitializingBean {
 		logger.info("Retrieve all products");
 		// TODO - how to improve filtering of product
 		List<Product> products = productApi.listProduct(null, null, null);
-		logger.debug("Number of Product found: {} ", products.size());
+		logger.info("Number of Product found: {} ", products.size());
 
-		OffsetDateTime now = OffsetDateTime.parse("2024-12-31T13:14:33.213Z"); // OffsetDateTime.now();  
+		OffsetDateTime now = OffsetDateTime.now(); /*OffsetDateTime.parse("2024-12-31T13:14:33.213Z");*/   
 		int count = 0;
 
 		for (Product product : products) {
-			logger.debug("----------------------------------------------------------");
 			logger.debug("Product item # {} - {}", ++count, product.getName());
 			logger.debug("Analyze productId: " + product.getId() + " with status: " + product.getStatus());
 
@@ -105,13 +101,14 @@ public class BillingService implements InitializingBean {
 							// GET recurringChargePeriodType + recurringChargePeriodLength
 							logger.debug("Use Case - Get RecurringPeriod from ProductOfferingPrice for product: " + product.getId());
 							recurringPeriod = getRecurringPeriod(pprice.getProductOfferingPrice().getId());
-							logger.info("Recurring period: " + recurringPeriod);
+							logger.info("Get recurring period {} from ProductOfferingPrice", recurringPeriod);
 
 						} else if (pprice.getRecurringChargePeriod() != null) {// RecurringPeriod from RecurringChargePeriod
 							logger.debug("Use Case - Get RecurringPeriod from RecurringChargePeriod for product: " + product.getId());
 							recurringPeriod = pprice.getRecurringChargePeriod();
-							logger.info("Recurring period: " + recurringPeriod);
+							logger.info("Get recurring period {} for RecurringChargePeriod", recurringPeriod);
 						}
+						logger.debug("Recurring period found: " + recurringPeriod);
 
 						if (recurringPeriod != null && product.getStartDate() != null) {
 							OffsetDateTime nextBillingTime = BillingUtils.getNextBillingTime(product.getStartDate(), now, recurringPeriod);
@@ -217,9 +214,10 @@ public class BillingService implements InitializingBean {
 			List<AppliedCustomerBillingRate> billed = appliedCustomerBillingRate.listAppliedCustomerBillingRate("product,periodCoverage", null, null);
 			logger.debug("Number of AppliedCustomerBillingRate found: {} ", billed.size());
 
+			logger.info("ProductId to verify: {}", product.getId());
+			
 			for (AppliedCustomerBillingRate bill : billed) {
 				String id = bill.getProduct().getId();
-				logger.info("ProductId to verify: {}", product.getId());
 
 				if (id.equals(product.getId())) {
 					logger.debug("Step 1 - found AppliedCustomerBillingRate with the same ProductId");
@@ -229,7 +227,7 @@ public class BillingService implements InitializingBean {
 						// TODO check productPrices
 						// ?????
 						if (!verifyExistProductPrices(product, productPrices)) {
-							logger.info("----> verifyExistProductPrices = false ");
+							logger.info("Check verifyExistProductPrices = false ");
 						}else {
 							logger.info("Found ProductPrices");
 						}
@@ -287,13 +285,14 @@ public class BillingService implements InitializingBean {
 		List<ProductPrice> pprices = product.getProductPrice();
 		boolean result = false;
 		for (ProductPrice pprice : pprices) {
-			logger.info(">>>>>>>>> " + pprice.getName());
+
 			if (pprice.getProductOfferingPrice() != null) { //case with ProductOfferingPrice
 				String id = pprice.getProductOfferingPrice().getId();
-				logger.info("++++++>>>> " + id);
+				logger.debug("ProductOfferingPrice id {} ", id);
 				for (ProductPrice productPrice : productPrices) {
-					logger.info("----> ", productPrice.getProductOfferingPrice().getId());
+					logger.info("Checking with pprice.id {} ", productPrice.getProductOfferingPrice().getId());
 					if (id.equals(productPrice.getProductOfferingPrice().getId())) {
+						logger.info("Match found for id {} ", id);
 						return true;
 					}
 				}
@@ -309,13 +308,13 @@ public class BillingService implements InitializingBean {
 	/* TO DELETE */
 	
 	private ResponseEntity<String> getAppliedCustomerBillingRates(Product product, TimePeriod tp, List<ProductPrice> productPrices) {
-		logger.info("--------------------getAppliedCustomerBillingRates");
+		logger.info("Running bill task");
 		BillingRequestDTO billRequestDTO = new BillingRequestDTO();
 		billRequestDTO.setProduct(product);
 		billRequestDTO.setTimePeriod(tp);
 		billRequestDTO.setProductPrice((ArrayList<ProductPrice>) productPrices);
 		
-		logger.info("TEST\n" + JSON.getGson().toJson(billRequestDTO));
+		//logger.info("TEST\n" + JSON.getGson().toJson(billRequestDTO));
 		String payload = JSON.getGson().toJson(billRequestDTO);
 		//TODO ProductStatusType => Solve this bugfix
 		payload = payload.replaceAll("active", "ACTIVE");
