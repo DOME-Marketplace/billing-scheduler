@@ -64,6 +64,13 @@
 			<version>1.0.0</version>
 		</dependency>
 		
+		<!-- Brokerage Utils dependencies -->
+		<dependency>
+			<groupId>it.eng.dome.brokerage</groupId>
+			<artifactId>brokerage-utils</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+		
         <!-- Springdoc OpenAPI dependency -->
 	    <dependency>
 	        <groupId>org.springdoc</groupId>
