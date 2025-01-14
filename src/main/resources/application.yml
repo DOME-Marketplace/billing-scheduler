@@ -1,7 +1,7 @@
 
 # Spring Configuration
 server: 
-  port: 8080
+  port: 8180
 
 application:
   name: "@project.artifactId@"
@@ -12,17 +12,18 @@ build:
 
 # Scheduling Task Configuration  
 scheduling:
-  cron: "00 * * * * ?"
+  cron: "0 0 4,16 * * ?" 
+#  cron: "00 * * * * ?" 
 
 # Logging Configuration
 logging:
   level:
-    it.eng.dome: ${LOG_LEVEL:DEBUG}
+    it.eng.dome: ${LOG_LEVEL:INFO}
 
 # Spring Boot Actuator
 management:
   server:
-    port: 9000
+    port: 9001
   endpoints:
     enabled-by-default: false
     web:
