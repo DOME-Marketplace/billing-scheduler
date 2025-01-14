@@ -2,6 +2,9 @@
 # Use Java base image JDK 17
 FROM openjdk:17-jdk-alpine
 
+# Install curl
+RUN apk update && apk add --no-cache curl
+
 # Set the workdir in the container
 WORKDIR /usr/app
 
