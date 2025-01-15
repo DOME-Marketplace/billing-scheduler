@@ -19,6 +19,7 @@ scheduling:
 logging:
   level:
     it.eng.dome: ${LOG_LEVEL:INFO}
+    org.springframework: DEBUG
 
 # Spring Boot Actuator
 management:
