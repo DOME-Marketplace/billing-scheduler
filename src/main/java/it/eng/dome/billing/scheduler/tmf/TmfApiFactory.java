@@ -16,10 +16,17 @@ import org.springframework.util.Assert;
 public final class TmfApiFactory implements InitializingBean {
 	
 	private static final Logger log = LoggerFactory.getLogger(TmfApiFactory.class);
+	public static final String TMF_ENDPOINT_CONCAT_PATH = "-";
 	
     @Value("${tmforumapi.tmf_endpoint}")
     public String tmfEndpoint;
 	
+    @Value("${tmforumapi.tmf_envoy}")
+    public boolean tmfEnvoy;
+    
+    @Value("${tmforumapi.tmf_port}")
+    public String tmfPort;
+    
 	@Value( "${tmforumapi.tmf637_inventory_path}" )
 	private String tmf637ProductInventoryPath;
 	
@@ -32,21 +39,40 @@ public final class TmfApiFactory implements InitializingBean {
 	
 	public it.eng.dome.tmforum.tmf637.v4.ApiClient getTMF637ProductInventoryApiClient() {
 		final it.eng.dome.tmforum.tmf637.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf637.v4.Configuration.getDefaultApiClient();
-		apiClient.setBasePath(tmfEndpoint + "/" + tmf637ProductInventoryPath);
+		if (tmfEnvoy) {
+			// usage of envoyProxy to access on TMForum APIs (i.e. tmfEndpoint = http://tm-forum-api-envoy.marketplace.svc.cluster.local:8080)
+			apiClient.setBasePath(tmfEndpoint + "/" + tmf637ProductInventoryPath);
+		}else {
+			// use direct access on specific TMForum APIs software		
+			// tmfEndpoint is the prefix and you must append to the URL (using '-' char) the specific software (i.e. product-inventory)
+			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + ":" + tmfPort + "/" + tmf637ProductInventoryPath);
+		}
 		log.debug("Invoke Product Inventory API at endpoint: " + apiClient.getBasePath());
 		return apiClient;
 	}
 
 	public it.eng.dome.tmforum.tmf678.v4.ApiClient getTMF678ProductInventoryApiClient() {
 		final it.eng.dome.tmforum.tmf678.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf678.v4.Configuration.getDefaultApiClient();
-		apiClient.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillPath);
+		if (tmfEnvoy) {
+			// usage of envoyProxy to access on TMForum APIs
+			apiClient.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillPath);
+		}else {
+			// use direct access on specific TMForum APIs software	
+			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + ":" + tmfPort + "/" + tmf678CustomerBillPath);		
+		}
 		log.debug("Invoke Customer Billing API at endpoint: " + apiClient.getBasePath());
 		return apiClient;
 	}
 	
 	public it.eng.dome.tmforum.tmf620.v4.ApiClient getTMF620CatalogApiClient() {
 		final it.eng.dome.tmforum.tmf620.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf620.v4.Configuration.getDefaultApiClient();
-		apiClient.setBasePath(tmfEndpoint + "/" + tmf620CatalogPath);
+		if (tmfEnvoy) {
+			// usage of envoyProxy to access on TMForum APIs
+			apiClient.setBasePath(tmfEndpoint + "/" + tmf620CatalogPath);
+		}else {
+			// use direct access on specific TMForum APIs software
+			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + ":" + tmfPort + "/" + tmf620CatalogPath);
+		}		
 		log.debug("Invoke Catalog API at endpoint: " + apiClient.getBasePath());
 		return apiClient;
 	}
@@ -54,9 +80,15 @@ public final class TmfApiFactory implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		
-		log.info("Billing Engine is using the following TMForum endpoint prefix: " + tmfEndpoint);	
-		
+		log.info("Billing Engine is using the following TMForum endpoint prefix: " + tmfEndpoint);
+		if (tmfEnvoy) {
+			log.info("You set the apiProxy for TMForum endpoint. No tmf_port {} can be applied", tmfPort);	
+		} else {
+			log.info("No apiProxy set for TMForum APIs. You have to access on specific software via paths at tmf_port {}", tmfPort);	
+		}
+				
 		Assert.state(!StringUtils.isBlank(tmfEndpoint), "Billing Scheduler not properly configured. tmf_endpoint property has no value.");
+		
 		Assert.state(!StringUtils.isBlank(tmf637ProductInventoryPath), "Billing Scheduler not properly configured. The tmf637_inventory_path property has no value.");
 		Assert.state(!StringUtils.isBlank(tmf678CustomerBillPath), "Billing Scheduler not properly configured. The tmf678_customer_bill_path property has no value.");
 		Assert.state(!StringUtils.isBlank(tmf620CatalogPath), "Billing Scheduler not properly configured. The tmf620_catalog_path property has no value.");
