@@ -2,6 +2,10 @@
 
 **Release Notes** of the *Billing Proxy* software:
 
+### <code>0.0.4</code> :calendar: 16/01/2025
+**Improvements**
+* Add `apiProxy` settings via **environment variables**. Set TMF_ENVOY to `true` and TMF_PORT to apply it.
+ 
 
 ### <code>0.0.3</code> :calendar: 20/12/2024
 **Feature**

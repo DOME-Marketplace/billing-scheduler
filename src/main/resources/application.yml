@@ -1,7 +1,7 @@
 
 # Spring Configuration
 server: 
-  port: 8180
+  port: 8080
 
 application:
   name: "@project.artifactId@"
@@ -18,12 +18,12 @@ scheduling:
 # Logging Configuration
 logging:
   level:
-    it.eng.dome: ${LOG_LEVEL:INFO}
+    it.eng.dome: ${LOG_LEVEL:DEBUG}
 
 # Spring Boot Actuator
 management:
   server:
-    port: 9001
+    port: 9000
   endpoints:
     enabled-by-default: false
     web:
@@ -48,7 +48,11 @@ billing:
 # TMForum Endpoints
 tmforumapi:
   tmf_endpoint: ${TMF_ENDPOINT:https://dome-dev.eng.it}
-
+  tmf_envoy:  ${TMF_ENVOY:true}
+  # tmf_port valid only if envoy false
+  tmf_port:  ${TMF_PORT:8080}
+     
+  # STATIC PATHs
   tmf620_catalog_path: tmf-api/productCatalogManagement/v4
   tmf637_inventory_path: tmf-api/productInventory/v4
   tmf678_customer_bill_path: tmf-api/customerBillManagement/v4
