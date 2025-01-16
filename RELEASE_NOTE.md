@@ -4,7 +4,7 @@
 
 ### <code>0.0.4</code> :calendar: 16/01/2025
 **Improvements**
-* Add `apiProxy` settings via **environment variables**. Set TMF_ENVOY to `true` and TMF_PORT to apply it.
+* Add `apiProxy` settings via **environment variables**. Set TMF_ENVOY to `true`, TMF_NAMESPACE, TMF_POSTFIX, and TMF_PORT to apply it.
  
 
 ### <code>0.0.3</code> :calendar: 20/12/2024
