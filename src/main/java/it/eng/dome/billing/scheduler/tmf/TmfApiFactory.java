@@ -24,6 +24,12 @@ public final class TmfApiFactory implements InitializingBean {
     @Value("${tmforumapi.tmf_envoy}")
     public boolean tmfEnvoy;
     
+    @Value("${tmforumapi.tmf_namespace}")
+    public String tmfNamespace;
+    
+    @Value("${tmforumapi.tmf_postfix}")
+    public String tmfPostfix;    
+    
     @Value("${tmforumapi.tmf_port}")
     public String tmfPort;
     
@@ -45,7 +51,7 @@ public final class TmfApiFactory implements InitializingBean {
 		}else {
 			// use direct access on specific TMForum APIs software		
 			// tmfEndpoint is the prefix and you must append to the URL (using '-' char) the specific software (i.e. product-inventory)
-			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + ":" + tmfPort + "/" + tmf637ProductInventoryPath);
+			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf637ProductInventoryPath);
 		}
 		log.debug("Invoke Product Inventory API at endpoint: " + apiClient.getBasePath());
 		return apiClient;
@@ -58,7 +64,7 @@ public final class TmfApiFactory implements InitializingBean {
 			apiClient.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillPath);
 		}else {
 			// use direct access on specific TMForum APIs software	
-			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + ":" + tmfPort + "/" + tmf678CustomerBillPath);		
+			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf678CustomerBillPath);		
 		}
 		log.debug("Invoke Customer Billing API at endpoint: " + apiClient.getBasePath());
 		return apiClient;
@@ -71,7 +77,7 @@ public final class TmfApiFactory implements InitializingBean {
 			apiClient.setBasePath(tmfEndpoint + "/" + tmf620CatalogPath);
 		}else {
 			// use direct access on specific TMForum APIs software
-			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + ":" + tmfPort + "/" + tmf620CatalogPath);
+			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf620CatalogPath);
 		}		
 		log.debug("Invoke Catalog API at endpoint: " + apiClient.getBasePath());
 		return apiClient;

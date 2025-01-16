@@ -19,6 +19,7 @@ scheduling:
 logging:
   level:
     it.eng.dome: ${LOG_LEVEL:DEBUG}
+    #org.springframework: DEBUG
 
 # Spring Boot Actuator
 management:
@@ -47,9 +48,12 @@ billing:
 
 # TMForum Endpoints
 tmforumapi:
-  tmf_endpoint: ${TMF_ENDPOINT:https://dome-dev.eng.it}
-  tmf_envoy:  ${TMF_ENVOY:true}
-  # tmf_port valid only if envoy false
+  tmf_endpoint: ${TMF_ENDPOINT:http://tm-forum-api}
+
+  tmf_envoy:  ${TMF_ENVOY:false}
+  # valid only if envoy false
+  tmf_namespace:  ${TMF_NAMESPACE:marketplace}
+  tmf_postfix:  ${TMF_POSTFIX:svc.cluster.local}
   tmf_port:  ${TMF_PORT:8080}
      
   # STATIC PATHs
