@@ -21,6 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import it.eng.dome.billing.scheduler.tmf.TmfApiFactory;
 import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
 import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
@@ -72,7 +75,7 @@ public class BillingService implements InitializingBean {
 		List<Product> products = productApi.listProduct(null, null, null);
 		logger.info("Number of Product found: {} ", products.size());
 
-		OffsetDateTime now = OffsetDateTime.now(); /*OffsetDateTime.parse("2024-12-31T13:14:33.213Z");*/   
+		OffsetDateTime now = OffsetDateTime.parse("2025-01-04T13:14:33.213Z"); // OffsetDateTime.now();     
 		int count = 0;
 
 		for (Product product : products) {
@@ -162,28 +165,33 @@ public class BillingService implements InitializingBean {
 						if (!isAlreadyBilled(product, tp, pps)) {
 							logger.debug("Apply billing - AppliedCustomerBillingRate: " + product.getId());
 
-							// TODO invoke billing-engine
-							//String applied = getAppliedCustomerBillingrateJson();
-							ResponseEntity<String> applied = getAppliedCustomerBillingRates(product, tp, pps);
-							if (applied != null) {
-								//logger.info(applied.getStatusCode().toString());
-								//logger.info(applied.getBody());
-								
-								// invoke invoicing-service
-								ResponseEntity<String> invoicing = invoicing(applied.getBody());
-								logger.info("Status code {}", invoicing.getStatusCode());
-								// logger.info("AppliedCustomerBillingRate with Tax \n {} ", invoicing.getBody());
-								String appliedCustomerBillingRatesJson = invoicing.getBody();
-								logger.debug("Invoicing body \n{}", appliedCustomerBillingRatesJson);
-								
-								// Save AppliedCustomerBillingRate[] with taxes in TMForum
-								List<String> ids = bill(appliedCustomerBillingRatesJson);
-								logger.info("Saved #{} AppliedCustomerBillingRate", ids.size());
-								logger.debug("AppliedCustomerBillingRate ids: {}", ids);
+							if (product.getBillingAccount() != null) {		
+	
+								// TODO invoke billing-proxy
+								//String applied = getAppliedCustomerBillingrateJson();
+								ResponseEntity<String> applied = getAppliedCustomerBillingRates(product, tp, pps);
+								if (applied != null) {
+									//logger.info(applied.getStatusCode().toString());
+									//logger.info(applied.getBody());
+									
+									//TODO remove invoicing-service => it's included in billing-proxy
+									// invoke invoicing-service
+									/*ResponseEntity<String> invoicing = invoicing(applied.getBody());
+									logger.info("Status code {}", invoicing.getStatusCode());
+									// logger.info("AppliedCustomerBillingRate with Tax \n {} ", invoicing.getBody());
+									String appliedCustomerBillingRatesJson = invoicing.getBody();
+									logger.debug("Invoicing body \n{}", appliedCustomerBillingRatesJson);
+									*/
+									
+									// Save AppliedCustomerBillingRate[] with taxes in TMForum
+									//List<String> ids = bill(appliedCustomerBillingRatesJson);
+									List<String> ids = bill(applied.getBody());
+									logger.info("Saved #{} AppliedCustomerBillingRate", ids.size());
+									logger.debug("AppliedCustomerBillingRate ids: {}", ids);
+								}							
+							}else {
+								logger.warn("No Billing Account defined in the product {}", product.getId());
 							}
-							
-
-							
 						} else {
 							logger.debug("Billing already done for productId: {}", product.getId());
 						}
@@ -248,14 +256,14 @@ public class BillingService implements InitializingBean {
 		logger.info("Product needs to be billed");
 		return isBilled;
 	}
-
+/*
 	private ResponseEntity<String> invoicing(String appliedCustomerBillingRates) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> request = new HttpEntity<>(appliedCustomerBillingRates, headers);
 		return restTemplate.postForEntity(billing.invoicingService + "/invoicing/applyTaxes", request, String.class);
 	}
-
+*/
 	private List<String> bill(String appliedCustomerBillRates) {
 		logger.info("Starting the billing process");
 
@@ -305,23 +313,57 @@ public class BillingService implements InitializingBean {
 		return result;
 	}
 
-	/* TO DELETE */
 	
 	private ResponseEntity<String> getAppliedCustomerBillingRates(Product product, TimePeriod tp, List<ProductPrice> productPrices) {
 		logger.info("Running bill task");
-		BillingRequestDTO billRequestDTO = new BillingRequestDTO();
+		/*BillingRequestDTO billRequestDTO = new BillingRequestDTO();
 		billRequestDTO.setProduct(product);
 		billRequestDTO.setTimePeriod(tp);
 		billRequestDTO.setProductPrice((ArrayList<ProductPrice>) productPrices);
-		
+		*/
 		//logger.info("TEST\n" + JSON.getGson().toJson(billRequestDTO));
-		String payload = JSON.getGson().toJson(billRequestDTO);
+		String payload = getBillRequestDTOtoJson(product, tp, productPrices);
 		//TODO ProductStatusType => Solve this bugfix
-		payload = payload.replaceAll("active", "ACTIVE");
-		logger.info(payload);
+		//payload = payload.replaceAll("active", "ACTIVE");
+		logger.info("Payload appliedCustomerBillingRate \n", payload);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> request = new HttpEntity<>(payload, headers);
-		return restTemplate.postForEntity(billing.billinEngine + "/billing/bill", request, String.class);
+		return restTemplate.postForEntity(billing.billinProxy + "/billing/bill", request, String.class);
+	}
+	
+	
+	private String getBillRequestDTOtoJson(Product product, TimePeriod tp, List<ProductPrice> productPrices) {
+		// product
+		String productJson = product.toJson();
+		
+		// timePeriod
+		String timePeriodJson = tp.toJson();
+		
+		// productPriceListJson
+		StringBuilder productPriceListJson = new StringBuilder("[");
+		for (int i = 0; i < productPrices.size(); i++) {
+            if (i > 0) {
+            	productPriceListJson.append(", ");
+            }
+            productPriceListJson.append(productPrices.get(i).toJson());
+        }
+		productPriceListJson.append("]");
+		
+		return "{ \"product\": " + capitalizeStatus(productJson) + ", \"timePeriod\": "+ timePeriodJson + ", \"productPrice\": "+ productPriceListJson +"}";
+	} 
+	
+	private String capitalizeStatus(String json) {
+		ObjectMapper objectMapper = new ObjectMapper();
+		String capitalize = json;
+		 try {
+			ObjectNode jsonNode = (ObjectNode) objectMapper.readTree(json);
+			 String status = jsonNode.get("status").asText();
+			 jsonNode.put("status", status.toUpperCase());
+			 return objectMapper.writeValueAsString(jsonNode);
+
+		} catch (Exception e) {			
+			return capitalize;
+		}
 	}
 }

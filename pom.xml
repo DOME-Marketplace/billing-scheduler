@@ -12,7 +12,7 @@
 
     <groupId>it.eng.dome.billing</groupId>
     <artifactId>scheduler</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <name>Billing Scheduler</name>
     <description>Billing Scheduler for DOME project</description>
 
@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
+		</dependency>        
     </dependencies>
 
     <build>

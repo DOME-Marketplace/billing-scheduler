@@ -44,20 +44,24 @@ management:
 # Billing Service
 billing:
   invoicing_service: ${INVOICING_SERVICE:http://localhost:8380}
-  billing_engine: ${BILLING_ENGINE:http://localhost:8080}
+  billing_proxy: ${BILLING_PROXY:http://localhost:8280}
 
 # TMForum Endpoints
 tmforumapi:
-  tmf_endpoint: ${TMF_ENDPOINT:http://tm-forum-api}
-
-  tmf_envoy:  ${TMF_ENVOY:false}
-  # valid only if envoy false
+  tmf_endpoint: ${TMF_ENDPOINT:https://dome-dev.eng.it}
+  
+  # tmf_envoy = false => use specific path for any tmforum software | tmf_envoy = true => use TMF_ENDPOINT as unique path (proxy) 
+  tmf_envoy:  ${TMF_ENVOY:true}
+  
+  # TMF_ENVOY=false - valid only if envoy false
   tmf_namespace:  ${TMF_NAMESPACE:marketplace}
   tmf_postfix:  ${TMF_POSTFIX:svc.cluster.local}
   tmf_port:  ${TMF_PORT:8080}
-     
-  # STATIC PATHs
+   
+  # TMF_ENVOY=true - internal paths used with envoy = true
   tmf620_catalog_path: tmf-api/productCatalogManagement/v4
+  tmf622_ordering_path: tmf-api/productOrderingManagement/v4
+  tmf632_party_management_path: tmf-api/party/v4
   tmf637_inventory_path: tmf-api/productInventory/v4
-  tmf678_customer_bill_path: tmf-api/customerBillManagement/v4
+  tmf678_billing_path: tmf-api/customerBillManagement/v4
 

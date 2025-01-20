@@ -16,7 +16,7 @@ import org.springframework.util.Assert;
 public final class TmfApiFactory implements InitializingBean {
 	
 	private static final Logger log = LoggerFactory.getLogger(TmfApiFactory.class);
-	public static final String TMF_ENDPOINT_CONCAT_PATH = "-";
+	private static final String TMF_ENDPOINT_CONCAT_PATH = "-";
 	
     @Value("${tmforumapi.tmf_endpoint}")
     public String tmfEndpoint;
@@ -36,7 +36,7 @@ public final class TmfApiFactory implements InitializingBean {
 	@Value( "${tmforumapi.tmf637_inventory_path}" )
 	private String tmf637ProductInventoryPath;
 	
-	@Value( "${tmforumapi.tmf678_customer_bill_path}" )
+	@Value( "${tmforumapi.tmf678_billing_path}" )
 	private String tmf678CustomerBillPath;
 	
 	@Value( "${tmforumapi.tmf620_catalog_path}" )
@@ -51,7 +51,7 @@ public final class TmfApiFactory implements InitializingBean {
 		}else {
 			// use direct access on specific TMForum APIs software		
 			// tmfEndpoint is the prefix and you must append to the URL (using '-' char) the specific software (i.e. product-inventory)
-			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf637ProductInventoryPath);
+			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);
 		}
 		log.debug("Invoke Product Inventory API at endpoint: " + apiClient.getBasePath());
 		return apiClient;
@@ -64,7 +64,7 @@ public final class TmfApiFactory implements InitializingBean {
 			apiClient.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillPath);
 		}else {
 			// use direct access on specific TMForum APIs software	
-			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf678CustomerBillPath);		
+			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);		
 		}
 		log.debug("Invoke Customer Billing API at endpoint: " + apiClient.getBasePath());
 		return apiClient;
@@ -77,7 +77,7 @@ public final class TmfApiFactory implements InitializingBean {
 			apiClient.setBasePath(tmfEndpoint + "/" + tmf620CatalogPath);
 		}else {
 			// use direct access on specific TMForum APIs software
-			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf620CatalogPath);
+			apiClient.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);
 		}		
 		log.debug("Invoke Catalog API at endpoint: " + apiClient.getBasePath());
 		return apiClient;
