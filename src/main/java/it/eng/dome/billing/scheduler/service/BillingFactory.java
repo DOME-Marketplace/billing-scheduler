@@ -14,11 +14,8 @@ import org.springframework.stereotype.Component;
 public class BillingFactory implements InitializingBean {
 	
 	private static final Logger log = LoggerFactory.getLogger(BillingFactory.class);
+
 	
-    @Value("${billing.invoicing_service}")
-    public String invoicingService;
-    
-    
     @Value("${billing.billing_proxy}")
     public String billinProxy;
     
@@ -26,7 +23,6 @@ public class BillingFactory implements InitializingBean {
     @Override
 	public void afterPropertiesSet() throws Exception {
 		log.info("Billing Proxy is using the following endpoint prefix: " + billinProxy);	
-		log.info("Invoicing Service is using the following endpoint prefix: " + invoicingService);	
 	}
 
 }
