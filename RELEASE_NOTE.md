@@ -2,6 +2,12 @@
 
 **Release Notes** of the *Billing Proxy* software:
 
+### <code>0.0.5</code> :calendar: 20/01/2025
+**Improvements**
+* Improvement of TMForum APIs for internal path (i.e. remove tmf-api/productCatalogManagement/v4 if it set TMF_ENVOY to `false`.
+* Usage of `billing-proxy` endpoint instead of `billing-engine`.
+ 
+
 ### <code>0.0.4</code> :calendar: 16/01/2025
 **Improvements**
 * Add `apiProxy` settings via **environment variables**. Set TMF_ENVOY to `true`, TMF_NAMESPACE, TMF_POSTFIX, and TMF_PORT to apply it.

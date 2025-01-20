@@ -19,29 +19,14 @@ public class BillingFactory implements InitializingBean {
     public String invoicingService;
     
     
-    @Value("${billing.billing_engine}")
-    public String billinEngine;
+    @Value("${billing.billing_proxy}")
+    public String billinProxy;
     
-    //RestTemplate restTemplate = new RestTemplate();
 
-	@Override
+    @Override
 	public void afterPropertiesSet() throws Exception {
-		log.info("Invoicing Service is using the following invoicing endpoint prefix: " + invoicingService);	
-		//someRestCall(null);
+		log.info("Billing Proxy is using the following endpoint prefix: " + billinProxy);	
+		log.info("Invoicing Service is using the following endpoint prefix: " + invoicingService);	
 	}
-/*
-	public void someRestCall(String name) {
-		ResponseEntity<String> res = restTemplate.getForEntity(invoicingService + "/invoicing/info", String.class);
-		log.info(res.getBody());
-	}
-	
-	public ResponseEntity<String> invoicing(String productOrder) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		
-		HttpEntity<String> request = new HttpEntity<>(productOrder, headers);
-		ResponseEntity<String> response = restTemplate.postForEntity(invoicingService + "/invoicing/applyTaxes", request, String.class);
-		log.info("Response \n" + response);
-		return response;
-	}*/
+
 }
