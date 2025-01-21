@@ -2,10 +2,13 @@
 
 **Release Notes** of the *Billing Proxy* software:
 
-### <code>0.0.5</code> :calendar: 20/01/2025
+### <code>0.0.5</code> :calendar: 21/01/2025
 **Improvements**
 * Improvement of TMForum APIs for internal path (i.e. remove tmf-api/productCatalogManagement/v4 if it set TMF_ENVOY to `false`.
 * Usage of `billing-proxy` endpoint instead of `billing-engine`.
+
+**Feature**
+* Add API `/scheduler/start` to start the billing process via POST request: `payload { "datetime": "2025-01-11T13:14:33.213Z" }`.
  
 
 ### <code>0.0.4</code> :calendar: 16/01/2025

@@ -1,6 +1,7 @@
 package it.eng.dome.billing.scheduler.service;
 
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +26,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import it.eng.dome.billing.scheduler.tmf.TmfApiFactory;
-import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
 import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.api.ProductApi;
@@ -58,7 +58,8 @@ public class BillingService implements InitializingBean {
 
 	private final static String PREFIX_KEY = "period-";
 
-	RestTemplate restTemplate = new RestTemplate();
+	RestTemplate restTemplate = new RestTemplate(); 
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -67,15 +68,16 @@ public class BillingService implements InitializingBean {
 		appliedCustomerBillingRate = new AppliedCustomerBillingRateApi(tmfApiFactory.getTMF678ProductInventoryApiClient());
 	}
 
-	public void calculateBuilling() throws Exception {
+	public void calculateBuilling(OffsetDateTime now) throws Exception {
+		
+		logger.info("Starting calculateBuilling at {}", now.format(formatter));
 
 		// retrieve all products
 		logger.info("Retrieve all products");
 		// TODO - how to improve filtering of product
 		List<Product> products = productApi.listProduct(null, null, null);
 		logger.info("Number of Product found: {} ", products.size());
-
-		OffsetDateTime now = OffsetDateTime.parse("2025-01-04T13:14:33.213Z"); // OffsetDateTime.now();     
+   
 		int count = 0;
 
 		for (Product product : products) {
@@ -325,7 +327,7 @@ public class BillingService implements InitializingBean {
 		String payload = getBillRequestDTOtoJson(product, tp, productPrices);
 		//TODO ProductStatusType => Solve this bugfix
 		//payload = payload.replaceAll("active", "ACTIVE");
-		logger.info("Payload appliedCustomerBillingRate \n", payload);
+		logger.info("Payload appliedCustomerBillingRate \n" + payload);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> request = new HttpEntity<>(payload, headers);
@@ -349,8 +351,10 @@ public class BillingService implements InitializingBean {
             productPriceListJson.append(productPrices.get(i).toJson());
         }
 		productPriceListJson.append("]");
-		
-		return "{ \"product\": " + capitalizeStatus(productJson) + ", \"timePeriod\": "+ timePeriodJson + ", \"productPrice\": "+ productPriceListJson +"}";
+
+		String billingJson = "{ \"product\": " + capitalizeStatus(productJson) + ", \"timePeriod\": "+ timePeriodJson + ", \"productPrice\": "+ productPriceListJson.toString() +"}";
+		//logger.debug("Billing payload:\n" + billingJson);
+		return billingJson;
 	} 
 	
 	private String capitalizeStatus(String json) {
