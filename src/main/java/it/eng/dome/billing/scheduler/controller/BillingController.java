@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.eng.dome.billing.scheduler.service.BillingService;
@@ -22,7 +23,7 @@ public class BillingController {
 	@Autowired
 	protected BillingService billingService;
 
-	@RequestMapping(value = "/start")
+	@RequestMapping(value = "/start", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
 	public Map<String, String> startScheduler(@RequestBody String datetime) throws Throwable {
 		
 
