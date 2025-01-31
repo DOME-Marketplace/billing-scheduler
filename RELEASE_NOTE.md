@@ -1,6 +1,6 @@
 # Release Notes
 
-**Release Notes** of the *Billing Proxy* software:
+**Release Notes** of the *Billing Scheduler* software:
 
 ### <code>0.0.6</code> :calendar: 31/01/2025
 **Improvements**
