@@ -2,6 +2,8 @@
 # Spring Configuration
 server: 
   port: 8180
+  servlet:
+    context-path:  ${BILLING_PREFIX:/}
 
 application:
   name: "@project.artifactId@"
@@ -19,6 +21,7 @@ scheduling:
 logging:
   level:
     it.eng.dome: ${LOG_LEVEL:DEBUG}
+    org.apache.coyote.http11.Http11Processor: DEBUG
     #org.springframework: DEBUG
 
 # Spring Boot Actuator

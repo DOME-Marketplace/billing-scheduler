@@ -2,6 +2,12 @@
 
 **Release Notes** of the *Billing Proxy* software:
 
+### <code>0.0.6</code> :calendar: 31/01/2025
+**Improvements**
+* Add `StartRequestDto` for post call to start the scheduler **manually**.
+* Usage of the `BILLING_PREFIX` in the `application.yaml` file.
+
+
 ### <code>0.0.5</code> :calendar: 21/01/2025
 **Improvements**
 * Improvement of TMForum APIs for internal path (i.e. remove tmf-api/productCatalogManagement/v4 if it set TMF_ENVOY to `false`.
