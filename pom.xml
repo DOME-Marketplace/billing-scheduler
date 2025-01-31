@@ -12,7 +12,7 @@
 
     <groupId>it.eng.dome.billing</groupId>
     <artifactId>scheduler</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
     <name>Billing Scheduler</name>
     <description>Billing Scheduler for DOME project</description>
 
@@ -36,6 +36,14 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        
+        <!-- Brokerage Utils dependencies -->
+		<dependency>
+			<groupId>it.eng.dome.brokerage</groupId>
+			<artifactId>brokerage-utils</artifactId>
+			<version>[0.0, 1.0)</version>
+		</dependency>
+		
         
         <!-- TMForum SDK dependencies -->
 
@@ -63,14 +71,7 @@
 			<artifactId>tmf620-v4</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-		
-		<!-- Brokerage Utils dependencies -->
-		<dependency>
-			<groupId>it.eng.dome.brokerage</groupId>
-			<artifactId>brokerage-utils</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		
+			
         <!-- Springdoc OpenAPI dependency -->
 	    <dependency>
 	        <groupId>org.springdoc</groupId>
@@ -81,7 +82,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>        
+		</dependency>
     </dependencies>
 
     <build>

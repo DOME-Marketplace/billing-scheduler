@@ -7,11 +7,12 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.eng.dome.billing.scheduler.dto.StartRequestDTO;
 import it.eng.dome.billing.scheduler.service.BillingService;
 
 @RestController
@@ -22,25 +23,21 @@ public class BillingController {
 	@Autowired
 	protected BillingService billingService;
 
-	@RequestMapping(value = "/start")
-	public Map<String, String> startScheduler(@RequestBody String datetime) throws Throwable {
-		
+	@RequestMapping(value = "/start", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+	public Map<String, String> startScheduler(@RequestBody StartRequestDTO datetime) throws Throwable {
 
 		Map<String, String> response = new HashMap<String, String>();
 		OffsetDateTime now = OffsetDateTime.now();
-		
-		JacksonJsonParser parser = new JacksonJsonParser();
-		Map<String, Object> json = parser.parseMap(datetime);
 		try {
-			String startTime = json.get("datetime").toString();
-			now = OffsetDateTime.parse(startTime);
-
+			String dt = datetime.getDatetime().toString();
+			logger.debug("Set datetime manually to {}", dt);
+			now = OffsetDateTime.parse(dt);
 		} catch (Exception e) {
 			logger.warn("Cannot recognize the datetime attribute! Please use the YYYY-MM-DDTHH:mm:ss format");
 			response.put("msg", "Cannot recognize the datetime attribute! Please use the YYYY-MM-DDTHH:mm:ss format");
 			response.put("err", e.getMessage());
 		}
-		
+
 		logger.info("Start scheduler task via REST APIs to calculate the bill");
 
 		response.put("response", "Calculating the bill from datetime: " + now);
