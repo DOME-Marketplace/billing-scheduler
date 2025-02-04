@@ -1,7 +1,7 @@
 
 # Spring Configuration
 server: 
-  port: 8080
+  port: 8180
   servlet:
     context-path:  ${BILLING_PREFIX:/}
 
@@ -21,13 +21,12 @@ scheduling:
 logging:
   level:
     it.eng.dome: ${LOG_LEVEL:DEBUG}
-    org.apache.coyote.http11.Http11Processor: DEBUG
-    #org.springframework: DEBUG
+    org.apache.coyote.http11: INFO
 
 # Spring Boot Actuator
 management:
   server:
-    port: 9000
+    port: 9001
   endpoints:
     enabled-by-default: false
     web:
