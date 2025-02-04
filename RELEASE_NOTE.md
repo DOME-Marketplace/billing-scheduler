@@ -2,6 +2,12 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
+### <code>0.0.7</code> :calendar: 03/02/2025
+**BugFixing**
+* Add `validation` dependency.
+* Set `org.apache.coyote.http11: INFO` to avoid the `Error parsing HTTP request header`.
+
+
 ### <code>0.0.6</code> :calendar: 31/01/2025
 **Improvements**
 * Add `StartRequestDto` for post call to start the scheduler **manually**.
