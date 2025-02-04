@@ -7,11 +7,16 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import it.eng.dome.billing.scheduler.dto.StartRequestDTO;
 import it.eng.dome.billing.scheduler.service.BillingService;
 
@@ -24,6 +29,7 @@ public class BillingController {
 	protected BillingService billingService;
 
 	@RequestMapping(value = "/start", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+	@Operation(responses = { @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(value = RESPONSE))) })
 	public Map<String, String> startScheduler(@RequestBody StartRequestDTO datetime) throws Throwable {
 
 		Map<String, String> response = new HashMap<String, String>();
@@ -44,4 +50,6 @@ public class BillingController {
 		billingService.calculateBuilling(now);
 		return response;
 	}
+	
+	private final String RESPONSE = "{\"response\":\"Calculating the bill from datetime: 2025-02-04T16:16:33.171Z\"}";
 }
