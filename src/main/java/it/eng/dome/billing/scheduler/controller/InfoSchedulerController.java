@@ -24,7 +24,7 @@ import it.eng.dome.brokerage.billing.utils.DateUtils;
 @Tag(name = "Billing Scheduler Controller", description = "APIs to manage the billing-scheduler")
 public class InfoSchedulerController {
 
-	private static final Logger log = LoggerFactory.getLogger(InfoSchedulerController.class);
+	private static final Logger logger = LoggerFactory.getLogger(InfoSchedulerController.class);
 
 	@Autowired
 	private BuildProperties buildProperties;
@@ -32,12 +32,12 @@ public class InfoSchedulerController {
 	@RequestMapping(value = "/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@Operation(responses = { @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(value = INFO))) })
 	public Map<String, String> getInfo() {
-		log.info("Request getInfo");
+		logger.info("Request getInfo");
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("version", buildProperties.getVersion());
 		map.put("name", buildProperties.getName());
 		map.put("release_time", DateUtils.getFormatterTimestamp(buildProperties.getTime()));
-		log.debug(map.toString());
+		logger.debug(map.toString());
 		return map;
 	}
 
