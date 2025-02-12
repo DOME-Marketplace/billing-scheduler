@@ -86,8 +86,8 @@ public class BillingService implements InitializingBean {
 			int count = 0;
 
 			for (Product product : products) {
-				logger.debug("Product item # {} - {}", ++count, product.getName());
-				logger.debug("{}Analyze productId: {} with status: {}", getIntentation(1), product.getId(), product.getStatus());
+				logger.debug("Product # {} - productName: {}", ++count, product.getName());
+				logger.debug("{}Analyzing productId: {} with status: {}", getIntentation(1), product.getId(), product.getStatus());
 				
 				// Check #1 - status=active
 				if (product.getStatus() == ProductStatusType.ACTIVE) {
@@ -125,15 +125,24 @@ public class BillingService implements InitializingBean {
 								OffsetDateTime previousBillingTime = BillingUtils.getPreviousBillingTime(nextBillingTime, recurringPeriod);
 
 								if (nextBillingTime != null) {
-									logger.debug("{}StartDate: {} - NextDate: {}", getIntentation(2), product.getStartDate(), nextBillingTime);
-									logger.debug("{}PreviuosDate: {} - PreviuosDate: {}", getIntentation(2), previousBillingTime, now);
+									logger.debug("{}Billing dateTime for the product:", getIntentation(2));
+									logger.debug("{}- StartDate: {}", getIntentation(2), product.getStartDate());
+									logger.debug("{}- NextDate: {}", getIntentation(2), nextBillingTime);
+									logger.debug("{}- PreviuosDate: {}", getIntentation(2), previousBillingTime);
+									logger.debug("{}- CurrentDate: {}", getIntentation(2), now);
 
-									// Get numbers of days missing before to start the next billing
+									// Get numbers of days missing before to start the next bill
 									long days = ChronoUnit.DAYS.between(now, nextBillingTime);
-									String keyPeriod = PREFIX_KEY + ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
+									logger.debug("{}Missing days before starting the next bill: {}", getIntentation(2), days);
+																		
+									long diffPreviousBillingAndNextBilling = ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
+									logger.debug("{}Difference from PreviuosDate and NextDate for bill (in days): {}", getIntentation(2), diffPreviousBillingAndNextBilling);
 
 									// days = 0 => time expired => start the bill process
 									if (days == 0) {
+										String keyPeriod = PREFIX_KEY + diffPreviousBillingAndNextBilling;
+										
+										logger.info("{}Bill Time - Saving TimePeriod and ProductPrices", getIntentation(2));
 										// Get TimePeriod and ProductPrice for billing
 										TimePeriod tp = new TimePeriod();
 										tp.setStartDateTime(previousBillingTime);
@@ -153,7 +162,7 @@ public class BillingService implements InitializingBean {
 						}
 					}
 
-					logger.info("{}Number of item for billing found: {}",  getIntentation(1), productPrices.size());
+					logger.info("{}Number of item for billing found: {}", getIntentation(1), productPrices.size());
 					for (Map.Entry<String, List<ProductPrice>> entry : productPrices.entrySet()) {
 
 						String key = entry.getKey();
@@ -165,8 +174,7 @@ public class BillingService implements InitializingBean {
 							/*for (ProductPrice pp : pps) {
 								logger.debug(pp.getName() + " || " + pp.getPriceType());
 							}*/
-							logger.debug(product.toJson());
-
+							
 							// Verify if the billing is already done
 							if (!isAlreadyBilled(product, tp, pps)) {
 								logger.debug("{}Apply billing - AppliedCustomerBillingRate for productId: {}", getIntentation(2), product.getId());
@@ -223,19 +231,19 @@ public class BillingService implements InitializingBean {
 	}
 
 	private String getRecurringPeriod(String id) {
+		logger.info("{}Get RecurringPeriod for ProductOfferingPriceId: {}", getIntentation(3), id);
 		try {
 			ProductOfferingPrice pop = productOfferingPrice.retrieveProductOfferingPrice(id, null);
-			logger.debug("{}RecurringChargePeriodLength found: {}", getIntentation(2), pop.getRecurringChargePeriodLength());
-			logger.debug("{}getRecurringChargePeriodType found: {}", getIntentation(2), pop.getRecurringChargePeriodType());
+			logger.debug("{}RecurringChargePeriodLength: {} - RecurringChargePeriodType: {}", getIntentation(3), pop.getRecurringChargePeriodLength(), pop.getRecurringChargePeriodType());
 			return pop.getRecurringChargePeriodLength() + " " + pop.getRecurringChargePeriodType();
 		} catch (it.eng.dome.tmforum.tmf620.v4.ApiException e) {
-			logger.error("{}Error: {}", getIntentation(2), e.getMessage());
+			logger.error("{}Error: {}", getIntentation(3), e.getMessage());
 			return null;
 		}
 	}
 
 	private boolean isAlreadyBilled(Product product, TimePeriod tp, List<ProductPrice> productPrices) {
-		logger.info("{}Verifying product is already billed ...", getIntentation(3));
+		logger.info("{}Verifying product is already billed", getIntentation(3));
 		boolean isBilled = false;
 		try {
 			logger.info("{}Retrieve the list of AppliedCustomerBillingRate", getIntentation(3));
@@ -248,25 +256,25 @@ public class BillingService implements InitializingBean {
 				String id = bill.getProduct().getId();
 
 				if (id.equals(product.getId())) {
-					logger.debug("{}Step 1 - found AppliedCustomerBillingRate with the same ProductId", getIntentation(3));
+					logger.debug("{}Step 1 - found AppliedCustomerBillingRate with the same ProductId", getIntentation(4));
 					if (tp.equals(bill.getPeriodCoverage())) {
-						logger.debug("{}Step 2 - found PeriodCoverage with the same TimePeriod", getIntentation(3));
+						logger.debug("{}Step 2 - found PeriodCoverage with the same TimePeriod", getIntentation(4));
 
 						// TODO check productPrices
 						// ?????
 						if (!verifyExistProductPrices(product, productPrices)) {
-							logger.info("{}Check verifyExistProductPrices = false", getIntentation(3));
+							logger.info("{}Check verifyExistProductPrices = false", getIntentation(4));
 						}else {
-							logger.info("{}Found ProductPrices", getIntentation(3));
+							logger.info("{}Found ProductPrices", getIntentation(4));
 						}
 
-						logger.info("{}Found product already billed", getIntentation(3));
+						logger.info("{}Found product already billed", getIntentation(4));
 						return true;
 					} else {
-						logger.debug("{}Stopped verifying: different TimePeriod", getIntentation(3));
+						logger.debug("{}Stopped verifying: different TimePeriod", getIntentation(4));
 					}
 				} else {
-					logger.debug("{}Stopped verifying: different ProductId", getIntentation(3));
+					logger.debug("{}Stopped verifying: different ProductId {}", getIntentation(4), id);
 				}
 			}
 		} catch (ApiException e) {
