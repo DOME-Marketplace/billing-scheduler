@@ -19,8 +19,8 @@ scheduling:
 
 # Logging Configuration
 logging:
-  file:
-    name: application.log
+#  file:
+#    name: application.log
   level:
     it.eng.dome: ${LOG_LEVEL:DEBUG}
     org.apache.coyote.http11: ERROR

@@ -42,7 +42,7 @@ public class BillingController {
 		logger.info("Start scheduler task via REST APIs to calculate the bill");
 
 		response.put("response", "Calculating the bill from datetime: " + now);
-		billingService.calculateBuilling(now);
+		billingService.calculateBill(now);
 		return response;
 	}
 }

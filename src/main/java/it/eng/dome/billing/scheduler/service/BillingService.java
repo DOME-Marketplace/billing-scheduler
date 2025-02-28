@@ -66,10 +66,10 @@ public class BillingService implements InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 		productApi = new ProductApi(tmfApiFactory.getTMF637ProductInventoryApiClient());
 		productOfferingPrice = new ProductOfferingPriceApi(tmfApiFactory.getTMF620CatalogApiClient());
-		appliedCustomerBillingRate = new AppliedCustomerBillingRateApi(tmfApiFactory.getTMF678ProductInventoryApiClient());
+		appliedCustomerBillingRate = new AppliedCustomerBillingRateApi(tmfApiFactory.getTMF678CustomerBillApiClient());
 	}
 
-	public void calculateBuilling(OffsetDateTime now) {
+	public void calculateBill(OffsetDateTime now) {
 
 		logger.info("Starting calculateBuilling at {}", now.format(formatter));
 
@@ -86,8 +86,8 @@ public class BillingService implements InitializingBean {
 			int count = 0;
 
 			for (Product product : products) {
-				logger.debug("Product # {} - productName: {}", ++count, product.getName());
-				logger.debug("{}Analyzing productId: {} with status: {}", getIntentation(1), product.getId(), product.getStatus());
+				logger.debug("Product # {} - productId: {}", ++count, product.getId());
+				logger.info("{}Analyzing product with status: {}", getIntentation(1), product.getStatus());
 				
 				// Check #1 - status=active
 				if (product.getStatus() == ProductStatusType.ACTIVE) {
@@ -142,7 +142,7 @@ public class BillingService implements InitializingBean {
 									if (days == 0) {
 										String keyPeriod = PREFIX_KEY + diffPreviousBillingAndNextBilling;
 										
-										logger.info("{}Bill Time - Saving TimePeriod and ProductPrices", getIntentation(2));
+										logger.info("{}Bill required for productId: {} - saving TimePeriod and ProductPrices", getIntentation(1), product.getId());
 										// Get TimePeriod and ProductPrice for billing
 										TimePeriod tp = new TimePeriod();
 										tp.setStartDateTime(previousBillingTime);
@@ -162,7 +162,7 @@ public class BillingService implements InitializingBean {
 						}
 					}
 
-					logger.info("{}Number of item for billing found: {}", getIntentation(1), productPrices.size());
+					logger.info("{}ProductPrices for billing found for productId {}: {}", getIntentation(1), product.getId(), productPrices.size());
 					for (Map.Entry<String, List<ProductPrice>> entry : productPrices.entrySet()) {
 
 						String key = entry.getKey();
@@ -177,39 +177,22 @@ public class BillingService implements InitializingBean {
 							
 							// Verify if the billing is already done
 							if (!isAlreadyBilled(product, tp, pps)) {
-								logger.debug("{}Apply billing - AppliedCustomerBillingRate for productId: {}", getIntentation(2), product.getId());
+								logger.debug("{}Apply billing process for productId: {}", getIntentation(2), product.getId());
 
 								if (product.getBillingAccount() != null) {
 
-									// TODO invoke billing-proxy
-									// String applied = getAppliedCustomerBillingrateJson();
+									logger.debug("{}Get AppliedCustomerBillingRates based by product, timePeriod, and productPrice", getIntentation(2));
 									ResponseEntity<String> applied = getAppliedCustomerBillingRates(product, tp, pps);
 									if (applied != null) {
-										// logger.info(applied.getStatusCode().toString());
-										// logger.info(applied.getBody());
-
-										// TODO remove invoicing-service => it's included in billing-proxy
-										// invoke invoicing-service
-										/*
-										 * ResponseEntity<String> invoicing = invoicing(applied.getBody());
-										 * logger.info("Status code {}", invoicing.getStatusCode()); //
-										 * logger.info("AppliedCustomerBillingRate with Tax \n {} ",
-										 * invoicing.getBody()); String appliedCustomerBillingRatesJson =
-										 * invoicing.getBody(); logger.debug("Invoicing body \n{}",
-										 * appliedCustomerBillingRatesJson);
-										 */
-
-										// Save AppliedCustomerBillingRate[] with taxes in TMForum
-										// List<String> ids = bill(appliedCustomerBillingRatesJson);
-										List<String> ids = bill(applied.getBody());
-										logger.info("{}Saved #{} AppliedCustomerBillingRate", getIntentation(2), ids.size());
-										logger.debug("{}AppliedCustomerBillingRate ids: {}", getIntentation(2), ids);
+										List<String> ids = saveBill(applied.getBody());
+										logger.info("{}Number of AppliedCustomerBillingRate saved: {}", getIntentation(2), ids.size());
+										logger.debug("{}AppliedCustomerBillingRate ids saved: {}", getIntentation(2), ids);
 									}
 								} else {
 									logger.warn("{}No Billing Account defined in the product {}", getIntentation(2), product.getId());
 								}
 							} else {
-								logger.debug("{}Billing already done for productId: {}", getIntentation(2), product.getId());
+								logger.debug("{}Bill already billed for productId: {}", getIntentation(2), product.getId());
 							}
 						}
 					}
@@ -254,27 +237,29 @@ public class BillingService implements InitializingBean {
 			
 			for (AppliedCustomerBillingRate bill : billed) {
 				String id = bill.getProduct().getId();
-
+				
 				if (id.equals(product.getId())) {
-					logger.debug("{}Step 1 - found AppliedCustomerBillingRate with the same ProductId", getIntentation(4));
-					if (tp.equals(bill.getPeriodCoverage())) {
-						logger.debug("{}Step 2 - found PeriodCoverage with the same TimePeriod", getIntentation(4));
-
-						// TODO check productPrices
-						// ?????
+					logger.debug("{}Verify bill - step 1 - found AppliedCustomerBillingRate with the same ProductId: {}", getIntentation(4), id);
+					
+					if (tp.equals(bill.getPeriodCoverage())) {					
+						logger.debug("{}Verify bill - step 2 - found PeriodCoverage with the same TimePeriod", getIntentation(4));
+						
+						// TODO check productPrices - cosa fare se non esiste il pp : saltare?
 						if (!verifyExistProductPrices(product, productPrices)) {
-							logger.info("{}Check verifyExistProductPrices = false", getIntentation(4));
+							logger.warn("{}Check verifyExistProductPrices = false", getIntentation(4));
+							//TODO cosa fare in questo caso???
 						}else {
-							logger.info("{}Found ProductPrices", getIntentation(4));
+							//logger.info("{}Found ProductPrices", getIntentation(4));
 						}
 
-						logger.info("{}Found product already billed", getIntentation(4));
+						//default -> just to go ahead (no IF above is considerate)
+						logger.info("{}Found product already billed with id: {}", getIntentation(4), bill.getId());
 						return true;
 					} else {
-						logger.debug("{}Stopped verifying: different TimePeriod", getIntentation(4));
+						logger.debug("{}Stopped verify bill: different TimePeriod", getIntentation(4));
 					}
 				} else {
-					logger.debug("{}Stopped verifying: different ProductId {}", getIntentation(4), id);
+					logger.debug("{}Stopped verify bill: AppliedCustomerBillingRate with different ProductId {}", getIntentation(4), id);
 				}
 			}
 		} catch (ApiException e) {
@@ -285,27 +270,28 @@ public class BillingService implements InitializingBean {
 		return isBilled;
 	}
 
-	private List<String> bill(String appliedCustomerBillRates) {
-		logger.info("Starting the billing process");
+	private List<String> saveBill(String appliedCustomerBillRates) {
+		logger.info("{}Saving the bill inTMForum ...", getIntentation(2));
 
 		List<String> ids = new ArrayList<String>();
 
 		try {
 			AppliedCustomerBillingRate[] bills = JSON.getGson().fromJson(appliedCustomerBillRates, AppliedCustomerBillingRate[].class);
 
+			//TODO verify if this array has got just one item
 			for (AppliedCustomerBillingRate bill : bills) {
 				bill.setName("Applied Customer Bill Rate #" + (int) Math.round(Math.random() * 100));
 				bill.setDescription("Example for Applied Customer Bill Rate!");
 
 				AppliedCustomerBillingRateCreate createApply = AppliedCustomerBillingRateCreate.fromJson(bill.toJson());
 				AppliedCustomerBillingRate created = appliedCustomerBillingRate.createAppliedCustomerBillingRate(createApply);
-				logger.info("AppliedCustomerBillRate saved with id: {}", created.getId());
+				logger.info("{}AppliedCustomerBillRate saved with id: {}", getIntentation(2), created.getId());
 				ids.add(created.getId());
 			}
 
 		} catch (Exception e) {
-			logger.info("AppliedCustomerBillingRate not saved!");
-			logger.error(e.getMessage());
+			logger.info("{}AppliedCustomerBillingRate not saved!", getIntentation(2));
+			logger.error("{}Error: {}",getIntentation(2), e.getMessage());
 		}
 		return ids;
 	}
@@ -317,17 +303,20 @@ public class BillingService implements InitializingBean {
 
 			if (pprice.getProductOfferingPrice() != null) { //case with ProductOfferingPrice
 				String id = pprice.getProductOfferingPrice().getId();
-				logger.debug("ProductOfferingPrice id {} ", id);
+				logger.debug("{}ProductOfferingPrice id {} to verify", getIntentation(5), id);
 				for (ProductPrice productPrice : productPrices) {
-					logger.info("Checking with pprice.id {} ", productPrice.getProductOfferingPrice().getId());
+					logger.info("{}Checking with pprice.id {} ", getIntentation(5), productPrice.getProductOfferingPrice().getId());
 					if (id.equals(productPrice.getProductOfferingPrice().getId())) {
-						logger.info("Match found for id {} ", id);
+						logger.info("{}Match found for id {}", getIntentation(5), id);
 						return true;
 					}
 				}
-			}else { //case no ProductOfferingPrice => default jump
+			}else { //use case: no ProductOfferingPrice => default jump
 				//TODO not implemented yet
-				logger.info("TODO - default jump (not implemented yet)");
+				logger.info("{}No ProductOfferingPrice found", getIntentation(5));
+				logger.info("{}TODO - default jump (not implemented yet)", getIntentation(5));
+				//TODO is it required to perform other check?
+				logger.warn("{}Is it required to perform other check?", getIntentation(5));
 				result = true;
 			}
 		}
@@ -336,11 +325,11 @@ public class BillingService implements InitializingBean {
 
 	
 	private ResponseEntity<String> getAppliedCustomerBillingRates(Product product, TimePeriod tp, List<ProductPrice> productPrices) {
-		logger.info("{}Calling bill task: {}", getIntentation(2), billing.billinProxy + "/billing/bill");
+		logger.info("{}Calling bill proxy endpoint: {}", getIntentation(2), billing.billinProxy + "/billing/bill");
 		String payload = getBillRequestDTOtoJson(product, tp, productPrices);
 		//TODO ProductStatusType => Solve this bugfix
 		//payload = payload.replaceAll("active", "ACTIVE");
-		logger.debug("{}Payload appliedCustomerBillingRate:", getIntentation(3));
+		logger.debug("{}Payload to get appliedCustomerBillingRate:", getIntentation(3));
 		logger.debug("{}{}", getIntentation(3), payload);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
