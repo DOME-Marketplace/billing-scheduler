@@ -11,12 +11,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class BillingSchedulerApplicationTests {
 
     @Autowired
-    private BillingSchedulerApplication billingSchedulerController;
+    private BillingSchedulerApplication billingSchedulerApplication;
 
     @Test
     void contextLoads() {
         // to ensure that controller is getting created inside the application context
-        assertNotNull(billingSchedulerController);
+        assertNotNull(billingSchedulerApplication);
     }
 
 }

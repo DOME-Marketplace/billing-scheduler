@@ -28,15 +28,15 @@ public class BillingController {
 	@Autowired
 	protected BillingService billingService;
 
-	@RequestMapping(value = "/start", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
 	@Operation(responses = { @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(value = RESPONSE))) })
+	@RequestMapping(value = "/start", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, String> startScheduler(@RequestBody StartRequestDTO datetime) throws Throwable {
 
 		Map<String, String> response = new HashMap<String, String>();
 		OffsetDateTime now = OffsetDateTime.now();
 		try {
 			String dt = datetime.getDatetime().toString();
-			logger.debug("Set datetime manually to {}", dt);
+			logger.debug("Set datetime manually at {}", dt);
 			now = OffsetDateTime.parse(dt);
 		} catch (Exception e) {
 			logger.warn("Cannot recognize the datetime attribute! Please use the YYYY-MM-DDTHH:mm:ss format");
@@ -47,7 +47,7 @@ public class BillingController {
 		logger.info("Start scheduler task via REST APIs to calculate the bill");
 
 		response.put("response", "Calculating the bill from datetime: " + now);
-		billingService.calculateBuilling(now);
+		billingService.calculateBill(now);
 		return response;
 	}
 	

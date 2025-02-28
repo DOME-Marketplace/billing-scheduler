@@ -57,7 +57,7 @@ public final class TmfApiFactory implements InitializingBean {
 		return apiClient;
 	}
 
-	public it.eng.dome.tmforum.tmf678.v4.ApiClient getTMF678ProductInventoryApiClient() {
+	public it.eng.dome.tmforum.tmf678.v4.ApiClient getTMF678CustomerBillApiClient() {
 		final it.eng.dome.tmforum.tmf678.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf678.v4.Configuration.getDefaultApiClient();
 		if (tmfEnvoy) {
 			// usage of envoyProxy to access on TMForum APIs

@@ -2,10 +2,18 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
+### <code>0.0.8</code> :calendar: 28/02/2025
+**Improvements**
+* Add `StartupListener` listener to log (display) the current version of *Billing Scheduler* at startup.
+
+**BugFixing**
+* Update `tmf637-v4` dependency to `1.0.1` version.
+
+
 ### <code>0.0.7</code> :calendar: 03/02/2025
 **BugFixing**
 * Add `validation` dependency.
-* Set `org.apache.coyote.http11: INFO` to avoid the `Error parsing HTTP request header`.
+* Set `org.apache.coyote.http11: ERROR` to avoid the `Error parsing HTTP request header`.
 
 
 ### <code>0.0.6</code> :calendar: 31/01/2025

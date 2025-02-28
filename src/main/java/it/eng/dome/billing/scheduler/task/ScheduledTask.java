@@ -28,7 +28,7 @@ public class ScheduledTask {
 	public void billingCycleTask() throws Exception {
 		logger.info("Scheduling the billing cycle process at {}", dateformat.format(new Date()));
 
-		billingService.calculateBuilling(OffsetDateTime.now());
+		billingService.calculateBill(OffsetDateTime.now());
 	}
 
 }
