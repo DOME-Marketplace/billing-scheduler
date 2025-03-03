@@ -14,7 +14,7 @@ build:
 
 # Scheduling Task Configuration  
 scheduling:
-  cron: "0 0 4,16 * * ?" 
+  cron: "0 0 9,11,19 * * ?" 
 #  cron: "00 * * * * ?" 
 
 # Logging Configuration

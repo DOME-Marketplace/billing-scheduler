@@ -12,7 +12,7 @@
 
     <groupId>it.eng.dome.billing</groupId>
     <artifactId>scheduler</artifactId>
-    <version>0.0.9</version>
+    <version>0.0.10</version>
     <name>Billing Scheduler</name>
     <description>Billing Scheduler for DOME project</description>
 
@@ -54,7 +54,7 @@
 		<dependency>
 			<groupId>it.eng.dome.tmforum-sdk</groupId>
 			<artifactId>tmf637-v4</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.3</version>
 		</dependency>
 		<!-- TMF678 Customer Bill -->
 		<dependency>
