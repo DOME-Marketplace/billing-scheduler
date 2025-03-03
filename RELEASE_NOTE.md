@@ -2,6 +2,14 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
+### <code>0.0.9</code> :calendar: 03/03/2025
+**Improvements**
+* Include exception handling with `ControllerExceptionHandler.java` class.
+
+**BugFixing**
+* Update `tmf637-v4` dependency to `1.0.2` version.
+
+
 ### <code>0.0.8</code> :calendar: 28/02/2025
 **Improvements**
 * Add `StartupListener` listener to log (display) the current version of *Billing Scheduler* at startup.
