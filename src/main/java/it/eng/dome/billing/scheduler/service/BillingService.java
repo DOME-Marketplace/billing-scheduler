@@ -79,124 +79,129 @@ public class BillingService implements InitializingBean {
 		// TODO - how to improve filtering of product
 		List<Product> products = productApi.listProduct(null, null, null);
 
-		logger.info("Number of Products found: {} ", products.size());
-
-		int count = 0;
-
-		for (Product product : products) {
-			logger.debug("Product # {} - productId: {}", ++count, product.getId());
-			logger.info("{}Analyzing product with status: {}", getIntentation(1), product.getStatus());
+		if (products != null) {
 			
-			// Check #1 - status=active
-			if (product.getStatus() == ProductStatusType.ACTIVE) {
-
-				List<ProductPrice> pprices = product.getProductPrice();
-				logger.debug("{}Number of ProductPrices found: {} ", getIntentation(1),  pprices.size());
-
-				Map<String, List<TimePeriod>> timePeriods = new HashMap<>();
-				Map<String, List<ProductPrice>> productPrices = new HashMap<>();
-
-				for (ProductPrice pprice : pprices) {
-
-					// Check #2 - priceType = recurring
-					// TODO verify if it must use recurring-prepaid and recurring-postpaid
-					if ("recurring".equals(pprice.getPriceType().toLowerCase())) {
-
-						String recurringPeriod = null;
-
-						// Retrieve the RecurringPeriod
-						if (pprice.getProductOfferingPrice() != null) {// RecurringPeriod from ProductOfferingPrice
-							// GET recurringChargePeriodType + recurringChargePeriodLength
-							logger.debug("{}Use Case - Get RecurringPeriod from ProductOfferingPrice for product: {}", getIntentation(2), product.getId());
-							recurringPeriod = getRecurringPeriod(pprice.getProductOfferingPrice().getId());
-							logger.info("{}Get recurring period {} from ProductOfferingPrice", getIntentation(2), recurringPeriod);
-
-						} else if (pprice.getRecurringChargePeriod() != null) {// RecurringPeriod from RecurringChargePeriod
-							logger.debug("{}Use Case - Get RecurringPeriod from RecurringChargePeriod for product: {}", getIntentation(2), product.getId());
-							recurringPeriod = pprice.getRecurringChargePeriod();
-							logger.info("{}Get recurring period {} for RecurringChargePeriod", getIntentation(2), recurringPeriod);
-						}
-						logger.debug("{}Recurring period found: {}", getIntentation(2), recurringPeriod);
-
-						if (recurringPeriod != null && product.getStartDate() != null) {
-							OffsetDateTime nextBillingTime = BillingUtils.getNextBillingTime(product.getStartDate(), now, recurringPeriod);
-							OffsetDateTime previousBillingTime = BillingUtils.getPreviousBillingTime(nextBillingTime, recurringPeriod);
-
-							if (nextBillingTime != null) {
-								logger.debug("{}Billing dateTime for the product:", getIntentation(2));
-								logger.debug("{}- StartDate: {}", getIntentation(2), product.getStartDate());
-								logger.debug("{}- NextDate: {}", getIntentation(2), nextBillingTime);
-								logger.debug("{}- PreviuosDate: {}", getIntentation(2), previousBillingTime);
-								logger.debug("{}- CurrentDate: {}", getIntentation(2), now);
-
-								// Get numbers of days missing before to start the next bill
-								long days = ChronoUnit.DAYS.between(now, nextBillingTime);
-								logger.debug("{}Missing days before starting the next bill: {}", getIntentation(2), days);
-																	
-								long diffPreviousBillingAndNextBilling = ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
-								logger.debug("{}Difference from PreviuosDate and NextDate for bill (in days): {}", getIntentation(2), diffPreviousBillingAndNextBilling);
-
-								// days = 0 => time expired => start the bill process
-								if (days == 0) {
-									String keyPeriod = PREFIX_KEY + diffPreviousBillingAndNextBilling;
-									
-									logger.info("{}Bill required for productId: {} - saving TimePeriod and ProductPrices", getIntentation(1), product.getId());
-									// Get TimePeriod and ProductPrice for billing
-									TimePeriod tp = new TimePeriod();
-									tp.setStartDateTime(previousBillingTime);
-									tp.setEndDateTime(nextBillingTime);
-
-									// grouped items with the same startDate and endDate (i.e. keyPeriod)
-									timePeriods.put(keyPeriod, new ArrayList<>(Arrays.asList(tp)));
-									productPrices.computeIfAbsent(keyPeriod, k -> new ArrayList<>()).add(pprice);
-								}
+			logger.info("Number of Products found: {} ", products.size());
+			int count = 0;
+	
+			for (Product product : products) {
+				logger.debug("Product # {} - productId: {}", ++count, product.getId());
+				logger.info("{}Analyzing product with status: {}", getIntentation(1), product.getStatus());
+				
+				// Check #1 - status=active
+				if (product.getStatus() == ProductStatusType.ACTIVE) {
+	
+					List<ProductPrice> pprices = product.getProductPrice();
+					logger.debug("{}Number of ProductPrices found: {} ", getIntentation(1),  pprices.size());
+	
+					Map<String, List<TimePeriod>> timePeriods = new HashMap<>();
+					Map<String, List<ProductPrice>> productPrices = new HashMap<>();
+	
+					for (ProductPrice pprice : pprices) {
+	
+						// Check #2 - priceType = recurring
+						// TODO verify if it must use recurring-prepaid and recurring-postpaid
+						if ("recurring".equals(pprice.getPriceType().toLowerCase())) {
+	
+							String recurringPeriod = null;
+	
+							// Retrieve the RecurringPeriod
+							if (pprice.getProductOfferingPrice() != null) {// RecurringPeriod from ProductOfferingPrice
+								// GET recurringChargePeriodType + recurringChargePeriodLength
+								logger.debug("{}Use Case - Get RecurringPeriod from ProductOfferingPrice for product: {}", getIntentation(2), product.getId());
+								recurringPeriod = getRecurringPeriod(pprice.getProductOfferingPrice().getId());
+								logger.info("{}Get recurring period {} from ProductOfferingPrice", getIntentation(2), recurringPeriod);
+	
+							} else if (pprice.getRecurringChargePeriod() != null) {// RecurringPeriod from RecurringChargePeriod
+								logger.debug("{}Use Case - Get RecurringPeriod from RecurringChargePeriod for product: {}", getIntentation(2), product.getId());
+								recurringPeriod = pprice.getRecurringChargePeriod();
+								logger.info("{}Get recurring period {} for RecurringChargePeriod", getIntentation(2), recurringPeriod);
 							}
-						} else {
-							logger.debug("{}No RecurringPeriod found or product.startDate valid", getIntentation(2));
-						}
-
-					} else {
-						logger.debug("{}No bill for productId {} because priceType = {} is not recurring status", getIntentation(2), product.getId(), pprice.getPriceType());
-					}
-				}
-
-				logger.info("{}ProductPrices for billing found for productId {}: {}", getIntentation(1), product.getId(), productPrices.size());
-				for (Map.Entry<String, List<ProductPrice>> entry : productPrices.entrySet()) {
-
-					String key = entry.getKey();
-					TimePeriod tp = timePeriods.get(key).get(0);
-
-					if (!timePeriods.get(key).isEmpty()) {
-						logger.debug("{}TimePeriod - startDateTime: {} - endDateTime: {} ", getIntentation(2), tp.getStartDateTime(), tp.getEndDateTime());
-						List<ProductPrice> pps = entry.getValue();
-						/*for (ProductPrice pp : pps) {
-							logger.debug(pp.getName() + " || " + pp.getPriceType());
-						}*/
-						
-						// Verify if the billing is already done
-						if (!isAlreadyBilled(product, tp, pps)) {
-							logger.debug("{}Apply billing process for productId: {}", getIntentation(2), product.getId());
-
-							if (product.getBillingAccount() != null) {
-
-								logger.debug("{}Get AppliedCustomerBillingRates based by product, timePeriod, and productPrice", getIntentation(2));
-								ResponseEntity<String> applied = getAppliedCustomerBillingRates(product, tp, pps);
-								if (applied != null) {
-									List<String> ids = saveBill(applied.getBody());
-									logger.info("{}Number of AppliedCustomerBillingRate saved: {}", getIntentation(2), ids.size());
-									logger.debug("{}AppliedCustomerBillingRate ids saved: {}", getIntentation(2), ids);
+							logger.debug("{}Recurring period found: {}", getIntentation(2), recurringPeriod);
+	
+							if (recurringPeriod != null && product.getStartDate() != null) {
+								OffsetDateTime nextBillingTime = BillingUtils.getNextBillingTime(product.getStartDate(), now, recurringPeriod);
+								OffsetDateTime previousBillingTime = BillingUtils.getPreviousBillingTime(nextBillingTime, recurringPeriod);
+	
+								if (nextBillingTime != null) {
+									logger.debug("{}Billing dateTime for the product:", getIntentation(2));
+									logger.debug("{}- StartDate: {}", getIntentation(2), product.getStartDate());
+									logger.debug("{}- NextDate: {}", getIntentation(2), nextBillingTime);
+									logger.debug("{}- PreviuosDate: {}", getIntentation(2), previousBillingTime);
+									logger.debug("{}- CurrentDate: {}", getIntentation(2), now);
+	
+									// Get numbers of days missing before to start the next bill
+									long days = ChronoUnit.DAYS.between(now, nextBillingTime);
+									logger.debug("{}Missing days before starting the next bill: {}", getIntentation(2), days);
+																		
+									long diffPreviousBillingAndNextBilling = ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
+									logger.debug("{}Difference from PreviuosDate and NextDate for bill (in days): {}", getIntentation(2), diffPreviousBillingAndNextBilling);
+	
+									// days = 0 => time expired => start the bill process
+									if (days == 0) {
+										String keyPeriod = PREFIX_KEY + diffPreviousBillingAndNextBilling;
+										
+										logger.info("{}Bill required for productId: {} - saving TimePeriod and ProductPrices", getIntentation(1), product.getId());
+										// Get TimePeriod and ProductPrice for billing
+										TimePeriod tp = new TimePeriod();
+										tp.setStartDateTime(previousBillingTime);
+										tp.setEndDateTime(nextBillingTime);
+	
+										// grouped items with the same startDate and endDate (i.e. keyPeriod)
+										timePeriods.put(keyPeriod, new ArrayList<>(Arrays.asList(tp)));
+										productPrices.computeIfAbsent(keyPeriod, k -> new ArrayList<>()).add(pprice);
+									}
 								}
 							} else {
-								logger.warn("{}No Billing Account defined in the product {}", getIntentation(2), product.getId());
+								logger.debug("{}No RecurringPeriod found or product.startDate valid", getIntentation(2));
 							}
+	
 						} else {
-							logger.debug("{}Bill already billed for productId: {}", getIntentation(2), product.getId());
+							logger.debug("{}No bill for productId {} because priceType = {} is not recurring status", getIntentation(2), product.getId(), pprice.getPriceType());
 						}
 					}
+					
+	
+					logger.info("{}ProductPrices for billing found for productId {}: {}", getIntentation(1), product.getId(), productPrices.size());
+					for (Map.Entry<String, List<ProductPrice>> entry : productPrices.entrySet()) {
+	
+						String key = entry.getKey();
+						TimePeriod tp = timePeriods.get(key).get(0);
+	
+						if (!timePeriods.get(key).isEmpty()) {
+							logger.debug("{}TimePeriod - startDateTime: {} - endDateTime: {} ", getIntentation(2), tp.getStartDateTime(), tp.getEndDateTime());
+							List<ProductPrice> pps = entry.getValue();
+							/*for (ProductPrice pp : pps) {
+								logger.debug(pp.getName() + " || " + pp.getPriceType());
+							}*/
+							
+							// Verify if the billing is already done
+							if (!isAlreadyBilled(product, tp, pps)) {
+								logger.debug("{}Apply billing process for productId: {}", getIntentation(2), product.getId());
+	
+								if (product.getBillingAccount() != null) {
+	
+									logger.debug("{}Get AppliedCustomerBillingRates based by product, timePeriod, and productPrice", getIntentation(2));
+									ResponseEntity<String> applied = getAppliedCustomerBillingRates(product, tp, pps);
+									if (applied != null) {
+										List<String> ids = saveBill(applied.getBody());
+										logger.info("{}Number of AppliedCustomerBillingRate saved: {}", getIntentation(2), ids.size());
+										logger.debug("{}AppliedCustomerBillingRate ids saved: {}", getIntentation(2), ids);
+									}
+								} else {
+									logger.warn("{}No Billing Account defined in the product {}", getIntentation(2), product.getId());
+								}
+							} else {
+								logger.debug("{}Bill already billed for productId: {}", getIntentation(2), product.getId());
+							}
+						}
+					}
+				} else {
+					logger.debug("{}Bill skipped for productId {} because status ({}) is not active",  getIntentation(1), product.getId(), product.getStatus());
 				}
-			} else {
-				logger.debug("{}Bill skipped for productId {} because status ({}) is not active",  getIntentation(1), product.getId(), product.getStatus());
 			}
+		} else {
+			logger.debug("Products list is null");
 		}
 
 	}
