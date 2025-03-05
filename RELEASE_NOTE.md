@@ -2,6 +2,11 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
+### <code>0.0.11</code> :calendar: 05/03/2025
+**BugFixing**
+* Usage of `2.0.0` version of `tmf637-v4` - commented all `validateJsonElement` methods.
+
+
 ### <code>0.0.10</code> :calendar: 03/03/2025
 **BugFixing**
 * Update `tmf637-v4` dependency to `1.0.3` version.

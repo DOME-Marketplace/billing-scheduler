@@ -1,0 +1,498 @@
+[
+   {
+      "id":"urn:ngsi-ld:product:4c3415d5-4e9f-4629-828a-c33670d35c5f",
+      "href":"urn:ngsi-ld:product:4c3415d5-4e9f-4629-828a-c33670d35c5f",
+      "description":"Create a new product to test billing feature.",
+      "isBundle":false,
+      "name":"Product for Billing",
+      "orderDate":"2024-08-10T10:04:38.983Z",
+      "productOffering":{
+         "id":"urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOffering/urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "name":"test without error"
+      },
+      "productPrice":[
+         {
+            "name":"Price 1 week",
+            "priceType":"recurring",
+            "recurringChargePeriod":"week",
+            "unitOfMeasure":"EUR",
+            "price":{
+               "percentage":30.0,
+               "taxRate":80.55
+            }
+         }
+      ],
+      "relatedParty":[
+         {
+            "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "name":"FICODES",
+            "role":"Seller",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         }
+      ],
+      "status":"active"
+   },
+   {
+      "id":"urn:ngsi-ld:product:ac35ac89-825b-4014-8d85-c739311dfd84",
+      "href":"urn:ngsi-ld:product:ac35ac89-825b-4014-8d85-c739311dfd84",
+      "description":"A product to test billing with productOfferingPrice.",
+      "isBundle":false,
+      "name":"Product Billing with productOfferingPrice",
+      "orderDate":"2024-12-17T13:14:33.213Z",
+      "productOffering":{
+         "id":"urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOffering/urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "name":"test without error"
+      },
+      "productPrice":[
+         {
+            "priceType":null,
+            "price":null,
+            "productOfferingPrice":{
+               "id":"urn:ngsi-ld:product-offering-price:47915f9d-e132-4d29-82db-28c3e985c211",
+               "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOfferingPrice/urn:ngsi-ld:product-offering-price:47915f9d-e132-4d29-82db-28c3e985c211"
+            }
+         }
+      ],
+      "relatedParty":[
+         {
+            "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "name":"FICODES",
+            "role":"Seller",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         }
+      ],
+      "status":"active"
+   },
+   {
+      "id":"urn:ngsi-ld:product:ab6b8a0a-29a6-4ac5-a1f7-e3791560d8eb",
+      "href":"urn:ngsi-ld:product:ab6b8a0a-29a6-4ac5-a1f7-e3791560d8eb",
+      "description":"A product to test billing with productOfferingPrice.",
+      "isBundle":false,
+      "name":"Product Billing with productOfferingPrice",
+      "orderDate":"2024-12-17T13:14:33.213Z",
+      "startDate":"2024-12-17T13:14:33.213Z",
+      "productOffering":{
+         "id":"urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOffering/urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "name":"test without error"
+      },
+      "productPrice":[
+         {
+            "priceType":null,
+            "price":null,
+            "productOfferingPrice":{
+               "id":"urn:ngsi-ld:product-offering-price:47915f9d-e132-4d29-82db-28c3e985c211",
+               "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOfferingPrice/urn:ngsi-ld:product-offering-price:47915f9d-e132-4d29-82db-28c3e985c211"
+            }
+         }
+      ],
+      "relatedParty":[
+         {
+            "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "name":"FICODES",
+            "role":"Seller",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         }
+      ],
+      "status":"active"
+   },
+   {
+      "id":"urn:ngsi-ld:product:8a956420-7304-41e9-885d-7c5c73291bca",
+      "href":"urn:ngsi-ld:product:8a956420-7304-41e9-885d-7c5c73291bca",
+      "description":"A product to test billing with productOfferingPrice.",
+      "isBundle":false,
+      "name":"Product Billing with productOfferingPrice",
+      "orderDate":"2024-12-17T13:14:33.213Z",
+      "startDate":"2024-12-17T13:14:33.213Z",
+      "productOffering":{
+         "id":"urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOffering/urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "name":"test without error"
+      },
+      "productPrice":[
+         {
+            "priceType":"recurring",
+            "price":null,
+            "productOfferingPrice":{
+               "id":"urn:ngsi-ld:product-offering-price:47915f9d-e132-4d29-82db-28c3e985c211",
+               "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOfferingPrice/urn:ngsi-ld:product-offering-price:47915f9d-e132-4d29-82db-28c3e985c211"
+            }
+         }
+      ],
+      "relatedParty":[
+         {
+            "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "name":"FICODES",
+            "role":"Seller",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         }
+      ],
+      "status":"active"
+   },
+   {
+      "id":"urn:ngsi-ld:product:51abe945-9f26-44f7-9985-8214e2a57235",
+      "href":"urn:ngsi-ld:product:51abe945-9f26-44f7-9985-8214e2a57235",
+      "description":"Example of billing with productPrice",
+      "isBundle":false,
+      "name":"Billing with productPrice",
+      "orderDate":"2024-12-17T13:14:33.213Z",
+      "startDate":"2024-08-10T10:04:38.983Z",
+      "terminationDate":"2024-12-10T10:04:38.983Z",
+      "productOffering":{
+         "id":"urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOffering/urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "name":"test without error"
+      },
+      "productPrice":[
+         {
+            "name":"Price number 1",
+            "priceType":"recurring",
+            "recurringChargePeriod":"monthly",
+            "unitOfMeasure":"1",
+            "price":{
+               "percentage":1.0,
+               "dutyFreeAmount":{
+                  "unit":"EUR",
+                  "value":96.45
+               }
+            }
+         },
+         {
+            "name":"Price number 2",
+            "priceType":"recurring",
+            "recurringChargePeriod":"1 monthly",
+            "unitOfMeasure":"1",
+            "price":{
+               "percentage":2.0,
+               "dutyFreeAmount":{
+                  "unit":"EUR",
+                  "value":96.45
+               }
+            }
+         },
+         {
+            "name":"Price number 3",
+            "priceType":"recurring",
+            "recurringChargePeriod":"2 months",
+            "unitOfMeasure":"2",
+            "price":{
+               "percentage":10.0,
+               "dutyFreeAmount":{
+                  "unit":"EUR",
+                  "value":96.45
+               }
+            }
+         },
+         {
+            "name":"Price number 4",
+            "priceType":"recurring",
+            "recurringChargePeriod":"1 weekly",
+            "unitOfMeasure":"2",
+            "price":{
+               "percentage":2.0,
+               "dutyFreeAmount":{
+                  "unit":"EUR",
+                  "value":96.45
+               }
+            }
+         }
+      ],
+      "relatedParty":[
+         {
+            "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "name":"FICODES",
+            "role":"Seller",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         },
+         {
+            "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "name":"DHUB, Engineering D.HUB S.p.A.",
+            "role":"Customer",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         }
+      ],
+      "status":"active"
+   },
+   {
+      "id":"urn:ngsi-ld:product:601676b0-36d3-4d5b-a44c-53a30ea00b40",
+      "href":"urn:ngsi-ld:product:601676b0-36d3-4d5b-a44c-53a30ea00b40",
+      "description":"Just a random exmaple.",
+      "isBundle":false,
+      "name":"Another New Product",
+      "startDate":"2024-08-01T10:04:38.983Z",
+      "productOffering":{
+         "id":"urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOffering/urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "name":"test without error"
+      },
+      "productPrice":[
+         {
+            "name":"Strange Price",
+            "priceType":"recurring",
+            "price":{
+               "percentage":20.0,
+               "taxRate":30.15,
+               "dutyFreeAmount":{
+                  "unit":"EUR",
+                  "value":32.63
+               },
+               "taxIncludedAmount":{
+                  "unit":"EUR",
+                  "value":44.21
+               }
+            }
+         }
+      ],
+      "relatedParty":[
+         {
+            "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "name":"FICODES",
+            "role":"Seller",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         },
+         {
+            "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "name":"DHUB, Engineering D.HUB S.p.A.",
+            "role":"Customer",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         }
+      ],
+      "status":"created"
+   },
+   {
+      "id":"urn:ngsi-ld:product:bd2abad9-5790-4d8b-a812-7f1b6f8cdef8",
+      "href":"urn:ngsi-ld:product:bd2abad9-5790-4d8b-a812-7f1b6f8cdef8",
+      "description":"Example with multiple prices in productPrice.",
+      "isBundle":false,
+      "name":"Product Multiple Prices",
+      "startDate":"2024-08-01T10:04:38.983Z",
+      "productOffering":{
+         "id":"urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOffering/urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "name":"test without error"
+      },
+      "productPrice":[
+         {
+            "name":"Regular Price",
+            "priceType":"recurring",
+            "price":{
+               "percentage":30.0,
+               "taxRate":80.55,
+               "dutyFreeAmount":{
+                  "unit":"EUR",
+                  "value":96.45
+               },
+               "taxIncludedAmount":{
+                  "unit":"EUR",
+                  "value":80.55
+               }
+            }
+         },
+         {
+            "name":"Price Prepaid",
+            "priceType":"recurring-prepaid",
+            "price":{
+               "percentage":21.2,
+               "taxRate":21.75,
+               "dutyFreeAmount":{
+                  "unit":"EUR",
+                  "value":32.64
+               },
+               "taxIncludedAmount":{
+                  "unit":"EUR",
+                  "value":36.31
+               }
+            }
+         }
+      ],
+      "relatedParty":[
+         {
+            "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "name":"FICODES",
+            "role":"Seller",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         },
+         {
+            "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "name":"DHUB, Engineering D.HUB S.p.A.",
+            "role":"Customer",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         }
+      ],
+      "status":"active"
+   },
+   {
+      "id":"urn:ngsi-ld:product:a21e0bc4-2e94-4109-b8df-2376b8375905",
+      "href":"urn:ngsi-ld:product:a21e0bc4-2e94-4109-b8df-2376b8375905",
+      "description":"A detailed description of the new product.",
+      "isBundle":false,
+      "name":"Product discount",
+      "startDate":"2024-08-01T10:04:38.983Z",
+      "productOffering":{
+         "id":"urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOffering/urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "name":"test without error"
+      },
+      "productPrice":[
+         {
+            "name":"Discount Price",
+            "priceType":"discount",
+            "price":{
+               "percentage":20.0,
+               "taxRate":14.55,
+               "dutyFreeAmount":{
+                  "unit":"EUR",
+                  "value":26.45
+               },
+               "taxIncludedAmount":{
+                  "unit":"EUR",
+                  "value":14.52
+               }
+            }
+         }
+      ],
+      "relatedParty":[
+         {
+            "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "name":"FICODES",
+            "role":"Seller",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         },
+         {
+            "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "name":"DHUB, Engineering D.HUB S.p.A.",
+            "role":"Customer",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         }
+      ],
+      "status":"active"
+   },
+   {
+      "id":"urn:ngsi-ld:product:b47f9e46-808a-4746-9351-b443a45c2d54",
+      "href":"urn:ngsi-ld:product:b47f9e46-808a-4746-9351-b443a45c2d54",
+      "description":"A product to test billing with productOfferingPrice.",
+      "isBundle":false,
+      "name":"Product Billing with productOfferingPrice",
+      "orderDate":"2024-12-17T13:14:33.213Z",
+      "startDate":"2024-12-17T13:14:33.213Z",
+      "productOffering":{
+         "id":"urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOffering/urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "name":"test without error"
+      },
+      "productPrice":[
+         {
+            "priceType":"recurring",
+            "price":{
+               "percentage":1.0,
+               "dutyFreeAmount":{
+                  "unit":"EUR",
+                  "value":24.0
+               }
+            },
+            "productOfferingPrice":{
+               "id":"urn:ngsi-ld:product-offering-price:47915f9d-e132-4d29-82db-28c3e985c211",
+               "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOfferingPrice/urn:ngsi-ld:product-offering-price:47915f9d-e132-4d29-82db-28c3e985c211"
+            }
+         }
+      ],
+      "relatedParty":[
+         {
+            "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "name":"FICODES",
+            "role":"Seller",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         },
+         {
+            "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "name":"DHUB, Engineering D.HUB S.p.A.",
+            "role":"Customer",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         }
+      ],
+      "status":"active"
+   },
+   {
+      "id":"urn:ngsi-ld:product:4ae925a8-68b9-4f30-9815-3e231357435d",
+      "href":"urn:ngsi-ld:product:4ae925a8-68b9-4f30-9815-3e231357435d",
+      "description":"A product to test billing with productOfferingPrice.",
+      "isBundle":false,
+      "name":"Product Billing with productOfferingPrice",
+      "orderDate":"2024-12-17T13:14:33.213Z",
+      "startDate":"2024-12-17T13:14:33.213Z",
+      "billingAccount":{
+         "id":"urn:ngsi-ld:billing-account:3dc56c89-8acc-4600-b4aa-21f4c3eb7497",
+         "name":"My Billing Account"
+      },
+      "productOffering":{
+         "id":"urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOffering/urn:ngsi-ld:product-offering:3817723f-3886-4667-a8c7-52cbb765b84e",
+         "name":"test without error"
+      },
+      "productPrice":[
+         {
+            "priceType":"recurring",
+            "price":{
+               "percentage":1.0,
+               "dutyFreeAmount":{
+                  "unit":"EUR",
+                  "value":24.0
+               }
+            },
+            "productOfferingPrice":{
+               "id":"urn:ngsi-ld:product-offering-price:47915f9d-e132-4d29-82db-28c3e985c211",
+               "href":"https://dome-dev.eng.it/tmf-api/productCatalogManagement/v4/productOfferingPrice/urn:ngsi-ld:product-offering-price:47915f9d-e132-4d29-82db-28c3e985c211"
+            }
+         }
+      ],
+      "relatedParty":[
+         {
+            "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+            "name":"FICODES",
+            "role":"Seller",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         },
+         {
+            "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+            "name":"DHUB, Engineering D.HUB S.p.A.",
+            "role":"Customer",
+            "@type":"RelatedParty",
+            "@referredType":"Individual"
+         }
+      ],
+      "status":"active"
+   }
+]
