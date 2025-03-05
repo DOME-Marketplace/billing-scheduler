@@ -2,6 +2,11 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
+### <code>0.0.12</code> :calendar: 05/03/2025
+**BugFixing**
+* Check on the `priceType` if **null**.
+
+
 ### <code>0.0.11</code> :calendar: 05/03/2025
 **BugFixing**
 * Usage of `2.0.0` version of `tmf637-v4` - commented all `validateJsonElement` methods.
