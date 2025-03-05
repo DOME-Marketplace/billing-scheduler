@@ -101,7 +101,7 @@ public class BillingService implements InitializingBean {
 	
 						// Check #2 - priceType = recurring
 						// TODO verify if it must use recurring-prepaid and recurring-postpaid
-						if ("recurring".equals(pprice.getPriceType().toLowerCase())) {
+						if ((pprice.getPriceType() != null) && ("recurring".equals(pprice.getPriceType().toLowerCase()))) {
 	
 							String recurringPeriod = null;
 	
