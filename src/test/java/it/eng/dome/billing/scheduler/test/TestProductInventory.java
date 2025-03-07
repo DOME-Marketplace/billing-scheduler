@@ -50,7 +50,7 @@ public class TestProductInventory {
 		 
 	        ObjectMapper objectMapper = new ObjectMapper();
 	        List<Product> products = objectMapper.readValue(json, new TypeReference<List<Product>>() {});
-	        //products.forEach(System.out::println);
+	        System.out.println(products.size());
 
 		} catch (IOException e) {
 			e.printStackTrace();
