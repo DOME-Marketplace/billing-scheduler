@@ -2,10 +2,16 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
-### <code>0.0.12</code> :calendar: 17/03/2025
+
+### <code>0.0.13</code> :calendar: 17/03/2025
+**BugFixing**
+* Verify if `products` is not **null** (jump validation checks in TMForum SDK).
+
+
+### <code>0.0.12</code> :calendar: 07/03/2025
 **BugFixing**
 * Usage of `2.0.0` version for all `TMForum SDK`.
-* Add check for the `priceType` if it's **null** (jump the validation in the TMForum SDK).
+* Add check for the `priceType` if it's **null** (jump validation checks in TMForum SDK).
 
 
 ### <code>0.0.11</code> :calendar: 05/03/2025
