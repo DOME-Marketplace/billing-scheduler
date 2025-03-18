@@ -46,7 +46,7 @@ public class BillingService implements InitializingBean {
 	private final Logger logger = LoggerFactory.getLogger(BillingService.class);
 	private final static String PREFIX_KEY = "period-";
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
-	private final static String INTEND = "  ";
+	private final static String SPACE = "  ";
 	
 	@Autowired
 	private TmfApiFactory tmfApiFactory;
@@ -99,7 +99,7 @@ public class BillingService implements InitializingBean {
 				if (product.getStatus() == ProductStatusType.ACTIVE) {
 	
 					List<ProductPrice> pprices = product.getProductPrice();
-					logger.debug("{}Number of ProductPrices found: {} ", getIndentation(1),  pprices.size());
+					logger.debug("{}Number of ProductPrices found: {} ", getIndentation(1), pprices.size());
 	
 					Map<String, List<TimePeriod>> timePeriods = new HashMap<>();
 					Map<String, List<ProductPrice>> productPrices = new HashMap<>();
@@ -225,9 +225,9 @@ public class BillingService implements InitializingBean {
 	 */
 	private String getIndentation(int n) {
 		if (n <= 1) {
-			return INTEND;
+			return SPACE;
 		} else {
-			return INTEND + getIndentation(n -1);
+			return SPACE + getIndentation(n - 1);
 		}
 	}
 
@@ -309,7 +309,7 @@ public class BillingService implements InitializingBean {
 	 * @return List of ids
 	 */
 	private List<String> saveBill(String appliedCustomerBillRates) {
-		logger.info("{}Saving the bill inTMForum ...", getIndentation(2));
+		logger.info("{}Saving the bill in TMForum ...", getIndentation(2));
 
 		List<String> ids = new ArrayList<String>();
 
