@@ -309,7 +309,7 @@ public class BillingService implements InitializingBean {
 	 * @return List of ids
 	 */
 	private List<String> saveBill(String appliedCustomerBillRates) {
-		logger.info("{}Saving the bill inTMForum ...", getIndentation(2));
+		logger.info("{}Saving the bill in TMForum ...", getIndentation(2));
 
 		List<String> ids = new ArrayList<String>();
 
