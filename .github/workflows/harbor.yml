@@ -5,7 +5,7 @@ on:
     branches: ["harbor"]
 
 env:
-  REPOSITORY: production.eng.it:8433 # URL Harbor
+  REPOSITORY: ${{ vars.HARBOR_REPO }} # URL Harbor -> set in github variables
   IMAGE_NAME: billing-scheduler	
 
 jobs:
@@ -36,25 +36,25 @@ jobs:
                   <mirror>
                       <id>nexus</id>
                       <mirrorOf>external:*</mirrorOf>
-                      <url>https://production.eng.it/nexus/content/groups/alm-eng-esl-mirror/
+                      <url>${{ vars.NEXUS_URL }}/content/groups/alm-eng-esl-mirror/
                       </url>
                   </mirror>
               </mirrors>
               <servers>
                   <server>
                       <id>almesl-snapshots</id>
-                      <username>${{ vars.ENG_LDAP_USERNAME }}</username>
-                      <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
+                      <username>${{ vars.LDAP_USERNAME }}</username>
+                      <password>${{ secrets.LDAP_PASSWORD }}</password>
                   </server>
                   <server>
                       <id>almesl-releases</id>
-                      <username>${{ vars.ENG_LDAP_USERNAME }}</username>
-                      <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
+                      <username>${{ vars.LDAP_USERNAME }}</username>
+                      <password>${{ secrets.LDAP_PASSWORD }}</password>
                   </server>
                   <server>
                       <id>nexus</id>
-                      <username>${{ vars.ENG_LDAP_USERNAME }}</username>
-                      <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
+                      <username>${{ vars.LDAP_USERNAME }}</username>
+                      <password>${{ secrets.LDAP_PASSWORD }}</password>
                   </server>
               </servers>
               <profiles>
@@ -63,7 +63,7 @@ jobs:
                       <repositories>
                           <repository>
                               <id>almesl-snapshots</id>
-                              <url>https://production.eng.it/nexus/content/repositories/snapshots/
+                              <url>${{ vars.NEXUS_URL }}/content/repositories/snapshots/
                               </url>
                               <releases>
                                   <enabled>false</enabled>
@@ -74,7 +74,7 @@ jobs:
                           </repository>
                           <repository>
                               <id>almesl-releases</id>
-                              <url>https://production.eng.it/nexus/content/repositories/releases/
+                              <url>${{ vars.NEXUS_URL }}/content/repositories/releases/
                               </url>
                               <releases>
                                   <enabled>true</enabled>
@@ -87,7 +87,7 @@ jobs:
                       <pluginRepositories>
                           <pluginRepository>
                               <id>nexus</id>
-                              <url>http://production.eng.it/nexus/content/groups/alm-eng-esl-mirror/</url>
+                              <url>${{ vars.NEXUS_URL }}/content/groups/alm-eng-esl-mirror/</url>
                               <releases>
                                   <enabled>true</enabled>
                               </releases>
@@ -145,25 +145,25 @@ jobs:
                    <mirror>
                        <id>nexus</id>
                        <mirrorOf>external:*</mirrorOf>
-                       <url>https://production.eng.it/nexus/content/groups/alm-eng-esl-mirror/
+                       <url>${{ vars.NEXUS_URL }}/content/groups/alm-eng-esl-mirror/
                        </url>
                    </mirror>
                </mirrors>
                <servers>
                    <server>
                        <id>almesl-snapshots</id>
-                       <username>${{ vars.ENG_LDAP_USERNAME }}</username>
-                       <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
+                       <username>${{ vars.LDAP_USERNAME }}</username>
+                       <password>${{ secrets.LDAP_PASSWORD }}</password>
                    </server>
                    <server>
                        <id>almesl-releases</id>
-                       <username>${{ vars.ENG_LDAP_USERNAME }}</username>
-                       <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
+                       <username>${{ vars.LDAP_USERNAME }}</username>
+                       <password>${{ secrets.LDAP_PASSWORD }}</password>
                    </server>
                    <server>
                        <id>nexus</id>
-                       <username>${{ vars.ENG_LDAP_USERNAME }}</username>
-                       <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
+                       <username>${{ vars.LDAP_USERNAME }}</username>
+                       <password>${{ secrets.LDAP_PASSWORD }}</password>
                    </server>
                </servers>
                <profiles>
@@ -172,7 +172,7 @@ jobs:
                        <repositories>
                            <repository>
                                <id>almesl-snapshots</id>
-                               <url>https://production.eng.it/nexus/content/repositories/snapshots/
+                               <url>${{ vars.NEXUS_URL }}/content/repositories/snapshots/
                                </url>
                                <releases>
                                    <enabled>false</enabled>
@@ -183,7 +183,7 @@ jobs:
                            </repository>
                            <repository>
                                <id>almesl-releases</id>
-                               <url>https://production.eng.it/nexus/content/repositories/releases/
+                               <url>${{ vars.NEXUS_URL }}/content/repositories/releases/
                                </url>
                                <releases>
                                    <enabled>true</enabled>
@@ -196,7 +196,7 @@ jobs:
                        <pluginRepositories>
                            <pluginRepository>
                                <id>nexus</id>
-                               <url>http://production.eng.it/nexus/content/groups/alm-eng-esl-mirror/</url>
+                               <url>${{ vars.NEXUS_URL }}/content/groups/alm-eng-esl-mirror/</url>
                                <releases>
                                    <enabled>true</enabled>
                                </releases>

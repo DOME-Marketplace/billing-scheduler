@@ -1,7 +1,7 @@
 
 # Spring Configuration
 server: 
-  port: 8080
+  port: 8180
   servlet:
     context-path:  ${BILLING_PREFIX:/}
 
@@ -31,7 +31,7 @@ logging:
 # Spring Boot Actuator
 management:
   server:
-    port: 9000
+    port: 9001
   endpoints:
     enabled-by-default: false
     web:
@@ -54,7 +54,7 @@ billing:
 
 # TMForum Endpoints
 tmforumapi:
-  tmf_endpoint: ${TMF_ENDPOINT:https://dome-dev.eng.it}
+  tmf_endpoint: ${TMF_ENDPOINT:http://tm-forum-api}
   
   # tmf_envoy = false => use specific path for any tmforum software | tmf_envoy = true => use TMF_ENDPOINT as unique path (proxy) 
   tmf_envoy:  ${TMF_ENVOY:true}
