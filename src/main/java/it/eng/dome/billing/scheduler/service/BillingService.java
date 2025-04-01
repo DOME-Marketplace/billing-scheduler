@@ -26,15 +26,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import it.eng.dome.billing.scheduler.tmf.TmfApiFactory;
+import it.eng.dome.brokerage.api.AppliedCustomerBillRateApis;
+import it.eng.dome.brokerage.api.ProductApis;
+import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
 import it.eng.dome.brokerage.billing.utils.BillingUtils;
-import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
-import it.eng.dome.tmforum.tmf637.v4.api.ProductApi;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductStatusType;
 import it.eng.dome.tmforum.tmf678.v4.JSON;
-import it.eng.dome.tmforum.tmf678.v4.api.AppliedCustomerBillingRateApi;
 import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRate;
 import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRateCreate;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
@@ -57,15 +57,15 @@ public class BillingService implements InitializingBean {
 	@Autowired
 	protected RestTemplate restTemplate;
 	
-	private ProductApi productApi;
-	private AppliedCustomerBillingRateApi appliedCustomerBillingRate;
-	private ProductOfferingPriceApi productOfferingPrice;
+	private ProductApis productApis;
+	private AppliedCustomerBillRateApis appliedCustomerBillRateApis;
+	private ProductOfferingPriceApis productOfferingPrices;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		productApi = new ProductApi(tmfApiFactory.getTMF637ProductInventoryApiClient());
-		productOfferingPrice = new ProductOfferingPriceApi(tmfApiFactory.getTMF620CatalogApiClient());
-		appliedCustomerBillingRate = new AppliedCustomerBillingRateApi(tmfApiFactory.getTMF678CustomerBillApiClient());
+		productApis = new ProductApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
+		productOfferingPrices = new ProductOfferingPriceApis(tmfApiFactory.getTMF620CatalogApiClient());
+		appliedCustomerBillRateApis = new AppliedCustomerBillRateApis(tmfApiFactory.getTMF678CustomerBillApiClient());
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class BillingService implements InitializingBean {
 		logger.info("Retrieve all products from productApi.listProduct() method");
 
 		// TODO - how to improve filtering of product
-		List<Product> products = productApi.listProduct(null, null, null);
+		List<Product> products = productApis.getAllProducts(null);
 
 		if (products != null) { // verify if products list is null
 			
@@ -240,7 +240,7 @@ public class BillingService implements InitializingBean {
 	private String getRecurringPeriod(String id) throws it.eng.dome.tmforum.tmf620.v4.ApiException {
 		logger.info("{}Retrieve the RecurringPeriod for ProductOfferingPriceId: {}", getIndentation(3), id);
 
-		ProductOfferingPrice pop = productOfferingPrice.retrieveProductOfferingPrice(id, null);
+		ProductOfferingPrice pop = productOfferingPrices.getProductOfferingPrice(id, null);
 		logger.debug("{}Found RecurringChargePeriodLength: {} - RecurringChargePeriodType: {}", getIndentation(3), pop.getRecurringChargePeriodLength(), pop.getRecurringChargePeriodType());
 		return pop.getRecurringChargePeriodLength() + " " + pop.getRecurringChargePeriodType();
 	}
@@ -260,7 +260,7 @@ public class BillingService implements InitializingBean {
 		boolean isBilled = false;
 
 		logger.info("{}Retrieve the list of AppliedCustomerBillingRate", getIndentation(3));
-		List<AppliedCustomerBillingRate> billed = appliedCustomerBillingRate.listAppliedCustomerBillingRate("product,periodCoverage", null, null);
+		List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("product,periodCoverage");
 		logger.debug("{}Number of AppliedCustomerBillingRate found: {}", getIndentation(3), billed.size());
 
 		logger.info("{}ProductId to verify: {}", getIndentation(3), product.getId());
@@ -322,7 +322,7 @@ public class BillingService implements InitializingBean {
 				bill.setDescription("Example for Applied Customer Bill Rate!");
 
 				AppliedCustomerBillingRateCreate createApply = AppliedCustomerBillingRateCreate.fromJson(bill.toJson());
-				AppliedCustomerBillingRate created = appliedCustomerBillingRate.createAppliedCustomerBillingRate(createApply);
+				AppliedCustomerBillingRate created = appliedCustomerBillRateApis.createAppliedCustomerBillingRate(createApply);
 				logger.info("{}AppliedCustomerBillRate saved with id: {}", getIndentation(2), created.getId());
 				ids.add(created.getId());
 			}

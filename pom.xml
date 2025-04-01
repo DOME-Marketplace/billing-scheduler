@@ -12,7 +12,7 @@
 
     <groupId>it.eng.dome.billing</groupId>
     <artifactId>scheduler</artifactId>
-    <version>0.0.13c</version>
+    <version>0.1.0</version>
     <name>Billing Scheduler</name>
     <description>Billing Scheduler for DOME project</description>
 
@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>it.eng.dome.brokerage</groupId>
 			<artifactId>brokerage-utils</artifactId>
-			<version>[1.0.0, 2.0.0)</version>
+			<version>[2.0.0, 3.0.0)</version>
 		</dependency>
 		
         <!-- TMForum SDK dependencies -->
