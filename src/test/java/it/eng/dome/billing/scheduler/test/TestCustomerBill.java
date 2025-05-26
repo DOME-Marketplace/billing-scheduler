@@ -26,7 +26,7 @@ public class TestCustomerBill {
 			apiClient.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillingPath);
 			
 			CustomerBillApi customer = new CustomerBillApi(apiClient);
-			List<CustomerBill> customers = customer.listCustomerBill(null, null, null);
+			List<CustomerBill> customers = customer.listCustomerBill(null, null, null, null);
 			
 			System.out.println("number of customerBill found: " + customers.size());
 			
@@ -35,7 +35,7 @@ public class TestCustomerBill {
 			saveCustomerBilling(customerCreate);
 			
 			
-			customers = customer.listCustomerBill(null, null, null);
+			customers = customer.listCustomerBill(null, null, null, null);
 			System.out.println("number of customerBill found: " + customers.size());
 			for (CustomerBill customerBill : customers) {
 				System.out.println("customerId: " + customerBill.getId());

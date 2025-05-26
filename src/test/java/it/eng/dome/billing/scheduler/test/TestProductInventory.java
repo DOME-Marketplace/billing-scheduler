@@ -33,7 +33,7 @@ public class TestProductInventory {
 			System.out.println("Endppoint: " + apiClient.getBasePath());
 
 			ProductApi productApi = new ProductApi(apiClient);
-			List<Product> products = productApi.listProduct(/* "id,name" */ null, null, null);
+			List<Product> products = productApi.listProduct(/* "id,name" */ null, null, null, null);
 			//System.out.println(products.get(0).toJson());
 			System.out.println("---->>>> Number of Product found = " + products.size());
 		} catch (Exception e) {
