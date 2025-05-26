@@ -25,7 +25,7 @@ public class TestAppliedCustomerBillingRate {
 			apiClient.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillingPath);
 			
 			AppliedCustomerBillingRateApi applied = new AppliedCustomerBillingRateApi(apiClient);
-			List<AppliedCustomerBillingRate> applies = applied.listAppliedCustomerBillingRate(null, null, null);
+			List<AppliedCustomerBillingRate> applies = applied.listAppliedCustomerBillingRate(null, null, null, null);
 			
 			System.out.println("number of appliedCustomerBillingRate found: " + applies.size());
 			

@@ -40,9 +40,9 @@ public class TestBilling {
 		try {
 			final it.eng.dome.tmforum.tmf637.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf637.v4.Configuration.getDefaultApiClient();
 			apiClient.setBasePath(tmfEndpoint + "/" + tmf637ProductInventoryPath);
-					
+
 			ProductApi productApi = new ProductApi(apiClient);
-			List<Product> products = productApi.listProduct(/*"id,name"*/ null, null, null);
+			List<Product> products = productApi.listProduct(/*"id,name"*/ null, null, null, null);
 			System.out.println("---->>>> Number of Product found = " + products.size());
 			
 			int count = 0;
@@ -59,59 +59,61 @@ public class TestBilling {
 					
 					Map<String, List<TimePeriod>> timePeriods = new HashMap<>();
 					Map<String, List<ProductPrice>> productPrices = new HashMap<>();
-					
-					for (ProductPrice pprice : pprices) {
-						System.out.println(">> ProductPrice: " + pprice.getName());		
-						//System.out.println("checking productPrice ... ");
-						if ("recurring".equals(pprice.getPriceType().toLowerCase()))  {
-							//System.out.println("priceType = recurring for productPrice");
-							System.out.println("productPrice # " + ++countPp);
-							
-							
-							String recurringPeriod = null;
-							
-							if (pprice.getProductOfferingPrice() != null) {// check on ProductOfferingPrice 								
-								// GET recurringChargePeriodType + recurringChargePeriodLength
-								System.out.println("Use Case - ProductOfferingPrice for product: " + product.getId());	
-								recurringPeriod = getRecurringPeriod( pprice.getProductOfferingPrice().getId());
-								System.out.println("Recurring period: " + recurringPeriod);
 
-							}else if (pprice.getRecurringChargePeriod() != null) {// check on RecurringChargePeriod									
-								System.out.println("Use Case - RecurringChargePeriod for product: " + product.getId());
-								recurringPeriod = pprice.getRecurringChargePeriod();
-								System.out.println("Recurring period: " + recurringPeriod);								
-							}
-							
-							if (recurringPeriod != null && product.getStartDate() != null) {
-								OffsetDateTime nextBillingTime = getNextBillingTime(product.getStartDate(), recurringPeriod);
-								OffsetDateTime previousBillingTime = getPreviousBillingTime(nextBillingTime, recurringPeriod);
+					if (pprices != null) {
+						for (ProductPrice pprice : pprices) {
+							System.out.println(">> ProductPrice: " + pprice.getName());		
+							//System.out.println("checking productPrice ... ");
+							if ("recurring".equals(pprice.getPriceType().toLowerCase()))  {
+								//System.out.println("priceType = recurring for productPrice");
+								System.out.println("productPrice # " + ++countPp);
 								
-								if (nextBillingTime != null) {
-									System.out.println("StartDate: " + product.getStartDate());
-									System.out.println("recurring: " + recurringPeriod);
-									System.out.println("NextDate: " + nextBillingTime);
-									System.out.println("PreviuosDate: " + previousBillingTime);
-									
-									
-									System.out.println("CurrentDate: " + now);
-									long days = ChronoUnit.DAYS.between(now, nextBillingTime);
-									System.out.println(">>>days missing for billing: " + days);
-									System.out.println("diff: " + ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime));
-									String keyPeriod = "period-" + ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
-									if (days == 0) {
-										TimePeriod tp = new TimePeriod();
-										tp.setStartDateTime(previousBillingTime);
-										tp.setEndDateTime(nextBillingTime);
-										System.out.println("AppliedCustomerBillingRate: " + product.getId() + " " + pprice.getName());
-										//System.out.println(tp);
-										//System.out.println("add: " + keyPeriod + " - obj " + tp);
-										
-										timePeriods.put(keyPeriod, new ArrayList<>(Arrays.asList(tp)));
-										productPrices.computeIfAbsent(keyPeriod, k -> new ArrayList<>()).add(pprice);
-									}
+								
+								String recurringPeriod = null;
+								
+								if (pprice.getProductOfferingPrice() != null) {// check on ProductOfferingPrice 								
+									// GET recurringChargePeriodType + recurringChargePeriodLength
+									System.out.println("Use Case - ProductOfferingPrice for product: " + product.getId());	
+									recurringPeriod = getRecurringPeriod( pprice.getProductOfferingPrice().getId());
+									System.out.println("Recurring period: " + recurringPeriod);
+	
+								}else if (pprice.getRecurringChargePeriod() != null) {// check on RecurringChargePeriod									
+									System.out.println("Use Case - RecurringChargePeriod for product: " + product.getId());
+									recurringPeriod = pprice.getRecurringChargePeriod();
+									System.out.println("Recurring period: " + recurringPeriod);								
 								}
-							}else {
-								System.out.println("No recurringPeriod found or product.startDate valid");
+								
+								if (recurringPeriod != null && product.getStartDate() != null) {
+									OffsetDateTime nextBillingTime = getNextBillingTime(product.getStartDate(), recurringPeriod);
+									OffsetDateTime previousBillingTime = getPreviousBillingTime(nextBillingTime, recurringPeriod);
+									
+									if (nextBillingTime != null) {
+										System.out.println("StartDate: " + product.getStartDate());
+										System.out.println("recurring: " + recurringPeriod);
+										System.out.println("NextDate: " + nextBillingTime);
+										System.out.println("PreviuosDate: " + previousBillingTime);
+										
+										
+										System.out.println("CurrentDate: " + now);
+										long days = ChronoUnit.DAYS.between(now, nextBillingTime);
+										System.out.println(">>>days missing for billing: " + days);
+										System.out.println("diff: " + ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime));
+										String keyPeriod = "period-" + ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
+										if (days == 0) {
+											TimePeriod tp = new TimePeriod();
+											tp.setStartDateTime(previousBillingTime);
+											tp.setEndDateTime(nextBillingTime);
+											System.out.println("AppliedCustomerBillingRate: " + product.getId() + " " + pprice.getName());
+											//System.out.println(tp);
+											//System.out.println("add: " + keyPeriod + " - obj " + tp);
+											
+											timePeriods.put(keyPeriod, new ArrayList<>(Arrays.asList(tp)));
+											productPrices.computeIfAbsent(keyPeriod, k -> new ArrayList<>()).add(pprice);
+										}
+									}
+								}else {
+									System.out.println("No recurringPeriod found or product.startDate valid");
+								}
 							}
 						}
 					}
@@ -248,7 +250,7 @@ public class TestBilling {
 			ProductApi productApi = new ProductApi(apiClient);
 					
 			// 1) retrieve all products
-			List<Product> products = productApi.listProduct(/*"id,name"*/ null, null, null);
+			List<Product> products = productApi.listProduct(/*"id,name"*/ null, null, null, null);
 			System.out.println("number of product found: " + products.size());
 			
 			// 2) check if bill is already calculated

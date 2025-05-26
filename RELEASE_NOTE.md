@@ -2,6 +2,11 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
+### <code>1.2.0</code> :calendar: 26/05/2025
+**Improvements**
+* Set of `[2.1.0, 2.2.0)` version of `Brokerage Utils`.
+
+
 ### <code>0.1.0</code> :calendar: 01/04/2025
 **Improvements**
 * Usage of `2.0.0` version of `Brokerage Utils`.

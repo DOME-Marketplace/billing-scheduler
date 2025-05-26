@@ -80,30 +80,32 @@ public class BillingService implements InitializingBean {
 
 		logger.info("Starting calculateBill at {}", now.format(formatter));
 
-		// retrieve all products
-		logger.info("Retrieve all products from productApi.listProduct() method");
+		// add filter for AppliedCustomerBillingRate 
+		Map<String, String> filter = new HashMap<String, String>();
+		filter.put("status", ProductStatusType.ACTIVE.getValue()); // status = active
 
-		// TODO - how to improve filtering of product
-		List<Product> products = productApis.getAllProducts(null);
+		// get product with status = active
+		List<Product> products = productApis.getAllProducts(null, filter);
 
-		if (products != null) { // verify if products list is null
+		if (products != null && !products.isEmpty()) { // verify if products list is not empty
 			
-			logger.info("Number of Products found: {} ", products.size());
+			logger.info("Number of products found: {} ", products.size());
 			int count = 0;
 	
 			for (Product product : products) {
 				logger.debug("Product # {} - productId: {}", ++count, product.getId());
-				logger.info("{}Analyzing product with status: {}", getIndentation(1), product.getStatus());
+				//logger.info("{}Analyzing product with status: {}", getIndentation(1), product.getStatus());
 				
 				// Check #1 - status=active
-				if (product.getStatus() == ProductStatusType.ACTIVE) {
+				//if (product.getStatus() == ProductStatusType.ACTIVE) {
 	
-					List<ProductPrice> pprices = product.getProductPrice();
-					logger.debug("{}Number of ProductPrices found: {} ", getIndentation(1), pprices.size());
-	
-					Map<String, List<TimePeriod>> timePeriods = new HashMap<>();
-					Map<String, List<ProductPrice>> productPrices = new HashMap<>();
-	
+				List<ProductPrice> pprices = product.getProductPrice();
+				logger.debug("{}Number of ProductPrices found: {} ", getIndentation(1), pprices.size());
+
+				Map<String, List<TimePeriod>> timePeriods = new HashMap<>();
+				Map<String, List<ProductPrice>> productPrices = new HashMap<>();
+
+				if (pprices != null && !pprices.isEmpty()) {
 					for (ProductPrice pprice : pprices) {
 	
 						// Check #2 - priceType = recurring
@@ -171,49 +173,52 @@ public class BillingService implements InitializingBean {
 							logger.debug("{}No bill for productId {} because priceType = {} is not recurring status", getIndentation(2), product.getId(), pprice.getPriceType());
 						}
 					}
-					
-					/* verify timePeriods/productPrices if it needs to bill */  
-	
-					logger.info("{}ProductPrices for billing found for productId {}: {}", getIndentation(1), product.getId(), productPrices.size());
-					for (Map.Entry<String, List<ProductPrice>> entry : productPrices.entrySet()) {
-	
-						String key = entry.getKey();
-						TimePeriod tp = timePeriods.get(key).get(0);
-	
-						if (!timePeriods.get(key).isEmpty()) {
-							logger.debug("{}TimePeriod - startDateTime: {} - endDateTime: {} ", getIndentation(2), tp.getStartDateTime(), tp.getEndDateTime());
-							List<ProductPrice> pps = entry.getValue();
-							
-							// Verify if the billing is already done
-							if (!isAlreadyBilled(product, tp, pps)) {
-								logger.debug("{}Apply billing process for productId: {}", getIndentation(2), product.getId());
-	
-								if (product.getBillingAccount() != null) {
-	
-									logger.debug("{}Get AppliedCustomerBillingRates based by product, timePeriod, and productPrice", getIndentation(2));
-									ResponseEntity<String> applied = getAppliedCustomerBillingRates(product, tp, pps);
-									
-									if (applied != null) {
-										List<String> ids = saveBill(applied.getBody());
-										logger.info("{}Number of AppliedCustomerBillingRate saved: {}", getIndentation(2), ids.size());
-										logger.debug("{}AppliedCustomerBillingRate ids saved: {}", getIndentation(2), ids);
-									}else {
-										logger.warn("{}Cannot retrieve AppliedCustomerBillingRates", getIndentation(2));
-									}
-								} else {
-									logger.warn("{}No Billing Account defined in the product {}", getIndentation(2), product.getId());
+				}else {
+					logger.warn("No ProductPrice found for the product {}", product.getId());
+				}
+				
+				/* verify timePeriods/productPrices if it needs to bill */  
+
+				logger.info("{}ProductPrices for billing found for productId {}: {}", getIndentation(1), product.getId(), productPrices.size());
+				for (Map.Entry<String, List<ProductPrice>> entry : productPrices.entrySet()) {
+
+					String key = entry.getKey();
+					TimePeriod tp = timePeriods.get(key).get(0);
+
+					if (!timePeriods.get(key).isEmpty()) {
+						logger.debug("{}TimePeriod - startDateTime: {} - endDateTime: {} ", getIndentation(2), tp.getStartDateTime(), tp.getEndDateTime());
+						List<ProductPrice> pps = entry.getValue();
+						
+						// Verify if the billing is already done
+						if (!isAlreadyBilled(product, tp, pps)) {
+							logger.debug("{}Apply billing process for productId: {}", getIndentation(2), product.getId());
+
+							if (product.getBillingAccount() != null) {
+
+								logger.debug("{}Get AppliedCustomerBillingRates based by product, timePeriod, and productPrice", getIndentation(2));
+								ResponseEntity<String> applied = getAppliedCustomerBillingRates(product, tp, pps);
+								
+								if (applied != null) {
+									List<String> ids = saveBill(applied.getBody());
+									logger.info("{}Number of AppliedCustomerBillingRate saved: {}", getIndentation(2), ids.size());
+									logger.debug("{}AppliedCustomerBillingRate ids saved: {}", getIndentation(2), ids);
+								}else {
+									logger.warn("{}Cannot retrieve AppliedCustomerBillingRates", getIndentation(2));
 								}
 							} else {
-								logger.debug("{}Bill already billed for productId: {}", getIndentation(2), product.getId());
+								logger.warn("{}No Billing Account defined in the product {}", getIndentation(2), product.getId());
 							}
+						} else {
+							logger.debug("{}Bill already billed for productId: {}", getIndentation(2), product.getId());
 						}
 					}
-				} else {
-					logger.debug("{}Bill skipped for productId {} because status ({}) is not active",  getIndentation(1), product.getId(), product.getStatus());
 				}
+				/*} else {
+					logger.debug("{}Bill skipped for productId {} because status ({}) is not active",  getIndentation(1), product.getId(), product.getStatus());
+				}*/
 			}
 		} else {
-			logger.debug("Products list is null");
+			logger.warn("The list of Products is empty");
 		}
 
 	}
@@ -260,7 +265,12 @@ public class BillingService implements InitializingBean {
 		boolean isBilled = false;
 
 		logger.info("{}Retrieve the list of AppliedCustomerBillingRate", getIndentation(3));
-		List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("product,periodCoverage");
+		
+		// add filter for AppliedCustomerBillingRate 
+		Map<String, String> filter = new HashMap<String, String>();
+		filter.put("isBilled", "true"); // isBilled = true
+		
+		List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("product,periodCoverage", filter);
 		logger.debug("{}Number of AppliedCustomerBillingRate found: {}", getIndentation(3), billed.size());
 
 		logger.info("{}ProductId to verify: {}", getIndentation(3), product.getId());
@@ -318,8 +328,8 @@ public class BillingService implements InitializingBean {
 
 			//TODO verify if this array has got just one item
 			for (AppliedCustomerBillingRate bill : bills) {
-				bill.setName("Applied Customer Bill Rate #" + (int) Math.round(Math.random() * 100));
-				bill.setDescription("Example for Applied Customer Bill Rate!");
+				bill.setName("Applied Customer Bill Rate - " + bill.getId());
+				bill.setDescription("Billing Scheduler generated the bill for " + bill.getId());
 
 				AppliedCustomerBillingRateCreate createApply = AppliedCustomerBillingRateCreate.fromJson(bill.toJson());
 				AppliedCustomerBillingRate created = appliedCustomerBillRateApis.createAppliedCustomerBillingRate(createApply);
