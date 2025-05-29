@@ -32,8 +32,7 @@ public class TestAppliedCustomerBillingRate {
 			saveApplied(applied);
 			
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		}
 
 	}
@@ -47,11 +46,9 @@ public class TestAppliedCustomerBillingRate {
 			AppliedCustomerBillingRateCreate acbr = AppliedCustomerBillingRateCreate.fromJson(json);
 			app.createAppliedCustomerBillingRate(acbr);
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		}
 	}
 	
@@ -60,8 +57,7 @@ public class TestAppliedCustomerBillingRate {
 		try {
 			return new String(Files.readAllBytes(Paths.get(file)));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
 	}

@@ -42,8 +42,7 @@ public class TestCustomerBill {
 			}
 			
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		}
 
 	}
@@ -58,8 +57,7 @@ public class TestCustomerBill {
 			
 			create.createCustomerBill(cbc);
 		} catch (ApiException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		}
 	}
 	
@@ -68,8 +66,7 @@ public class TestCustomerBill {
 		try {
 			return new String(Files.readAllBytes(Paths.get(file)));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
 	}

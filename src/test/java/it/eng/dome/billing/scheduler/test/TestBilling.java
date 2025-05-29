@@ -145,8 +145,7 @@ public class TestBilling {
 			
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		}
 	}
 	
@@ -161,8 +160,7 @@ public class TestBilling {
 			//System.out.println("num days: " + getNumberOfDays(pop.getRecurringChargePeriodType()));
 			return pop.getRecurringChargePeriodLength() + " " + pop.getRecurringChargePeriodType();
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
 	}
@@ -257,7 +255,7 @@ public class TestBilling {
 			
 			
 			// 3) create the bill
-			//TODO Usage of filtering APIs
+			//Usage of filtering APIs
 			int count = 0;
 			for (Product product : products) {
 				System.out.println("----------------------------------------------------------");
@@ -320,8 +318,7 @@ public class TestBilling {
 			// 4) create the invoicing
 		
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		}
 	}
 

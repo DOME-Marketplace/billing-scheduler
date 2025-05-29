@@ -37,8 +37,7 @@ public class TestProductInventory {
 			//System.out.println(products.get(0).toJson());
 			System.out.println("---->>>> Number of Product found = " + products.size());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		}
 	}
 	
@@ -62,8 +61,7 @@ public class TestProductInventory {
 		try {
 			return new String(Files.readAllBytes(Paths.get(file)));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
 	}
