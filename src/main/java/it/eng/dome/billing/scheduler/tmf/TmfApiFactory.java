@@ -56,7 +56,7 @@ public final class TmfApiFactory implements InitializingBean {
 			}else {
 				// use direct access on specific TMForum APIs software		
 				// tmfEndpoint is the prefix and you must append to the URL (using '-' char) the specific software (i.e. product-inventory)
-				apiClientTmf637.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);
+				apiClientTmf637.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf637ProductInventoryPath);
 			}
 			logger.debug("Invoke Product Inventory API at endpoint: " + apiClientTmf637.getBasePath());
 		}
@@ -72,7 +72,7 @@ public final class TmfApiFactory implements InitializingBean {
 				apiClientTmf678.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillPath);
 			}else {
 				// use direct access on specific TMForum APIs software	
-				apiClientTmf678.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);		
+				apiClientTmf678.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf678CustomerBillPath);		
 			}	
 			
 			logger.debug("Invoke Customer Billing API at endpoint: " + apiClientTmf678.getBasePath());
@@ -88,7 +88,7 @@ public final class TmfApiFactory implements InitializingBean {
 				apiClientTmf620.setBasePath(tmfEndpoint + "/" + tmf620CatalogPath);
 			}else {
 				// use direct access on specific TMForum APIs software
-				apiClientTmf620.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);
+				apiClientTmf620.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf620CatalogPath);
 			}		
 			logger.debug("Invoke Catalog API at endpoint: " + apiClientTmf620.getBasePath());
 		}

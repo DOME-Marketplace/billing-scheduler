@@ -2,10 +2,11 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
-### <code>1.2.0</code> :calendar: 26/05/2025
+### <code>1.2.0</code> :calendar: 03/06/2025
 **Improvements**
 * Set of `[2.1.0, 2.2.0)` version of `Brokerage Utils`.
 * Use **filter** features for retrieving the **Products** with `status = active` in the query string param (**Brokerage Utils** version `2.1.0`).
+* Update paths for TMForum internal services.
 
 
 ### <code>0.1.0</code> :calendar: 01/04/2025
