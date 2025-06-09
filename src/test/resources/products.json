@@ -28,12 +28,10 @@
             "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "name":"FICODES",
-            "role":"Seller",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Seller"
          }
       ],
-      "status":"active"
+      "status":"ACTIVE"
    },
    {
       "id":"urn:ngsi-ld:product:ac35ac89-825b-4014-8d85-c739311dfd84",
@@ -62,12 +60,10 @@
             "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "name":"FICODES",
-            "role":"Seller",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Seller"
          }
       ],
-      "status":"active"
+      "status":"ACTIVE"
    },
    {
       "id":"urn:ngsi-ld:product:ab6b8a0a-29a6-4ac5-a1f7-e3791560d8eb",
@@ -97,12 +93,10 @@
             "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "name":"FICODES",
-            "role":"Seller",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Seller"
          }
       ],
-      "status":"active"
+      "status":"ACTIVE"
    },
    {
       "id":"urn:ngsi-ld:product:8a956420-7304-41e9-885d-7c5c73291bca",
@@ -132,12 +126,10 @@
             "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "name":"FICODES",
-            "role":"Seller",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Seller"
          }
       ],
-      "status":"active"
+      "status":"ACTIVE"
    },
    {
       "id":"urn:ngsi-ld:product:51abe945-9f26-44f7-9985-8214e2a57235",
@@ -212,20 +204,16 @@
             "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "name":"FICODES",
-            "role":"Seller",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Seller"
          },
          {
             "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "name":"DHUB, Engineering D.HUB S.p.A.",
-            "role":"Customer",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Customer"
          }
       ],
-      "status":"active"
+      "status":"ACTIVE"
    },
    {
       "id":"urn:ngsi-ld:product:601676b0-36d3-4d5b-a44c-53a30ea00b40",
@@ -262,20 +250,16 @@
             "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "name":"FICODES",
-            "role":"Seller",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Seller"
          },
          {
             "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "name":"DHUB, Engineering D.HUB S.p.A.",
-            "role":"Customer",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Customer"
          }
       ],
-      "status":"created"
+      "status":"CREATED"
    },
    {
       "id":"urn:ngsi-ld:product:bd2abad9-5790-4d8b-a812-7f1b6f8cdef8",
@@ -328,20 +312,16 @@
             "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "name":"FICODES",
-            "role":"Seller",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Seller"
          },
          {
             "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "name":"DHUB, Engineering D.HUB S.p.A.",
-            "role":"Customer",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Customer"
          }
       ],
-      "status":"active"
+      "status":"ACTIVE"
    },
    {
       "id":"urn:ngsi-ld:product:a21e0bc4-2e94-4109-b8df-2376b8375905",
@@ -378,20 +358,16 @@
             "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "name":"FICODES",
-            "role":"Seller",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Seller"
          },
          {
             "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "name":"DHUB, Engineering D.HUB S.p.A.",
-            "role":"Customer",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Customer"
          }
       ],
-      "status":"active"
+      "status":"ACTIVE"
    },
    {
       "id":"urn:ngsi-ld:product:b47f9e46-808a-4746-9351-b443a45c2d54",
@@ -427,20 +403,16 @@
             "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "name":"FICODES",
-            "role":"Seller",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Seller"
          },
          {
             "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "name":"DHUB, Engineering D.HUB S.p.A.",
-            "role":"Customer",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Customer"
          }
       ],
-      "status":"active"
+      "status":"ACTIVE"
    },
    {
       "id":"urn:ngsi-ld:product:4ae925a8-68b9-4f30-9815-3e231357435d",
@@ -480,19 +452,15 @@
             "id":"urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
             "name":"FICODES",
-            "role":"Seller",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Seller"
          },
          {
             "id":"urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "href":"https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
             "name":"DHUB, Engineering D.HUB S.p.A.",
-            "role":"Customer",
-            "@type":"RelatedParty",
-            "@referredType":"Individual"
+            "role":"Customer"
          }
       ],
-      "status":"active"
+      "status":"ACTIVE"
    }
 ]

@@ -3,10 +3,14 @@ package it.eng.dome.billing.scheduler.test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import it.eng.dome.tmforum.tmf637.v4.ApiClient;
 import it.eng.dome.tmforum.tmf637.v4.Configuration;
@@ -22,7 +26,55 @@ public class TestProductInventory {
 	public static void main(String[] args) {
 		TestProductInventory test = new TestProductInventory();
 		//test.test1();
-		test.test2();
+		//test.test2();
+		
+		test.TestKey();
+	}
+	
+	public void TestKey() {
+		System.out.println("my test");
+		String input = "recurring prepaid";
+		String normalized = BillingPriceType.normalize(input);
+		System.out.println("--> " + normalized);
+		System.out.println( Arrays.stream(BillingPriceType.values())
+	      .map(BillingPriceType::getNormalizedKey)
+	      .distinct()
+	      .collect(Collectors.joining(", ")));
+		
+	}
+	
+	public enum BillingPriceType {
+	    RECURRING("recurring"),
+	    RECURRING_PREPAID("recurring-prepaid"),
+	    RECURRING_POSTPAID("recurring"),
+	    PAY_PER_USE("pay-per-use");
+
+	    private final String normalizedKey;
+
+	    BillingPriceType(String normalizedKey) {
+	        this.normalizedKey = normalizedKey;
+	    }
+
+	    public String getNormalizedKey() {
+	        return normalizedKey;
+	    }
+
+	    public static String normalize(String input) {
+	    	if (input == null) return null;
+	        String normalizedInput = input
+	            .toLowerCase()
+	            .trim()
+	            .replaceAll("\\s+", "-")
+	            .toUpperCase()
+	            .replace("-", "_");
+	        
+	        for (BillingPriceType type : values()) {
+	            if (type.name().equalsIgnoreCase(normalizedInput)) {
+	                return type.getNormalizedKey();
+	            }
+	        }
+	        return null;
+	    }
 	}
 	
 	public void test1() {
@@ -48,6 +100,8 @@ public class TestProductInventory {
 			
 		 
 	        ObjectMapper objectMapper = new ObjectMapper();
+	        objectMapper.registerModule(new JavaTimeModule());
+	        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 	        List<Product> products = objectMapper.readValue(json, new TypeReference<List<Product>>() {});
 	        System.out.println(products.size());
 
@@ -57,7 +111,7 @@ public class TestProductInventory {
 	}
 	
 	private static String getJsonProducts() {
-		String file = "src/test/resources/productsAccessNode.json";
+		String file = "src/test/resources/products.json";
 		try {
 			return new String(Files.readAllBytes(Paths.get(file)));
 		} catch (IOException e) {
