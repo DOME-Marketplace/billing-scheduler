@@ -50,14 +50,13 @@ public final class TmfApiFactory implements InitializingBean {
 	public it.eng.dome.tmforum.tmf637.v4.ApiClient getTMF637ProductInventoryApiClient() {
 		if (apiClientTmf637 == null) {
 			apiClientTmf637 = it.eng.dome.tmforum.tmf637.v4.Configuration.getDefaultApiClient(); 
-			if (tmfEnvoy) {
-				// usage of envoyProxy to access on TMForum APIs (i.e. tmfEndpoint = http://tm-forum-api-envoy.marketplace.svc.cluster.local:8080)
-				apiClientTmf637.setBasePath(tmfEndpoint + "/" + tmf637ProductInventoryPath);
-			}else {
-				// use direct access on specific TMForum APIs software		
-				// tmfEndpoint is the prefix and you must append to the URL (using '-' char) the specific software (i.e. product-inventory)
-				apiClientTmf637.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf637ProductInventoryPath);
+			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
 			}
+			
+			apiClientTmf637.setBasePath(basePath + "/" + tmf637ProductInventoryPath);
 			logger.debug("Invoke Product Inventory API at endpoint: " + apiClientTmf637.getBasePath());
 		}
 		
@@ -67,14 +66,13 @@ public final class TmfApiFactory implements InitializingBean {
 	public it.eng.dome.tmforum.tmf678.v4.ApiClient getTMF678CustomerBillApiClient() {
 		if (apiClientTmf678 == null) { 
 			apiClientTmf678 = it.eng.dome.tmforum.tmf678.v4.Configuration.getDefaultApiClient();
-			if (tmfEnvoy) {
-				// usage of envoyProxy to access on TMForum APIs
-				apiClientTmf678.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillPath);
-			}else {
-				// use direct access on specific TMForum APIs software	
-				apiClientTmf678.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf678CustomerBillPath);		
-			}	
 			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
+			}
+			
+			apiClientTmf678.setBasePath(basePath + "/" + tmf678CustomerBillPath);
 			logger.debug("Invoke Customer Billing API at endpoint: " + apiClientTmf678.getBasePath());
 		}
 		return apiClientTmf678;
@@ -83,13 +81,13 @@ public final class TmfApiFactory implements InitializingBean {
 	public it.eng.dome.tmforum.tmf620.v4.ApiClient getTMF620CatalogApiClient() {
 		if (apiClientTmf620 == null) {
 			apiClientTmf620  = it.eng.dome.tmforum.tmf620.v4.Configuration.getDefaultApiClient();
-			if (tmfEnvoy) {
-				// usage of envoyProxy to access on TMForum APIs
-				apiClientTmf620.setBasePath(tmfEndpoint + "/" + tmf620CatalogPath);
-			}else {
-				// use direct access on specific TMForum APIs software
-				apiClientTmf620.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf620CatalogPath);
-			}		
+			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
+			}
+			
+			apiClientTmf620.setBasePath(basePath + "/" + tmf620CatalogPath);
 			logger.debug("Invoke Catalog API at endpoint: " + apiClientTmf620.getBasePath());
 		}
 		
