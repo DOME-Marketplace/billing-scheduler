@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import it.eng.dome.brokerage.billing.utils.UrlPathUtils;
+
 
 @Component(value = "tmfApiFactory")
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -111,36 +113,21 @@ public final class TmfApiFactory implements InitializingBean {
 		Assert.state(!StringUtils.isBlank(tmf620CatalogPath), "Billing Scheduler not properly configured. The tmf620_catalog_path property has no value.");
 		
 		if (tmfEndpoint.endsWith("/")) {
-			tmfEndpoint = removeFinalSlash(tmfEndpoint);		
+			tmfEndpoint = UrlPathUtils.removeFinalSlash(tmfEndpoint);		
 		}
 		
 		if (tmf637ProductInventoryPath.startsWith("/")) {
-			tmf637ProductInventoryPath = removeInitialSlash(tmf637ProductInventoryPath);
+			tmf637ProductInventoryPath = UrlPathUtils.removeInitialSlash(tmf637ProductInventoryPath);
 		}
 		
 		if (tmf678CustomerBillPath.startsWith("/")) {
-			tmf678CustomerBillPath = removeInitialSlash(tmf678CustomerBillPath);
+			tmf678CustomerBillPath = UrlPathUtils.removeInitialSlash(tmf678CustomerBillPath);
 		}
 		
 		if (tmf620CatalogPath.startsWith("/")) {
-			tmf620CatalogPath = removeInitialSlash(tmf620CatalogPath);
+			tmf620CatalogPath = UrlPathUtils.removeInitialSlash(tmf620CatalogPath);
 		}
 			
-	}
-	
-	private String removeFinalSlash(String s) {
-		String path = s;
-		while (path.endsWith("/"))
-			path = path.substring(0, path.length() - 1);
-
-		return path;
-	}
-	
-	private String removeInitialSlash(String s) {
-		String path = s;
-		while (path.startsWith("/")) {
-			path = path.substring(1);
-		}				
-		return path;
 	}	
+	
 }
