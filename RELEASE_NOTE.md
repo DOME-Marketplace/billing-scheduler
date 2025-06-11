@@ -2,7 +2,14 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
-### <code>1.2.0</code> :calendar: 03/06/2025
+### <code>1.2.1</code> :calendar: 11/06/2025 (WIP)
+**Improvements**
+* Update of the `basePath` for building TMForum API URLs with or without **envoy** usage.
+* Add `BillingPriceType` enum to provide a normalize `priceType` string for *recurring*, *recurring-prepaid*, *recurring-postpaid*, *pay-per-use*. 
+* Set of the `SCHEDULING_CRON_JOB_TASK` **env var**.
+
+
+### <code>1.2.0</code> :calendar: 11/06/2025
 **Improvements**
 * Set of `[2.1.0, 2.2.0)` version of `Brokerage Utils`.
 * Use **filter** features for retrieving the **Products** with `status = active` in the query string param (**Brokerage Utils** version `2.1.0`).

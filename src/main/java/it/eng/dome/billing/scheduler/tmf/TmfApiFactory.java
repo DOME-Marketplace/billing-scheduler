@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import it.eng.dome.brokerage.billing.utils.UrlPathUtils;
+
 
 @Component(value = "tmfApiFactory")
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -50,14 +52,13 @@ public final class TmfApiFactory implements InitializingBean {
 	public it.eng.dome.tmforum.tmf637.v4.ApiClient getTMF637ProductInventoryApiClient() {
 		if (apiClientTmf637 == null) {
 			apiClientTmf637 = it.eng.dome.tmforum.tmf637.v4.Configuration.getDefaultApiClient(); 
-			if (tmfEnvoy) {
-				// usage of envoyProxy to access on TMForum APIs (i.e. tmfEndpoint = http://tm-forum-api-envoy.marketplace.svc.cluster.local:8080)
-				apiClientTmf637.setBasePath(tmfEndpoint + "/" + tmf637ProductInventoryPath);
-			}else {
-				// use direct access on specific TMForum APIs software		
-				// tmfEndpoint is the prefix and you must append to the URL (using '-' char) the specific software (i.e. product-inventory)
-				apiClientTmf637.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf637ProductInventoryPath);
+			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
 			}
+			
+			apiClientTmf637.setBasePath(basePath + "/" + tmf637ProductInventoryPath);
 			logger.debug("Invoke Product Inventory API at endpoint: " + apiClientTmf637.getBasePath());
 		}
 		
@@ -67,14 +68,13 @@ public final class TmfApiFactory implements InitializingBean {
 	public it.eng.dome.tmforum.tmf678.v4.ApiClient getTMF678CustomerBillApiClient() {
 		if (apiClientTmf678 == null) { 
 			apiClientTmf678 = it.eng.dome.tmforum.tmf678.v4.Configuration.getDefaultApiClient();
-			if (tmfEnvoy) {
-				// usage of envoyProxy to access on TMForum APIs
-				apiClientTmf678.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillPath);
-			}else {
-				// use direct access on specific TMForum APIs software	
-				apiClientTmf678.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf678CustomerBillPath);		
-			}	
 			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
+			}
+			
+			apiClientTmf678.setBasePath(basePath + "/" + tmf678CustomerBillPath);
 			logger.debug("Invoke Customer Billing API at endpoint: " + apiClientTmf678.getBasePath());
 		}
 		return apiClientTmf678;
@@ -83,13 +83,13 @@ public final class TmfApiFactory implements InitializingBean {
 	public it.eng.dome.tmforum.tmf620.v4.ApiClient getTMF620CatalogApiClient() {
 		if (apiClientTmf620 == null) {
 			apiClientTmf620  = it.eng.dome.tmforum.tmf620.v4.Configuration.getDefaultApiClient();
-			if (tmfEnvoy) {
-				// usage of envoyProxy to access on TMForum APIs
-				apiClientTmf620.setBasePath(tmfEndpoint + "/" + tmf620CatalogPath);
-			}else {
-				// use direct access on specific TMForum APIs software
-				apiClientTmf620.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf620CatalogPath);
-			}		
+			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
+			}
+			
+			apiClientTmf620.setBasePath(basePath + "/" + tmf620CatalogPath);
 			logger.debug("Invoke Catalog API at endpoint: " + apiClientTmf620.getBasePath());
 		}
 		
@@ -113,36 +113,21 @@ public final class TmfApiFactory implements InitializingBean {
 		Assert.state(!StringUtils.isBlank(tmf620CatalogPath), "Billing Scheduler not properly configured. The tmf620_catalog_path property has no value.");
 		
 		if (tmfEndpoint.endsWith("/")) {
-			tmfEndpoint = removeFinalSlash(tmfEndpoint);		
+			tmfEndpoint = UrlPathUtils.removeFinalSlash(tmfEndpoint);		
 		}
 		
 		if (tmf637ProductInventoryPath.startsWith("/")) {
-			tmf637ProductInventoryPath = removeInitialSlash(tmf637ProductInventoryPath);
+			tmf637ProductInventoryPath = UrlPathUtils.removeInitialSlash(tmf637ProductInventoryPath);
 		}
 		
 		if (tmf678CustomerBillPath.startsWith("/")) {
-			tmf678CustomerBillPath = removeInitialSlash(tmf678CustomerBillPath);
+			tmf678CustomerBillPath = UrlPathUtils.removeInitialSlash(tmf678CustomerBillPath);
 		}
 		
 		if (tmf620CatalogPath.startsWith("/")) {
-			tmf620CatalogPath = removeInitialSlash(tmf620CatalogPath);
+			tmf620CatalogPath = UrlPathUtils.removeInitialSlash(tmf620CatalogPath);
 		}
 			
-	}
-	
-	private String removeFinalSlash(String s) {
-		String path = s;
-		while (path.endsWith("/"))
-			path = path.substring(0, path.length() - 1);
-
-		return path;
-	}
-	
-	private String removeInitialSlash(String s) {
-		String path = s;
-		while (path.startsWith("/")) {
-			path = path.substring(1);
-		}				
-		return path;
 	}	
+	
 }

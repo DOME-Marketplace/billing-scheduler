@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import it.eng.dome.billing.scheduler.tmf.TmfApiFactory;
+import it.eng.dome.billing.scheduler.utils.Utils;
 import it.eng.dome.brokerage.api.AppliedCustomerBillRateApis;
 import it.eng.dome.brokerage.api.ProductApis;
 import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
@@ -44,7 +45,7 @@ import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 public class BillingService implements InitializingBean {
 
 	private final Logger logger = LoggerFactory.getLogger(BillingService.class);
-	private final static String PREFIX_KEY = "period-";
+	private final static String CONCAT_KEY = "-";
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
 	private final static String SPACE = "- ";
 	
@@ -80,142 +81,152 @@ public class BillingService implements InitializingBean {
 
 		logger.info("Starting calculateBill at {}", now.format(formatter));
 
-		// add filter for AppliedCustomerBillingRate 
+		// add filter - consider only product with status = active 
 		Map<String, String> filter = new HashMap<String, String>();
-		filter.put("status", ProductStatusType.ACTIVE.getValue()); // status = active
-
-		// get product with status = active
+		filter.put("status", ProductStatusType.ACTIVE.getValue()); 
+		
+		// get only products with active status
 		List<Product> products = productApis.getAllProducts(null, filter);
 
 		if (products != null && !products.isEmpty()) { // verify if products list is not empty
 			
-			logger.info("Number of products found: {} ", products.size());
+			logger.info("Number of products found: {}", products.size());
 			int count = 0;
 	
 			for (Product product : products) {
 				logger.debug("Product # {} - productId: {}", ++count, product.getId());
-				//logger.info("{}Analyzing product with status: {}", getIndentation(1), product.getStatus());
+	
+				// ProductPrice <> null
+				if (product.getProductPrice() != null) {
 				
-				// Check #1 - status=active
-				//if (product.getStatus() == ProductStatusType.ACTIVE) {
+					List<ProductPrice> pprices = product.getProductPrice();
+					logger.debug("{}Number of ProductPrices found: {} ", getIndentation(1), pprices.size());
 	
-				List<ProductPrice> pprices = product.getProductPrice();
-				logger.debug("{}Number of ProductPrices found: {} ", getIndentation(1), pprices.size());
-
-				Map<String, List<TimePeriod>> timePeriods = new HashMap<>();
-				Map<String, List<ProductPrice>> productPrices = new HashMap<>();
-
-				if (pprices != null && !pprices.isEmpty()) {
-					for (ProductPrice pprice : pprices) {
+					Map<String, List<TimePeriod>> timePeriods = new HashMap<>();
+					Map<String, List<ProductPrice>> productPrices = new HashMap<>();
 	
-						// Check #2 - priceType = recurring
-						// TODO verify if it must use recurring-prepaid and recurring-postpaid
-						if ((pprice.getPriceType() != null) && ("recurring".equals(pprice.getPriceType().toLowerCase()))) {
+					if (pprices != null && !pprices.isEmpty()) {
+						for (ProductPrice pprice : pprices) {
 	
-							String recurringPeriod = null;
-	
-							// Retrieve the RecurringPeriod => there are 2 use cases (RecurringPeriod or RecurringChargePeriod)
-							if (pprice.getProductOfferingPrice() != null) {
-								// Use Case 1 - RecurringPeriod from ProductOfferingPrice
+							if ((pprice.getPriceType() != null)) {
 								
-								// recurringChargePeriodType + recurringChargePeriodLength
-								logger.debug("{}Get RecurringPeriod from ProductOfferingPrice for product: {}", getIndentation(2), product.getId());
-								recurringPeriod = getRecurringPeriod(pprice.getProductOfferingPrice().getId());
-								logger.info("{}Get recurring period {} from ProductOfferingPrice", getIndentation(2), recurringPeriod);
-	
-							} else if (pprice.getRecurringChargePeriod() != null) { 
-								// Use Case 2 - RecurringPeriod from RecurringChargePeriod
+								logger.info("{}PriceType {} found for productPrice {}", getIndentation(2), pprice.getPriceType(), pprice.getName());
+													
+								String priceType = Utils.BillingPriceType.normalize(pprice.getPriceType());
 								
-								logger.debug("{}Get RecurringPeriod from RecurringChargePeriod for product: {}", getIndentation(2), product.getId());
-								recurringPeriod = pprice.getRecurringChargePeriod();
-								logger.info("{}Get recurring period {} for RecurringChargePeriod", getIndentation(2), recurringPeriod);
-							}
-							logger.debug("{}Recurring period found: {}", getIndentation(2), recurringPeriod);
-	
-							if (recurringPeriod != null && product.getStartDate() != null) {
-								OffsetDateTime nextBillingTime = BillingUtils.getNextBillingTime(product.getStartDate(), now, recurringPeriod);
-								OffsetDateTime previousBillingTime = BillingUtils.getPreviousBillingTime(nextBillingTime, recurringPeriod);
-	
-								if (nextBillingTime != null) {
-									logger.debug("{}Billing dateTime for the product {}:", getIndentation(2), product.getId());
-									logger.debug("{}- StartDate: {}", getIndentation(2), product.getStartDate());
-									logger.debug("{}- NextDate: {}", getIndentation(2), nextBillingTime);
-									logger.debug("{}- PreviuosDate: {}", getIndentation(2), previousBillingTime);
-									logger.debug("{}- CurrentDate: {}", getIndentation(2), now);
-	
-									// Get numbers of days missing before to start the next bill
-									long days = ChronoUnit.DAYS.between(now, nextBillingTime);
-									logger.debug("{}Missing days before starting the next bill: {}", getIndentation(2), days);
-																		
-									long diffPreviousBillingAndNextBilling = ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
-									logger.debug("{}Difference from PreviuosDate and NextDate for bill (in days): {}", getIndentation(2), diffPreviousBillingAndNextBilling);
-	
-									// days = 0 => time expired => start the bill process
-									if (days == 0) {
-										String keyPeriod = PREFIX_KEY + diffPreviousBillingAndNextBilling;
+								// check priceTypes are complaint with service scheduler																
+								if (priceType != null) {
+									// we consider all priceType: recurring, recurring-prepaid, recurring-postpaid, pay-per-use 
+									logger.info("{}PriceType recognize: {}", getIndentation(2), priceType);
+									
+									String recurringPeriod = null;
+			
+									// Retrieve the RecurringPeriod => there are 2 use cases (RecurringPeriod or RecurringChargePeriod)
+									if (pprice.getProductOfferingPrice() != null) {
+										// Use Case 1 - RecurringPeriod from ProductOfferingPrice
 										
-										logger.info("{}Bill required for productId: {}", getIndentation(1), product.getId());
-										// Set TimePeriod
-										TimePeriod tp = new TimePeriod();
-										tp.setStartDateTime(previousBillingTime);
-										tp.setEndDateTime(nextBillingTime);
-	
-										// grouped items with the same startDate and endDate (i.e. keyPeriod)
-										timePeriods.put(keyPeriod, new ArrayList<>(Arrays.asList(tp)));
-										productPrices.computeIfAbsent(keyPeriod, k -> new ArrayList<>()).add(pprice);
+										// recurringChargePeriodType + recurringChargePeriodLength
+										logger.debug("{}Get RecurringPeriod from ProductOfferingPrice for product: {}", getIndentation(2), product.getId());
+										recurringPeriod = getRecurringPeriod(pprice.getProductOfferingPrice().getId());
+										logger.info("{}Get recurring period {} from ProductOfferingPrice", getIndentation(2), recurringPeriod);
+			
+									} else if (pprice.getRecurringChargePeriod() != null) { 
+										// Use Case 2 - RecurringPeriod from RecurringChargePeriod
+										
+										logger.debug("{}Get RecurringPeriod from RecurringChargePeriod for product: {}", getIndentation(2), product.getId());
+										recurringPeriod = pprice.getRecurringChargePeriod();
+										logger.info("{}Get recurring period {} for RecurringChargePeriod", getIndentation(2), recurringPeriod);
 									}
+									logger.debug("{}Recurring period found: {}", getIndentation(2), recurringPeriod);
+			
+									if (recurringPeriod != null && product.getStartDate() != null) {
+										OffsetDateTime nextBillingTime = BillingUtils.getNextBillingTime(product.getStartDate(), now, recurringPeriod);
+										OffsetDateTime previousBillingTime = BillingUtils.getPreviousBillingTime(nextBillingTime, recurringPeriod);
+			
+										if (nextBillingTime != null) {
+											logger.debug("{}Billing dateTime for the product {}:", getIndentation(2), product.getId());
+											logger.debug("{}- StartDate: {}", getIndentation(2), product.getStartDate());
+											logger.debug("{}- NextDate: {}", getIndentation(2), nextBillingTime);
+											logger.debug("{}- PreviuosDate: {}", getIndentation(2), previousBillingTime);
+											logger.debug("{}- CurrentDate: {}", getIndentation(2), now);
+			
+											// Get numbers of days missing before to start the next bill
+											long days = ChronoUnit.DAYS.between(now, nextBillingTime);
+											logger.debug("{}Missing days before starting the next bill: {}", getIndentation(2), days);
+																				
+											long diffPreviousBillingAndNextBilling = ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
+											logger.debug("{}Difference from PreviuosDate and NextDate for bill (in days): {}", getIndentation(2), diffPreviousBillingAndNextBilling);
+			
+											// days = 0 => time expired => start the bill process
+											if (days == 0) {
+												String keyPeriod = priceType + CONCAT_KEY + diffPreviousBillingAndNextBilling;
+												
+												logger.info("{}Bill required for productId: {}", getIndentation(1), product.getId());
+												// Set TimePeriod
+												TimePeriod tp = new TimePeriod();
+												tp.setStartDateTime(previousBillingTime);
+												tp.setEndDateTime(nextBillingTime);
+			
+												// grouped items with the same startDate and endDate (i.e. keyPeriod)
+												timePeriods.put(keyPeriod, new ArrayList<>(Arrays.asList(tp)));
+												productPrices.computeIfAbsent(keyPeriod, k -> new ArrayList<>()).add(pprice);
+											}
+										}
+									} else {
+										logger.debug("{}No RecurringPeriod found or product.startDate not valid", getIndentation(2));
+									}
+								} else {
+									logger.debug("{}No priceType recognized. Allowed priceType: ", getIndentation(2), Utils.BillingPriceType.getAllowedValues());
 								}
+		
 							} else {
-								logger.debug("{}No RecurringPeriod found or product.startDate not valid", getIndentation(2));
+								logger.debug("{}No bill for productId {} because priceType is null", getIndentation(2), product.getId());
 							}
-	
-						} else {
-							logger.debug("{}No bill for productId {} because priceType = {} is not recurring status", getIndentation(2), product.getId(), pprice.getPriceType());
 						}
+					} else {
+						logger.warn("No ProductPrice found for the product {}", product.getId());
 					}
-				}else {
-					logger.warn("No ProductPrice found for the product {}", product.getId());
-				}
+					
 				
-				/* verify timePeriods/productPrices if it needs to bill */  
+					/* verify timePeriods/productPrices if it needs to bill */  
 
-				logger.info("{}ProductPrices for billing found for productId {}: {}", getIndentation(1), product.getId(), productPrices.size());
-				for (Map.Entry<String, List<ProductPrice>> entry : productPrices.entrySet()) {
-
-					String key = entry.getKey();
-					TimePeriod tp = timePeriods.get(key).get(0);
-
-					if (!timePeriods.get(key).isEmpty()) {
-						logger.debug("{}TimePeriod - startDateTime: {} - endDateTime: {} ", getIndentation(2), tp.getStartDateTime(), tp.getEndDateTime());
-						List<ProductPrice> pps = entry.getValue();
-						
-						// Verify if the billing is already done
-						if (!isAlreadyBilled(product, tp, pps)) {
-							logger.debug("{}Apply billing process for productId: {}", getIndentation(2), product.getId());
-
-							if (product.getBillingAccount() != null) {
-
-								logger.debug("{}Get AppliedCustomerBillingRates based by product, timePeriod, and productPrice", getIndentation(2));
-								ResponseEntity<String> applied = getAppliedCustomerBillingRates(product, tp, pps);
-								
-								if (applied != null) {
-									List<String> ids = saveBill(applied.getBody());
-									logger.info("{}Number of AppliedCustomerBillingRate saved: {}", getIndentation(2), ids.size());
-									logger.debug("{}AppliedCustomerBillingRate ids saved: {}", getIndentation(2), ids);
-								}else {
-									logger.warn("{}Cannot retrieve AppliedCustomerBillingRates", getIndentation(2));
+					logger.info("{}ProductPrices for billing found for productId {}: {}", getIndentation(1), product.getId(), productPrices.size());
+					for (Map.Entry<String, List<ProductPrice>> entry : productPrices.entrySet()) {
+	
+						String key = entry.getKey();
+						TimePeriod tp = timePeriods.get(key).get(0);
+	
+						if (!timePeriods.get(key).isEmpty()) {
+							logger.debug("{}TimePeriod - startDateTime: {} - endDateTime: {} ", getIndentation(2), tp.getStartDateTime(), tp.getEndDateTime());
+							List<ProductPrice> pps = entry.getValue();
+							
+							// Verify if the billing is already done
+							if (!isAlreadyBilled(product, tp, pps)) {
+								logger.debug("{}Apply billing process for productId: {}", getIndentation(2), product.getId());
+	
+								if (product.getBillingAccount() != null) {
+	
+									logger.debug("{}Get AppliedCustomerBillingRates based by product, timePeriod, and productPrice", getIndentation(2));
+									ResponseEntity<String> applied = getAppliedCustomerBillingRates(product, tp, pps);
+									
+									if (applied != null) {
+										List<String> ids = saveBill(applied.getBody());
+										logger.info("{}Number of AppliedCustomerBillingRate saved: {}", getIndentation(2), ids.size());
+										logger.debug("{}AppliedCustomerBillingRate ids saved: {}", getIndentation(2), ids);
+									}else {
+										logger.warn("{}Cannot retrieve AppliedCustomerBillingRates", getIndentation(2));
+									}
+								} else {
+									logger.warn("{}No Billing Account defined in the product {}", getIndentation(2), product.getId());
 								}
 							} else {
-								logger.warn("{}No Billing Account defined in the product {}", getIndentation(2), product.getId());
+								logger.debug("{}Bill already billed for productId: {}", getIndentation(2), product.getId());
 							}
-						} else {
-							logger.debug("{}Bill already billed for productId: {}", getIndentation(2), product.getId());
 						}
 					}
+				} else { // ProductPrice = null
+					logger.warn("{}Bill skipped for productId {} because ProductPrice is null",  getIndentation(1), product.getId());
 				}
-				/*} else {
-					logger.debug("{}Bill skipped for productId {} because status ({}) is not active",  getIndentation(1), product.getId(), product.getStatus());
-				}*/
 			}
 		} else {
 			logger.warn("The list of Products is empty");
