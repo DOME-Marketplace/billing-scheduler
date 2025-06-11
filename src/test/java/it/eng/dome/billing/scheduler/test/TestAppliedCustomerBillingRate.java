@@ -25,15 +25,14 @@ public class TestAppliedCustomerBillingRate {
 			apiClient.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillingPath);
 			
 			AppliedCustomerBillingRateApi applied = new AppliedCustomerBillingRateApi(apiClient);
-			List<AppliedCustomerBillingRate> applies = applied.listAppliedCustomerBillingRate(null, null, null);
+			List<AppliedCustomerBillingRate> applies = applied.listAppliedCustomerBillingRate(null, null, null, null);
 			
 			System.out.println("number of appliedCustomerBillingRate found: " + applies.size());
 			
 			saveApplied(applied);
 			
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		}
 
 	}
@@ -47,11 +46,9 @@ public class TestAppliedCustomerBillingRate {
 			AppliedCustomerBillingRateCreate acbr = AppliedCustomerBillingRateCreate.fromJson(json);
 			app.createAppliedCustomerBillingRate(acbr);
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		}
 	}
 	
@@ -60,8 +57,7 @@ public class TestAppliedCustomerBillingRate {
 		try {
 			return new String(Files.readAllBytes(Paths.get(file)));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
 	}

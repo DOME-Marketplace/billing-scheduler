@@ -26,7 +26,7 @@ public class TestCustomerBill {
 			apiClient.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillingPath);
 			
 			CustomerBillApi customer = new CustomerBillApi(apiClient);
-			List<CustomerBill> customers = customer.listCustomerBill(null, null, null);
+			List<CustomerBill> customers = customer.listCustomerBill(null, null, null, null);
 			
 			System.out.println("number of customerBill found: " + customers.size());
 			
@@ -35,15 +35,14 @@ public class TestCustomerBill {
 			saveCustomerBilling(customerCreate);
 			
 			
-			customers = customer.listCustomerBill(null, null, null);
+			customers = customer.listCustomerBill(null, null, null, null);
 			System.out.println("number of customerBill found: " + customers.size());
 			for (CustomerBill customerBill : customers) {
 				System.out.println("customerId: " + customerBill.getId());
 			}
 			
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		}
 
 	}
@@ -58,8 +57,7 @@ public class TestCustomerBill {
 			
 			create.createCustomerBill(cbc);
 		} catch (ApiException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 		}
 	}
 	
@@ -68,8 +66,7 @@ public class TestCustomerBill {
 		try {
 			return new String(Files.readAllBytes(Paths.get(file)));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
 	}
