@@ -257,8 +257,14 @@ public class BillingService implements InitializingBean {
 		logger.info("{}Retrieve the RecurringPeriod for ProductOfferingPriceId: {}", getIndentation(3), id);
 
 		ProductOfferingPrice pop = productOfferingPrices.getProductOfferingPrice(id, null);
-		logger.debug("{}Found RecurringChargePeriodLength: {} - RecurringChargePeriodType: {}", getIndentation(3), pop.getRecurringChargePeriodLength(), pop.getRecurringChargePeriodType());
-		return pop.getRecurringChargePeriodLength() + " " + pop.getRecurringChargePeriodType();
+		if (pop != null) {
+			logger.debug("{}Found RecurringChargePeriodLength: {} - RecurringChargePeriodType: {}", getIndentation(3), pop.getRecurringChargePeriodLength(), pop.getRecurringChargePeriodType());
+			return pop.getRecurringChargePeriodLength() + " " + pop.getRecurringChargePeriodType();
+		} else {
+			logger.warn("{}Cannot found the ProductOfferingPrice for productId: {}", getIndentation(3), id);
+			return null;
+		}
+		
 	}
 
 	/**
