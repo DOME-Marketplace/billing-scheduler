@@ -17,4 +17,5 @@ tmp/
 *.bak
 *.swp
 *~.nib
+/.classpath
 /src/main/resources/application.yml
