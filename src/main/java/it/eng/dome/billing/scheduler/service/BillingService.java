@@ -45,7 +45,7 @@ import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 public class BillingService implements InitializingBean {
 
 	private final Logger logger = LoggerFactory.getLogger(BillingService.class);
-	private final static String CONCAT_KEY = "-";
+	private final static String CONCAT_KEY = "|";
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
 	private final static String SPACE = "- ";
 	
@@ -92,6 +92,7 @@ public class BillingService implements InitializingBean {
 			
 			logger.info("Number of products found: {}", products.size());
 			int count = 0;
+			int appliedNumber = 0;
 	
 			for (Product product : products) {
 				logger.debug("Product # {} - productId: {}", ++count, product.getId());
@@ -110,7 +111,7 @@ public class BillingService implements InitializingBean {
 	
 							if ((pprice.getPriceType() != null)) {
 								
-								logger.info("{}PriceType {} found for productPrice {}", getIndentation(2), pprice.getPriceType(), pprice.getName());
+								logger.info("{}PriceType {} found for the productPrice", getIndentation(2), pprice.getPriceType());
 													
 								String priceType = Utils.BillingPriceType.normalize(pprice.getPriceType());
 								
@@ -176,7 +177,7 @@ public class BillingService implements InitializingBean {
 										logger.debug("{}No RecurringPeriod found or product.startDate not valid", getIndentation(2));
 									}
 								} else {
-									logger.debug("{}No priceType recognized. Allowed priceType: ", getIndentation(2), Utils.BillingPriceType.getAllowedValues());
+									logger.debug("{}No priceType recognized. Allowed priceType: {}", getIndentation(2), Utils.BillingPriceType.getAllowedValues());
 								}
 		
 							} else {
@@ -190,7 +191,7 @@ public class BillingService implements InitializingBean {
 				
 					/* verify timePeriods/productPrices if it needs to bill */  
 
-					logger.info("{}ProductPrices for billing found for productId {}: {}", getIndentation(1), product.getId(), productPrices.size());
+					logger.info("{}Number of ProductPrices for billing found for productId {}: {}", getIndentation(1), product.getId(), productPrices.size());
 					for (Map.Entry<String, List<ProductPrice>> entry : productPrices.entrySet()) {
 	
 						String key = entry.getKey();
@@ -200,8 +201,12 @@ public class BillingService implements InitializingBean {
 							logger.debug("{}TimePeriod - startDateTime: {} - endDateTime: {} ", getIndentation(2), tp.getStartDateTime(), tp.getEndDateTime());
 							List<ProductPrice> pps = entry.getValue();
 							
+							String priceType = key.substring(0, key.indexOf(CONCAT_KEY));
+							logger.debug("Applied selected by priceType: {}", priceType);
+							
 							// Verify if the billing is already done
-							if (!isAlreadyBilled(product, tp, pps)) {
+							//FIXME - dovrebbe essere sia billed che not billed => l'unico filtro potrebbe essere il priceType
+							if (!isAlreadyBilled(product, tp, pps, priceType)) {
 								logger.debug("{}Apply billing process for productId: {}", getIndentation(2), product.getId());
 	
 								if (product.getBillingAccount() != null) {
@@ -213,6 +218,7 @@ public class BillingService implements InitializingBean {
 										List<String> ids = saveBill(applied.getBody());
 										logger.info("{}Number of AppliedCustomerBillingRate saved: {}", getIndentation(2), ids.size());
 										logger.debug("{}AppliedCustomerBillingRate ids saved: {}", getIndentation(2), ids);
+										appliedNumber += ids.size();
 									}else {
 										logger.warn("{}Cannot retrieve AppliedCustomerBillingRates", getIndentation(2));
 									}
@@ -228,6 +234,8 @@ public class BillingService implements InitializingBean {
 					logger.warn("{}Bill skipped for productId {} because ProductPrice is null",  getIndentation(1), product.getId());
 				}
 			}
+			
+			logger.info("Number of AppliedCustomerBillingRate created: {}", appliedNumber);
 		} else {
 			logger.warn("The list of Products is empty");
 		}
@@ -276,7 +284,7 @@ public class BillingService implements InitializingBean {
 	 * @return boolean 
 	 * @throws it.eng.dome.tmforum.tmf678.v4.ApiException
 	 */
-	private boolean isAlreadyBilled(Product product, TimePeriod tp, List<ProductPrice> productPrices) throws it.eng.dome.tmforum.tmf678.v4.ApiException {
+	private boolean isAlreadyBilled(Product product, TimePeriod tp, List<ProductPrice> productPrices, String priceType) throws it.eng.dome.tmforum.tmf678.v4.ApiException {
 		
 		logger.info("{}Verifying product is already billed", getIndentation(3));
 		boolean isBilled = false;
@@ -285,7 +293,9 @@ public class BillingService implements InitializingBean {
 		
 		// add filter for AppliedCustomerBillingRate 
 		Map<String, String> filter = new HashMap<String, String>();
-		filter.put("isBilled", "true"); // isBilled = true
+		//filter.put("isBilled", "true"); // isBilled = true
+		filter.put("rateType", priceType);
+		//FIXME - we can add some filters i.e. periodCoverage.endDateTime, etc...
 		
 		List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("product,periodCoverage", filter);
 		logger.debug("{}Number of AppliedCustomerBillingRate found: {}", getIndentation(3), billed.size());
@@ -336,9 +346,10 @@ public class BillingService implements InitializingBean {
 	 * @return List of ids
 	 */
 	private List<String> saveBill(String appliedCustomerBillRates) {
-		logger.info("{}Saving the bill inTMForum ...", getIndentation(2));
+		logger.info("{}Saving the bill in TMForum ...", getIndentation(2));
 
 		List<String> ids = new ArrayList<String>();
+		logger.debug("AppliedCustomerBillRates: {}", appliedCustomerBillRates);
 
 		try {
 			AppliedCustomerBillingRate[] bills = JSON.getGson().fromJson(appliedCustomerBillRates, AppliedCustomerBillingRate[].class);
@@ -410,11 +421,8 @@ public class BillingService implements InitializingBean {
 	private ResponseEntity<String> getAppliedCustomerBillingRates(Product product, TimePeriod tp, List<ProductPrice> productPrices) {
 		logger.info("{}Calling bill proxy endpoint: {}", getIndentation(2), billing.billinProxy + "/billing/bill");
 		String payload = getBillRequestDTOtoJson(product, tp, productPrices);
-		//TODO ProductStatusType => Solve this bugfix
-		//payload = payload.replaceAll("active", "ACTIVE");
-		logger.debug("{}Payload to get appliedCustomerBillingRate:", getIndentation(3));
-		
-		logger.debug("{}{}", getIndentation(3), payload);
+
+		logger.debug("{}Payload to get appliedCustomerBillingRate: {}", getIndentation(3), payload);
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
