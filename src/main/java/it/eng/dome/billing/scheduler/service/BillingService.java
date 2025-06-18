@@ -49,6 +49,8 @@ public class BillingService implements InitializingBean {
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
 	private final static String SPACE = "- ";
 	
+	private final Integer PPU_START_DAY = 2;
+	
 	@Autowired
 	private TmfApiFactory tmfApiFactory;
 	
@@ -97,7 +99,7 @@ public class BillingService implements InitializingBean {
 			for (Product product : products) {
 				logger.debug("Product # {} - productId: {}", ++count, product.getId());
 	
-				// ProductPrice <> null
+				// ProductPrice <> null 
 				if (product.getProductPrice() != null) {
 				
 					List<ProductPrice> pprices = product.getProductPrice();
@@ -107,6 +109,7 @@ public class BillingService implements InitializingBean {
 					Map<String, List<ProductPrice>> productPrices = new HashMap<>();
 	
 					if (pprices != null && !pprices.isEmpty()) {
+						// product-price => only one
 						for (ProductPrice pprice : pprices) {
 	
 							if ((pprice.getPriceType() != null)) {
@@ -141,6 +144,14 @@ public class BillingService implements InitializingBean {
 									logger.debug("{}Recurring period found: {}", getIndentation(2), recurringPeriod);
 			
 									if (recurringPeriod != null && product.getStartDate() != null) {
+										
+										//TODO - decrease 2 days for pay-per-use => now - 2 days
+										if ("pay_per_use".equalsIgnoreCase(priceType)) {
+											now = now.minusDays(PPU_START_DAY);
+											logger.debug("Pay per use is delayed by {} days compared to now", PPU_START_DAY);
+											logger.info("Start pay-per-use task at: {}", now);
+										}
+										
 										OffsetDateTime nextBillingTime = BillingUtils.getNextBillingTime(product.getStartDate(), now, recurringPeriod);
 										OffsetDateTime previousBillingTime = BillingUtils.getPreviousBillingTime(nextBillingTime, recurringPeriod);
 			
@@ -296,6 +307,10 @@ public class BillingService implements InitializingBean {
 		//filter.put("isBilled", "true"); // isBilled = true
 		filter.put("rateType", priceType);
 		//FIXME - we can add some filters i.e. periodCoverage.endDateTime, etc...
+		//TODO - must be checked
+		filter.put("periodCoverage.startDateTime.gt", tp.getStartDateTime().minusSeconds(1).toString());
+		filter.put("periodCoverage.endDateTime.lt", tp.getEndDateTime().plusSeconds(1).toString());
+		
 		
 		List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("product,periodCoverage", filter);
 		logger.debug("{}Number of AppliedCustomerBillingRate found: {}", getIndentation(3), billed.size());
@@ -354,10 +369,10 @@ public class BillingService implements InitializingBean {
 		try {
 			AppliedCustomerBillingRate[] bills = JSON.getGson().fromJson(appliedCustomerBillRates, AppliedCustomerBillingRate[].class);
 
-			//TODO verify if this array has got just one item
+			//TODO verify if this array has got just one AppliedCustomerBillingRate
 			for (AppliedCustomerBillingRate bill : bills) {
-				bill.setName("Applied Customer Bill Rate - " + bill.getId());
-				bill.setDescription("Billing Scheduler generated the bill for " + bill.getId());
+				// bill.setName("Applied Customer Bill Rate - " + bill.getId());
+				// bill.setDescription("Billing Scheduler generated the bill for " + bill.getProduct().getId());
 
 				AppliedCustomerBillingRateCreate createApply = AppliedCustomerBillingRateCreate.fromJson(bill.toJson());
 				AppliedCustomerBillingRate created = appliedCustomerBillRateApis.createAppliedCustomerBillingRate(createApply);

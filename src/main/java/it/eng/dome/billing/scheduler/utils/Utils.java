@@ -28,7 +28,9 @@ public class Utils {
 	    }
 
 	    public static String normalize(String input) {
-	    	if (input == null) return null;
+	    	if (input == null) { 
+	    		return null;
+	    	}
 	        String normalizedInput = input
 	            .toLowerCase()
 	            .trim()
