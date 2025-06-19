@@ -123,47 +123,32 @@ public class BillingService implements InitializingBean {
 									// we consider all priceType: recurring, recurring-prepaid, recurring-postpaid, pay-per-use 
 									logger.info("{}PriceType recognize: {}", getIndentation(2), priceType);
 									
-									String recurringPeriod = null;
-			
-									// Retrieve the RecurringPeriod => there are 2 use cases (RecurringPeriod or RecurringChargePeriod)
-									if (pprice.getProductOfferingPrice() != null) {
-										// Use Case 1 - RecurringPeriod from ProductOfferingPrice
-										
-										// recurringChargePeriodType + recurringChargePeriodLength
-										logger.debug("{}Get RecurringPeriod from ProductOfferingPrice for product: {}", getIndentation(2), product.getId());
-										recurringPeriod = getRecurringPeriod(pprice.getProductOfferingPrice().getId());
-										logger.info("{}Get recurring period {} from ProductOfferingPrice", getIndentation(2), recurringPeriod);
-			
-									} else if (pprice.getRecurringChargePeriod() != null) { 
-										// Use Case 2 - RecurringPeriod from RecurringChargePeriod
-										
-										logger.debug("{}Get RecurringPeriod from RecurringChargePeriod for product: {}", getIndentation(2), product.getId());
-										recurringPeriod = pprice.getRecurringChargePeriod();
-										logger.info("{}Get recurring period {} for RecurringChargePeriod", getIndentation(2), recurringPeriod);
-									}
-									logger.debug("{}Recurring period found: {}", getIndentation(2), recurringPeriod);
+									// retrieve the RecurringPeriod
+									String recurringPeriod = retrieveRecurringPeriod(pprice);
+									logger.debug("{}Recurring period found: {} for product: {}", getIndentation(2), recurringPeriod, product.getId());
 			
 									if (recurringPeriod != null && product.getStartDate() != null) {
 										
 										//TODO - decrease 2 days for pay-per-use => now - 2 days
+										OffsetDateTime startTime = now;
 										if ("pay_per_use".equalsIgnoreCase(priceType)) {
-											now = now.minusDays(PPU_START_DAY);
-											logger.debug("Pay per use is delayed by {} days compared to now", PPU_START_DAY);
-											logger.info("Start pay-per-use task at: {}", now);
+											logger.debug("The pay-per-use activity is delayed by {} days compared to now: {}", PPU_START_DAY, now);
+											startTime = now.minusDays(PPU_START_DAY);											
+											logger.info("The time for the scheduled task for pay-per-use is: {}", startTime);
 										}
 										
-										OffsetDateTime nextBillingTime = BillingUtils.getNextBillingTime(product.getStartDate(), now, recurringPeriod);
+										OffsetDateTime nextBillingTime = BillingUtils.getNextBillingTime(product.getStartDate(), startTime, recurringPeriod);
 										OffsetDateTime previousBillingTime = BillingUtils.getPreviousBillingTime(nextBillingTime, recurringPeriod);
 			
 										if (nextBillingTime != null) {
-											logger.debug("{}Billing dateTime for the product {}:", getIndentation(2), product.getId());
+											logger.debug("{}Billing time for the product {} for type: {}", getIndentation(2), product.getId(), priceType);
 											logger.debug("{}- StartDate: {}", getIndentation(2), product.getStartDate());
 											logger.debug("{}- NextDate: {}", getIndentation(2), nextBillingTime);
 											logger.debug("{}- PreviuosDate: {}", getIndentation(2), previousBillingTime);
-											logger.debug("{}- CurrentDate: {}", getIndentation(2), now);
+											logger.debug("{}- CurrentDate: {}", getIndentation(2), startTime);
 			
 											// Get numbers of days missing before to start the next bill
-											long days = ChronoUnit.DAYS.between(now, nextBillingTime);
+											long days = ChronoUnit.DAYS.between(startTime, nextBillingTime);
 											logger.debug("{}Missing days before starting the next bill: {}", getIndentation(2), days);
 																				
 											long diffPreviousBillingAndNextBilling = ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
@@ -254,6 +239,34 @@ public class BillingService implements InitializingBean {
 	}
 	
 	/**
+	 * Retrieve the RecurringPeriod => there are 2 use cases (in cascade mode):
+	 *   1. via RecurringPeriod 
+	 *   2. via RecurringChargePeriod
+	 * 
+	 * @param pprice
+	 * @return recurringPeriod
+	 */
+	private String retrieveRecurringPeriod(ProductPrice pprice) {
+		
+		String recurringPeriod = null;
+				
+		// Use Case 1 - RecurringPeriod from ProductOfferingPrice
+		if (pprice.getProductOfferingPrice() != null) { 			
+			// recurringPeriod format: recurringChargePeriodLength + recurringChargePeriodType
+			recurringPeriod = getRecurringPeriod(pprice.getProductOfferingPrice().getId());
+			logger.info("{}Get recurring period {} from ProductOfferingPrice", getIndentation(2), recurringPeriod);
+		} 
+		
+		// Use Case 2 - RecurringPeriod from RecurringChargePeriod
+		if (recurringPeriod == null && pprice.getRecurringChargePeriod() != null) {
+			recurringPeriod = pprice.getRecurringChargePeriod();
+			logger.info("{}Get recurring period {} for RecurringChargePeriod", getIndentation(2), recurringPeriod);
+		}
+		
+		return recurringPeriod;
+	}
+	
+	/**
 	 * 
 	 * @param n - integer
 	 * @return String - number of INTEND (space) for indentation in the log
@@ -270,9 +283,8 @@ public class BillingService implements InitializingBean {
 	 * 
 	 * @param id - productOfferingPriceId
 	 * @return String - RecurringPeriod as RecurringChargePeriodLength + RecurringChargePeriodType
-	 * @throws it.eng.dome.tmforum.tmf620.v4.ApiException
 	 */
-	private String getRecurringPeriod(String id) throws it.eng.dome.tmforum.tmf620.v4.ApiException {
+	private String getRecurringPeriod(String id) {
 		logger.info("{}Retrieve the RecurringPeriod for ProductOfferingPriceId: {}", getIndentation(3), id);
 
 		ProductOfferingPrice pop = productOfferingPrices.getProductOfferingPrice(id, null);
