@@ -143,11 +143,13 @@ public class BillingService implements InitializingBean {
 											
 											// Note: pay per use must be paid after 2 days
 											OffsetDateTime startTime = now;
+											OffsetDateTime nextTime = nextBillingTime;
 											if ("pay-per-use".equalsIgnoreCase(priceType)) {
-												logger.debug("The pay-per-use payment is delayed by {} days compared to now: {}", PAY_PER_USE_DELAYED_DAYS, now);
+												logger.debug("{}The pay-per-use payment is delayed by {} days compared to now: {}",getIndentation(3), PAY_PER_USE_DELAYED_DAYS, now);
 												//TODO check - decrease 2 days for pay-per-use for the scheduler task
-												startTime = now.minusDays(PAY_PER_USE_DELAYED_DAYS);											
-												logger.info("The new time for the scheduled task for pay-per-use is: {}", startTime);
+												startTime = now.minusDays(PAY_PER_USE_DELAYED_DAYS);	
+												nextTime = nextBillingTime.minusDays(PAY_PER_USE_DELAYED_DAYS);
+												logger.info("{}The new time for the scheduled task for pay-per-use is: {}", getIndentation(3), startTime);
 											}
 
 											// Calculate the days difference between the previous and next billing 
@@ -155,7 +157,7 @@ public class BillingService implements InitializingBean {
 											logger.debug("{}Difference from PreviuosDate and NextDate (in days): {} - for recurrung period: {}", getIndentation(2), diffPreviousBillingAndNextBilling, recurringPeriod);
 		
 											// Get numbers of days missing before to start the next bill
-											long days = ChronoUnit.DAYS.between(startTime, nextBillingTime);
+											long days = ChronoUnit.DAYS.between(startTime, nextTime);
 											logger.debug("{}Missing days before starting the next bill: {}", getIndentation(2), days);
 
 			
