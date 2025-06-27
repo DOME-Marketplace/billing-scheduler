@@ -49,7 +49,7 @@ public class BillingService implements InitializingBean {
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
 	private final static String SPACE = "- ";
 	
-	private final Integer PPU_START_DAY = 2;
+	private final Integer PAY_PER_USE_DELAYED_DAYS = 2;
 	
 	@Autowired
 	private TmfApiFactory tmfApiFactory;
@@ -125,39 +125,43 @@ public class BillingService implements InitializingBean {
 									
 									// retrieve the RecurringPeriod
 									String recurringPeriod = retrieveRecurringPeriod(pprice);
-									logger.debug("{}Recurring period found: {} for product: {}", getIndentation(2), recurringPeriod, product.getId());
+									logger.debug("{}Recurring period found: {} - for product: {}", getIndentation(2), recurringPeriod, product.getId());
 			
 									if (recurringPeriod != null && product.getStartDate() != null) {
 										
-										//TODO - decrease 2 days for pay-per-use => now - 2 days
-										OffsetDateTime startTime = now;
-										if ("pay_per_use".equalsIgnoreCase(priceType)) {
-											logger.debug("The pay-per-use activity is delayed by {} days compared to now: {}", PPU_START_DAY, now);
-											startTime = now.minusDays(PPU_START_DAY);											
-											logger.info("The time for the scheduled task for pay-per-use is: {}", startTime);
-										}
-										
-										OffsetDateTime nextBillingTime = BillingUtils.getNextBillingTime(product.getStartDate(), startTime, recurringPeriod);
+										// calculate the next billing time starting from StartDate time										
+										OffsetDateTime nextBillingTime = BillingUtils.getNextBillingTime(product.getStartDate(), now, recurringPeriod);
 										OffsetDateTime previousBillingTime = BillingUtils.getPreviousBillingTime(nextBillingTime, recurringPeriod);
 			
 										if (nextBillingTime != null) {
-											logger.debug("{}Billing time for the product {} for type: {}", getIndentation(2), product.getId(), priceType);
+											logger.debug("{}Billing time of the product {} for type: {}", getIndentation(2), product.getId(), priceType);
 											logger.debug("{}- StartDate: {}", getIndentation(2), product.getStartDate());
 											logger.debug("{}- NextDate: {}", getIndentation(2), nextBillingTime);
 											logger.debug("{}- PreviuosDate: {}", getIndentation(2), previousBillingTime);
-											logger.debug("{}- CurrentDate: {}", getIndentation(2), startTime);
-			
+											logger.debug("{}- CurrentDate: {}", getIndentation(2), now);
+											
+											
+											// Note: pay per use must be paid after 2 days
+											OffsetDateTime startTime = now;
+											if ("pay-per-use".equalsIgnoreCase(priceType)) {
+												logger.debug("The pay-per-use payment is delayed by {} days compared to now: {}", PAY_PER_USE_DELAYED_DAYS, now);
+												//TODO check - decrease 2 days for pay-per-use for the scheduler task
+												startTime = now.minusDays(PAY_PER_USE_DELAYED_DAYS);											
+												logger.info("The new time for the scheduled task for pay-per-use is: {}", startTime);
+											}
+
+											// Calculate the days difference between the previous and next billing 
+											long diffPreviousBillingAndNextBilling = ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
+											logger.debug("{}Difference from PreviuosDate and NextDate (in days): {} - for recurrung period: {}", getIndentation(2), diffPreviousBillingAndNextBilling, recurringPeriod);
+		
 											// Get numbers of days missing before to start the next bill
 											long days = ChronoUnit.DAYS.between(startTime, nextBillingTime);
 											logger.debug("{}Missing days before starting the next bill: {}", getIndentation(2), days);
-																				
-											long diffPreviousBillingAndNextBilling = ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
-											logger.debug("{}Difference from PreviuosDate and NextDate for bill (in days): {}", getIndentation(2), diffPreviousBillingAndNextBilling);
+
 			
 											// days = 0 => time expired => start the bill process
 											if (days == 0) {
 												String keyPeriod = priceType + CONCAT_KEY + diffPreviousBillingAndNextBilling;
-												
 												logger.info("{}Bill required for productId: {}", getIndentation(1), product.getId());
 												// Set TimePeriod
 												TimePeriod tp = new TimePeriod();
