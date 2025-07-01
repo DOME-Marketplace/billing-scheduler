@@ -83,7 +83,7 @@ public class BillingService implements InitializingBean {
 
 		logger.info("Starting calculateBill at {}", now.format(formatter));
 
-		// add filter - consider only product with status = active 
+		// add filter - consider only products with status = active 
 		Map<String, String> filter = new HashMap<String, String>();
 		filter.put("status", ProductStatusType.ACTIVE.getValue()); 
 		
@@ -205,10 +205,8 @@ public class BillingService implements InitializingBean {
 							
 							String priceType = key.substring(0, key.indexOf(CONCAT_KEY));
 							logger.debug("Applied selected by priceType: {}", priceType);
-							
-							// Verify if the billing is already done
-							//FIXME - dovrebbe essere sia billed che not billed => l'unico filtro potrebbe essere il priceType
-							if (!isAlreadyBilled(product, tp, pps, priceType)) {
+
+							if (!isAlreadyBilled(product, tp, priceType)) {
 								logger.debug("{}Apply billing process for productId: {}", getIndentation(2), product.getId());
 	
 								if (product.getBillingAccount() != null) {
@@ -305,71 +303,35 @@ public class BillingService implements InitializingBean {
 	}
 
 	/**
-	 * Verify if the bill is already billed by using product, timePeriod, and productPrice list 
+	 * Verify if the bill is already created for billing by using product, timePeriod, and priceType 
 	 * 
 	 * @param product 
 	 * @param tp
-	 * @param productPrices
+	 * @param priceType
 	 * @return boolean 
 	 * @throws it.eng.dome.tmforum.tmf678.v4.ApiException
 	 */
-	private boolean isAlreadyBilled(Product product, TimePeriod tp, List<ProductPrice> productPrices, String priceType) throws it.eng.dome.tmforum.tmf678.v4.ApiException {
+	private boolean isAlreadyBilled(Product product, TimePeriod tp, String priceType) throws it.eng.dome.tmforum.tmf678.v4.ApiException {
 		
-		logger.info("{}Verifying product is already billed", getIndentation(3));
-		boolean isBilled = false;
-
-		logger.info("{}Retrieve the list of AppliedCustomerBillingRate", getIndentation(3));
+		logger.info("{}Verifying product {} is already created for billing", getIndentation(3), product.getId());
 		
-		// add filter for AppliedCustomerBillingRate 
+		// set filters to retrieve the AppliedCustomerBillingRate 
 		Map<String, String> filter = new HashMap<String, String>();
-		//filter.put("isBilled", "true"); // isBilled = true
 		filter.put("rateType", priceType);
-		//FIXME - we can add some filters i.e. periodCoverage.endDateTime, etc...
-		//TODO - must be checked
-		filter.put("periodCoverage.startDateTime.gt", tp.getStartDateTime().minusSeconds(1).toString());
-		filter.put("periodCoverage.endDateTime.lt", tp.getEndDateTime().plusSeconds(1).toString());
+		filter.put("periodCoverage.endDateTime.eq", tp.getEndDateTime().toString());
+		filter.put("periodCoverage.startDateTime.eq", tp.getStartDateTime().toString());
+		filter.put("product.id", product.getId());
 		
-		
-		List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("product,periodCoverage", filter);
+		List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("isBilled", filter);
 		logger.debug("{}Number of AppliedCustomerBillingRate found: {}", getIndentation(3), billed.size());
 
-		logger.info("{}ProductId to verify: {}", getIndentation(3), product.getId());
-		
-		for (AppliedCustomerBillingRate bill : billed) {
-			if (bill.getProduct() != null) { // check if product is not null
-				
-				String id = bill.getProduct().getId();
-				
-				if (id.equals(product.getId())) {
-					logger.debug("{}Verify bill - step 1 - found AppliedCustomerBillingRate with the same ProductId: {}", getIndentation(4), id);
-					
-					if (tp.equals(bill.getPeriodCoverage())) {					
-						logger.debug("{}Verify bill - step 2 - found PeriodCoverage with the same TimePeriod", getIndentation(4));
-						
-						// TODO check productPrices - cosa fare se non esiste il pp : saltare?
-						if (!verifyExistProductPrices(product, productPrices)) {
-							logger.warn("{}Check verifyExistProductPrices = false", getIndentation(4));
-							//TODO cosa fare in questo caso???
-						}else {
-							//logger.info("{}Found ProductPrices", getIndentation(4));
-						}
-
-						//default -> just to go ahead (no IF above is considerated)
-						logger.info("{}Found product already billed with id: {}", getIndentation(4), bill.getId());
-						return true;
-					} else {
-						logger.debug("{}Stopped verify bill: different TimePeriod", getIndentation(4));
-					}
-				} else {
-					logger.debug("{}Stopped verify bill: AppliedCustomerBillingRate with different ProductId {}", getIndentation(4), id);
-				}
-			} else {
-				logger.debug("{}Product cannot be null for the bill: {}", getIndentation(4), bill.getId());
-			}			
+		if (billed.size() > 0) {
+			logger.info("{}Product already billed", getIndentation(3));
+			return true;
+		} else {
+			logger.info("{}Product needs to be billed", getIndentation(3));
+			return false;
 		}
-
-		logger.info("{}Product needs to be billed", getIndentation(3));
-		return isBilled;
 	}
 
 	/**
@@ -406,44 +368,6 @@ public class BillingService implements InitializingBean {
 	}
 	
 	
-	/**
-	 * Verify if the productOfferingPrice of the product is included in the productPrices list
-	 * 
-	 * @param product
-	 * @param productPrices
-	 * @return boolean
-	 */
-	private boolean verifyExistProductPrices(Product product, List<ProductPrice> productPrices) {
-		List<ProductPrice> pprices = product.getProductPrice();
-		boolean result = false;
-		for (ProductPrice pprice : pprices) {
-
-			if (pprice.getProductOfferingPrice() != null) { 
-				//use case with ProductOfferingPrice
-				
-				String id = pprice.getProductOfferingPrice().getId();
-				logger.debug("{}ProductOfferingPrice id {} to verify", getIndentation(5), id);
-				for (ProductPrice productPrice : productPrices) {
-					logger.info("{}Checking with pprice.id {} ", getIndentation(5), productPrice.getProductOfferingPrice().getId());
-					if (id.equals(productPrice.getProductOfferingPrice().getId())) {
-						logger.info("{}Match found for id {}", getIndentation(5), id);
-						return true;
-					}
-				}
-			}else { 
-				//use case: no ProductOfferingPrice => default jump
-				
-				//TODO not implemented yet
-				logger.info("{}No ProductOfferingPrice found", getIndentation(5));
-				logger.info("{}TODO - default jump (not implemented yet)", getIndentation(5));
-				//TODO is it required to perform other check?
-				logger.warn("{}Is it required to perform other check?", getIndentation(5));
-				result = true;
-			}
-		}
-		return result;
-	}
-
 	/**
 	 * 
 	 * @param product
