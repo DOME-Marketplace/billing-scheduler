@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpEntity;
@@ -49,8 +50,9 @@ public class BillingService implements InitializingBean {
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
 	private final static String SPACE = "- ";
 	
-	private final Integer PAY_PER_USE_DELAYED_DAYS = 2;
-	
+    @Value("${payment_pay_per_use.delayed_days}")
+    public int delayedDays;
+		
 	@Autowired
 	private TmfApiFactory tmfApiFactory;
 	
@@ -145,10 +147,10 @@ public class BillingService implements InitializingBean {
 											OffsetDateTime startTime = now;
 											OffsetDateTime nextTime = nextBillingTime;
 											if ("pay-per-use".equalsIgnoreCase(priceType)) {
-												logger.debug("{}The pay-per-use payment is delayed by {} days compared to now: {}",getIndentation(3), PAY_PER_USE_DELAYED_DAYS, now);
+												logger.debug("{}The pay-per-use payment is delayed by {} days compared to now: {}",getIndentation(3), delayedDays, now);
 												//TODO check - decrease 2 days for pay-per-use for the scheduler task
-												startTime = now.minusDays(PAY_PER_USE_DELAYED_DAYS);	
-												nextTime = nextBillingTime.minusDays(PAY_PER_USE_DELAYED_DAYS);
+												startTime = now.minusDays(delayedDays);	
+												nextTime = nextBillingTime.minusDays(delayedDays);
 												logger.info("{}The new time for the scheduled task for pay-per-use is: {}", getIndentation(3), startTime);
 											}
 
@@ -226,7 +228,7 @@ public class BillingService implements InitializingBean {
 									logger.warn("{}No Billing Account defined in the product {}", getIndentation(2), product.getId());
 								}
 							} else {
-								logger.debug("{}Bill already billed for productId: {}", getIndentation(2), product.getId());
+								logger.debug("{}Bill already created for productId: {}", getIndentation(2), product.getId());
 							}
 						}
 					}
@@ -324,14 +326,13 @@ public class BillingService implements InitializingBean {
 		
 		List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("isBilled", filter);
 		logger.debug("{}Number of AppliedCustomerBillingRate found: {}", getIndentation(3), billed.size());
-
-		if (billed.size() > 0) {
-			logger.info("{}Product already billed", getIndentation(3));
-			return true;
-		} else {
+		
+		if (billed.isEmpty()) {
+			// no AppliedCustomerBillingRate found
 			logger.info("{}Product needs to be billed", getIndentation(3));
-			return false;
 		}
+			
+		return !billed.isEmpty();
 	}
 
 	/**

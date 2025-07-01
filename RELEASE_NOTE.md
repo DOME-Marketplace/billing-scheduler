@@ -2,11 +2,12 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
-### <code>1.2.1</code> :calendar: 11/06/2025 (WIP)
+### <code>1.2.1</code> :calendar: 01/07/2025 (WIP)
 **Improvements**
 * Update of the `basePath` for building TMForum API URLs with or without **envoy** usage.
 * Add `BillingPriceType` enum to provide a normalize `priceType` string for *recurring*, *recurring-prepaid*, *recurring-postpaid*, *pay-per-use*. 
 * Set of the `SCHEDULING_CRON_JOB_TASK` **env var**.
+* Add `delayed_days` **env var** to postpone the billing process for the **pay-per-use** task.
 
 
 ### <code>1.2.0</code> :calendar: 11/06/2025
