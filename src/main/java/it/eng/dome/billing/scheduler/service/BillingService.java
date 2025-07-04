@@ -422,13 +422,13 @@ public class BillingService implements InitializingBean {
 	private String capitalizeStatus(String json) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String capitalize = json;
-		 try {
+		try {
 			ObjectNode jsonNode = (ObjectNode) objectMapper.readTree(json);
-			 String status = jsonNode.get("status").asText();
-			 jsonNode.put("status", status.toUpperCase());
-			 return objectMapper.writeValueAsString(jsonNode);
+			String status = jsonNode.get("status").asText();
+			jsonNode.put("status", status.toUpperCase());
+			return objectMapper.writeValueAsString(jsonNode);
 
-		} catch (Exception e) {			
+		} catch (Exception e) {
 			return capitalize;
 		}
 	}
