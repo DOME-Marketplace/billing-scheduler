@@ -71,7 +71,7 @@ public class StartupListener implements ApplicationListener<ApplicationReadyEven
         });
 
         // find all env_var that they get placeholder ${…}
-        TreeMap<String, String> vars = new TreeMap<String, String>(); // to get order by key
+        Map<String, String> vars = new TreeMap<String, String>(); // to get order by key
                 
         for (PropertySource<?> ps : yamlSources) {
             if (ps instanceof EnumerablePropertySource<?> eps) {
@@ -95,7 +95,7 @@ public class StartupListener implements ApplicationListener<ApplicationReadyEven
 
         logger.debug("Displaying ENV VARs for Billing Scheduler:");
         for (Map.Entry<String, String> entry : vars.entrySet()) {
-            logger.debug(" - {} = {}", entry.getKey(), entry.getValue());
+            logger.debug("- {} = {}", entry.getKey(), entry.getValue());
         }
     }
 }
