@@ -28,12 +28,13 @@ public class Utils {
 	    }
 
 	    public static String normalize(String input) {
-	    	if (input == null) return null;
+	    	if (input == null) { 
+	    		return null;
+	    	}
 	        String normalizedInput = input
-	            .toLowerCase()
+	            //.toLowerCase() => it can be commented because it used the equalsIgnoreCase
 	            .trim()
 	            .replaceAll("\\s+", "-")
-	            .toUpperCase()
 	            .replace("-", "_");
 	        
 	        for (BillingPriceType type : values()) {

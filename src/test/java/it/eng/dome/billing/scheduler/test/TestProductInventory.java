@@ -33,7 +33,7 @@ public class TestProductInventory {
 	
 	public void TestKey() {
 		System.out.println("my test");
-		String input = "recurring prepaid";
+		String input = "recurring Postpaid";
 		String normalized = BillingPriceType.normalize(input);
 		System.out.println("--> " + normalized);
 		System.out.println( Arrays.stream(BillingPriceType.values())
@@ -46,7 +46,7 @@ public class TestProductInventory {
 	public enum BillingPriceType {
 	    RECURRING("recurring"),
 	    RECURRING_PREPAID("recurring-prepaid"),
-	    RECURRING_POSTPAID("recurring"),
+	    RECURRING_POSTPAID("recurring-postpaid"),
 	    PAY_PER_USE("pay-per-use");
 
 	    private final String normalizedKey;
@@ -62,12 +62,12 @@ public class TestProductInventory {
 	    public static String normalize(String input) {
 	    	if (input == null) return null;
 	        String normalizedInput = input
-	            .toLowerCase()
+	            //.toLowerCase()
 	            .trim()
 	            .replaceAll("\\s+", "-")
-	            .toUpperCase()
+	            //.toUpperCase()
 	            .replace("-", "_");
-	        
+	        System.out.println(normalizedInput);
 	        for (BillingPriceType type : values()) {
 	            if (type.name().equalsIgnoreCase(normalizedInput)) {
 	                return type.getNormalizedKey();

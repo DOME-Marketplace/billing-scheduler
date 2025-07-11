@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpEntity;
@@ -45,10 +46,13 @@ import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 public class BillingService implements InitializingBean {
 
 	private final Logger logger = LoggerFactory.getLogger(BillingService.class);
-	private final static String CONCAT_KEY = "-";
+	private final static String CONCAT_KEY = "|";
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
 	private final static String SPACE = "- ";
 	
+    @Value("${billing_pay_per_use.delayed_days}")
+    public int delayedDays;
+		
 	@Autowired
 	private TmfApiFactory tmfApiFactory;
 	
@@ -81,7 +85,7 @@ public class BillingService implements InitializingBean {
 
 		logger.info("Starting calculateBill at {}", now.format(formatter));
 
-		// add filter - consider only product with status = active 
+		// add filter - consider only products with status = active 
 		Map<String, String> filter = new HashMap<String, String>();
 		filter.put("status", ProductStatusType.ACTIVE.getValue()); 
 		
@@ -92,11 +96,12 @@ public class BillingService implements InitializingBean {
 			
 			logger.info("Number of products found: {}", products.size());
 			int count = 0;
+			int appliedNumber = 0;
 	
 			for (Product product : products) {
 				logger.debug("Product # {} - productId: {}", ++count, product.getId());
 	
-				// ProductPrice <> null
+				// ProductPrice <> null 
 				if (product.getProductPrice() != null) {
 				
 					List<ProductPrice> pprices = product.getProductPrice();
@@ -106,11 +111,12 @@ public class BillingService implements InitializingBean {
 					Map<String, List<ProductPrice>> productPrices = new HashMap<>();
 	
 					if (pprices != null && !pprices.isEmpty()) {
+						// product-price => only one
 						for (ProductPrice pprice : pprices) {
 	
 							if ((pprice.getPriceType() != null)) {
 								
-								logger.info("{}PriceType {} found for productPrice {}", getIndentation(2), pprice.getPriceType(), pprice.getName());
+								logger.info("{}PriceType {} found for the productPrice", getIndentation(2), pprice.getPriceType());
 													
 								String priceType = Utils.BillingPriceType.normalize(pprice.getPriceType());
 								
@@ -119,48 +125,47 @@ public class BillingService implements InitializingBean {
 									// we consider all priceType: recurring, recurring-prepaid, recurring-postpaid, pay-per-use 
 									logger.info("{}PriceType recognize: {}", getIndentation(2), priceType);
 									
-									String recurringPeriod = null;
-			
-									// Retrieve the RecurringPeriod => there are 2 use cases (RecurringPeriod or RecurringChargePeriod)
-									if (pprice.getProductOfferingPrice() != null) {
-										// Use Case 1 - RecurringPeriod from ProductOfferingPrice
-										
-										// recurringChargePeriodType + recurringChargePeriodLength
-										logger.debug("{}Get RecurringPeriod from ProductOfferingPrice for product: {}", getIndentation(2), product.getId());
-										recurringPeriod = getRecurringPeriod(pprice.getProductOfferingPrice().getId());
-										logger.info("{}Get recurring period {} from ProductOfferingPrice", getIndentation(2), recurringPeriod);
-			
-									} else if (pprice.getRecurringChargePeriod() != null) { 
-										// Use Case 2 - RecurringPeriod from RecurringChargePeriod
-										
-										logger.debug("{}Get RecurringPeriod from RecurringChargePeriod for product: {}", getIndentation(2), product.getId());
-										recurringPeriod = pprice.getRecurringChargePeriod();
-										logger.info("{}Get recurring period {} for RecurringChargePeriod", getIndentation(2), recurringPeriod);
-									}
-									logger.debug("{}Recurring period found: {}", getIndentation(2), recurringPeriod);
+									// retrieve the RecurringPeriod
+									String recurringPeriod = retrieveRecurringPeriod(pprice);
+									logger.debug("{}Recurring period found: {} - for product: {}", getIndentation(2), recurringPeriod, product.getId());
 			
 									if (recurringPeriod != null && product.getStartDate() != null) {
+										
+										// calculate the next billing time starting from StartDate time										
 										OffsetDateTime nextBillingTime = BillingUtils.getNextBillingTime(product.getStartDate(), now, recurringPeriod);
 										OffsetDateTime previousBillingTime = BillingUtils.getPreviousBillingTime(nextBillingTime, recurringPeriod);
 			
 										if (nextBillingTime != null) {
-											logger.debug("{}Billing dateTime for the product {}:", getIndentation(2), product.getId());
+											logger.debug("{}Billing time of the product {} for type: {}", getIndentation(2), product.getId(), priceType);
 											logger.debug("{}- StartDate: {}", getIndentation(2), product.getStartDate());
 											logger.debug("{}- NextDate: {}", getIndentation(2), nextBillingTime);
 											logger.debug("{}- PreviuosDate: {}", getIndentation(2), previousBillingTime);
 											logger.debug("{}- CurrentDate: {}", getIndentation(2), now);
-			
-											// Get numbers of days missing before to start the next bill
-											long days = ChronoUnit.DAYS.between(now, nextBillingTime);
-											logger.debug("{}Missing days before starting the next bill: {}", getIndentation(2), days);
-																				
+											
+											
+											// Note: pay per use must be paid after 2 days
+											OffsetDateTime startTime = now;
+											OffsetDateTime nextTime = nextBillingTime;
+											if ("pay-per-use".equalsIgnoreCase(priceType)) {
+												logger.debug("{}The pay-per-use payment is delayed by {} days compared to now: {}",getIndentation(3), delayedDays, now);
+												//TODO check - decrease 2 days for pay-per-use for the scheduler task
+												startTime = now.minusDays(delayedDays);	
+												nextTime = nextBillingTime.minusDays(delayedDays);
+												logger.info("{}The new time for the scheduled task for pay-per-use is: {}", getIndentation(3), startTime);
+											}
+
+											// Calculate the days difference between the previous and next billing 
 											long diffPreviousBillingAndNextBilling = ChronoUnit.DAYS.between(previousBillingTime, nextBillingTime);
-											logger.debug("{}Difference from PreviuosDate and NextDate for bill (in days): {}", getIndentation(2), diffPreviousBillingAndNextBilling);
+											logger.debug("{}Difference from PreviuosDate and NextDate (in days): {} - for recurrung period: {}", getIndentation(2), diffPreviousBillingAndNextBilling, recurringPeriod);
+		
+											// Get numbers of days missing before to start the next bill
+											long days = ChronoUnit.DAYS.between(startTime, nextTime);
+											logger.debug("{}Missing days before starting the next bill: {}", getIndentation(2), days);
+
 			
 											// days = 0 => time expired => start the bill process
 											if (days == 0) {
 												String keyPeriod = priceType + CONCAT_KEY + diffPreviousBillingAndNextBilling;
-												
 												logger.info("{}Bill required for productId: {}", getIndentation(1), product.getId());
 												// Set TimePeriod
 												TimePeriod tp = new TimePeriod();
@@ -176,7 +181,7 @@ public class BillingService implements InitializingBean {
 										logger.debug("{}No RecurringPeriod found or product.startDate not valid", getIndentation(2));
 									}
 								} else {
-									logger.debug("{}No priceType recognized. Allowed priceType: ", getIndentation(2), Utils.BillingPriceType.getAllowedValues());
+									logger.debug("{}No priceType recognized. Allowed priceType: {}", getIndentation(2), Utils.BillingPriceType.getAllowedValues());
 								}
 		
 							} else {
@@ -190,7 +195,7 @@ public class BillingService implements InitializingBean {
 				
 					/* verify timePeriods/productPrices if it needs to bill */  
 
-					logger.info("{}ProductPrices for billing found for productId {}: {}", getIndentation(1), product.getId(), productPrices.size());
+					logger.info("{}Number of ProductPrices for billing found for productId {}: {}", getIndentation(1), product.getId(), productPrices.size());
 					for (Map.Entry<String, List<ProductPrice>> entry : productPrices.entrySet()) {
 	
 						String key = entry.getKey();
@@ -200,8 +205,10 @@ public class BillingService implements InitializingBean {
 							logger.debug("{}TimePeriod - startDateTime: {} - endDateTime: {} ", getIndentation(2), tp.getStartDateTime(), tp.getEndDateTime());
 							List<ProductPrice> pps = entry.getValue();
 							
-							// Verify if the billing is already done
-							if (!isAlreadyBilled(product, tp, pps)) {
+							String priceType = key.substring(0, key.indexOf(CONCAT_KEY));
+							logger.debug("Applied selected by priceType: {}", priceType);
+
+							if (!isAlreadyBilled(product, tp, priceType)) {
 								logger.debug("{}Apply billing process for productId: {}", getIndentation(2), product.getId());
 	
 								if (product.getBillingAccount() != null) {
@@ -213,6 +220,7 @@ public class BillingService implements InitializingBean {
 										List<String> ids = saveBill(applied.getBody());
 										logger.info("{}Number of AppliedCustomerBillingRate saved: {}", getIndentation(2), ids.size());
 										logger.debug("{}AppliedCustomerBillingRate ids saved: {}", getIndentation(2), ids);
+										appliedNumber += ids.size();
 									}else {
 										logger.warn("{}Cannot retrieve AppliedCustomerBillingRates", getIndentation(2));
 									}
@@ -220,7 +228,7 @@ public class BillingService implements InitializingBean {
 									logger.warn("{}No Billing Account defined in the product {}", getIndentation(2), product.getId());
 								}
 							} else {
-								logger.debug("{}Bill already billed for productId: {}", getIndentation(2), product.getId());
+								logger.debug("{}Bill already created for productId: {}", getIndentation(2), product.getId());
 							}
 						}
 					}
@@ -228,10 +236,40 @@ public class BillingService implements InitializingBean {
 					logger.warn("{}Bill skipped for productId {} because ProductPrice is null",  getIndentation(1), product.getId());
 				}
 			}
+			
+			logger.info("Number of AppliedCustomerBillingRate created: {}", appliedNumber);
 		} else {
 			logger.warn("The list of Products is empty");
 		}
 
+	}
+	
+	/**
+	 * Retrieve the RecurringPeriod => there are 2 use cases (in cascade mode):
+	 *   1. via RecurringPeriod 
+	 *   2. via RecurringChargePeriod
+	 * 
+	 * @param pprice
+	 * @return recurringPeriod
+	 */
+	private String retrieveRecurringPeriod(ProductPrice pprice) {
+		
+		String recurringPeriod = null;
+				
+		// Use Case 1 - RecurringPeriod from ProductOfferingPrice
+		if (pprice.getProductOfferingPrice() != null) { 			
+			// recurringPeriod format: recurringChargePeriodLength + recurringChargePeriodType
+			recurringPeriod = getRecurringPeriod(pprice.getProductOfferingPrice().getId());
+			logger.info("{}Get recurring period {} from ProductOfferingPrice", getIndentation(2), recurringPeriod);
+		} 
+		
+		// Use Case 2 - RecurringPeriod from RecurringChargePeriod
+		if (recurringPeriod == null && pprice.getRecurringChargePeriod() != null) {
+			recurringPeriod = pprice.getRecurringChargePeriod();
+			logger.info("{}Get recurring period {} for RecurringChargePeriod", getIndentation(2), recurringPeriod);
+		}
+		
+		return recurringPeriod;
 	}
 	
 	/**
@@ -251,9 +289,8 @@ public class BillingService implements InitializingBean {
 	 * 
 	 * @param id - productOfferingPriceId
 	 * @return String - RecurringPeriod as RecurringChargePeriodLength + RecurringChargePeriodType
-	 * @throws it.eng.dome.tmforum.tmf620.v4.ApiException
 	 */
-	private String getRecurringPeriod(String id) throws it.eng.dome.tmforum.tmf620.v4.ApiException {
+	private String getRecurringPeriod(String id) {
 		logger.info("{}Retrieve the RecurringPeriod for ProductOfferingPriceId: {}", getIndentation(3), id);
 
 		ProductOfferingPrice pop = productOfferingPrices.getProductOfferingPrice(id, null);
@@ -268,65 +305,34 @@ public class BillingService implements InitializingBean {
 	}
 
 	/**
-	 * Verify if the bill is already billed by using product, timePeriod, and productPrice list 
+	 * Verify if the bill is already created for billing by using product, timePeriod, and priceType 
 	 * 
 	 * @param product 
 	 * @param tp
-	 * @param productPrices
+	 * @param priceType
 	 * @return boolean 
 	 * @throws it.eng.dome.tmforum.tmf678.v4.ApiException
 	 */
-	private boolean isAlreadyBilled(Product product, TimePeriod tp, List<ProductPrice> productPrices) throws it.eng.dome.tmforum.tmf678.v4.ApiException {
+	private boolean isAlreadyBilled(Product product, TimePeriod tp, String priceType) throws it.eng.dome.tmforum.tmf678.v4.ApiException {
 		
-		logger.info("{}Verifying product is already billed", getIndentation(3));
-		boolean isBilled = false;
-
-		logger.info("{}Retrieve the list of AppliedCustomerBillingRate", getIndentation(3));
+		logger.info("{}Verifying product {} is already created for billing", getIndentation(3), product.getId());
 		
-		// add filter for AppliedCustomerBillingRate 
+		// set filters to retrieve the AppliedCustomerBillingRate 
 		Map<String, String> filter = new HashMap<String, String>();
-		filter.put("isBilled", "true"); // isBilled = true
+		filter.put("rateType", priceType);
+		filter.put("periodCoverage.endDateTime.eq", tp.getEndDateTime().toString());
+		filter.put("periodCoverage.startDateTime.eq", tp.getStartDateTime().toString());
+		filter.put("product.id", product.getId());
 		
-		List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("product,periodCoverage", filter);
+		List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("isBilled", filter);
 		logger.debug("{}Number of AppliedCustomerBillingRate found: {}", getIndentation(3), billed.size());
-
-		logger.info("{}ProductId to verify: {}", getIndentation(3), product.getId());
 		
-		for (AppliedCustomerBillingRate bill : billed) {
-			if (bill.getProduct() != null) { // check if product is not null
-				
-				String id = bill.getProduct().getId();
-				
-				if (id.equals(product.getId())) {
-					logger.debug("{}Verify bill - step 1 - found AppliedCustomerBillingRate with the same ProductId: {}", getIndentation(4), id);
-					
-					if (tp.equals(bill.getPeriodCoverage())) {					
-						logger.debug("{}Verify bill - step 2 - found PeriodCoverage with the same TimePeriod", getIndentation(4));
-						
-						// TODO check productPrices - cosa fare se non esiste il pp : saltare?
-						if (!verifyExistProductPrices(product, productPrices)) {
-							logger.warn("{}Check verifyExistProductPrices = false", getIndentation(4));
-							//TODO cosa fare in questo caso???
-						}else {
-							//logger.info("{}Found ProductPrices", getIndentation(4));
-						}
-
-						//default -> just to go ahead (no IF above is considerated)
-						logger.info("{}Found product already billed with id: {}", getIndentation(4), bill.getId());
-						return true;
-					} else {
-						logger.debug("{}Stopped verify bill: different TimePeriod", getIndentation(4));
-					}
-				} else {
-					logger.debug("{}Stopped verify bill: AppliedCustomerBillingRate with different ProductId {}", getIndentation(4), id);
-				}
-			} else {
-				logger.debug("{}Product cannot be null for the bill: {}", getIndentation(4), bill.getId());
-			}			
+		if (billed.isEmpty()) {
+			// no AppliedCustomerBillingRate found
+			logger.info("{}Product needs to be billed", getIndentation(3));
 		}
-
-		logger.info("{}Product needs to be billed", getIndentation(3));
-		return isBilled;
+			
+		return !billed.isEmpty();
 	}
 
 	/**
@@ -336,17 +342,18 @@ public class BillingService implements InitializingBean {
 	 * @return List of ids
 	 */
 	private List<String> saveBill(String appliedCustomerBillRates) {
-		logger.info("{}Saving the bill inTMForum ...", getIndentation(2));
+		logger.info("{}Saving the bill in TMForum ...", getIndentation(2));
 
 		List<String> ids = new ArrayList<String>();
+		logger.debug("AppliedCustomerBillRates: {}", appliedCustomerBillRates);
 
 		try {
 			AppliedCustomerBillingRate[] bills = JSON.getGson().fromJson(appliedCustomerBillRates, AppliedCustomerBillingRate[].class);
 
-			//TODO verify if this array has got just one item
+			//TODO verify if this array has got just one AppliedCustomerBillingRate
 			for (AppliedCustomerBillingRate bill : bills) {
-				bill.setName("Applied Customer Bill Rate - " + bill.getId());
-				bill.setDescription("Billing Scheduler generated the bill for " + bill.getId());
+				// bill.setName("Applied Customer Bill Rate - " + bill.getId());
+				// bill.setDescription("Billing Scheduler generated the bill for " + bill.getProduct().getId());
 
 				AppliedCustomerBillingRateCreate createApply = AppliedCustomerBillingRateCreate.fromJson(bill.toJson());
 				AppliedCustomerBillingRate created = appliedCustomerBillRateApis.createAppliedCustomerBillingRate(createApply);
@@ -363,44 +370,6 @@ public class BillingService implements InitializingBean {
 	
 	
 	/**
-	 * Verify if the productOfferingPrice of the product is included in the productPrices list
-	 * 
-	 * @param product
-	 * @param productPrices
-	 * @return boolean
-	 */
-	private boolean verifyExistProductPrices(Product product, List<ProductPrice> productPrices) {
-		List<ProductPrice> pprices = product.getProductPrice();
-		boolean result = false;
-		for (ProductPrice pprice : pprices) {
-
-			if (pprice.getProductOfferingPrice() != null) { 
-				//use case with ProductOfferingPrice
-				
-				String id = pprice.getProductOfferingPrice().getId();
-				logger.debug("{}ProductOfferingPrice id {} to verify", getIndentation(5), id);
-				for (ProductPrice productPrice : productPrices) {
-					logger.info("{}Checking with pprice.id {} ", getIndentation(5), productPrice.getProductOfferingPrice().getId());
-					if (id.equals(productPrice.getProductOfferingPrice().getId())) {
-						logger.info("{}Match found for id {}", getIndentation(5), id);
-						return true;
-					}
-				}
-			}else { 
-				//use case: no ProductOfferingPrice => default jump
-				
-				//TODO not implemented yet
-				logger.info("{}No ProductOfferingPrice found", getIndentation(5));
-				logger.info("{}TODO - default jump (not implemented yet)", getIndentation(5));
-				//TODO is it required to perform other check?
-				logger.warn("{}Is it required to perform other check?", getIndentation(5));
-				result = true;
-			}
-		}
-		return result;
-	}
-
-	/**
 	 * 
 	 * @param product
 	 * @param tp
@@ -410,11 +379,8 @@ public class BillingService implements InitializingBean {
 	private ResponseEntity<String> getAppliedCustomerBillingRates(Product product, TimePeriod tp, List<ProductPrice> productPrices) {
 		logger.info("{}Calling bill proxy endpoint: {}", getIndentation(2), billing.billinProxy + "/billing/bill");
 		String payload = getBillRequestDTOtoJson(product, tp, productPrices);
-		//TODO ProductStatusType => Solve this bugfix
-		//payload = payload.replaceAll("active", "ACTIVE");
-		logger.debug("{}Payload to get appliedCustomerBillingRate:", getIndentation(3));
-		
-		logger.debug("{}{}", getIndentation(3), payload);
+
+		logger.debug("{}Payload to get appliedCustomerBillingRate: {}", getIndentation(3), payload);
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -456,13 +422,13 @@ public class BillingService implements InitializingBean {
 	private String capitalizeStatus(String json) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String capitalize = json;
-		 try {
+		try {
 			ObjectNode jsonNode = (ObjectNode) objectMapper.readTree(json);
-			 String status = jsonNode.get("status").asText();
-			 jsonNode.put("status", status.toUpperCase());
-			 return objectMapper.writeValueAsString(jsonNode);
+			String status = jsonNode.get("status").asText();
+			jsonNode.put("status", status.toUpperCase());
+			return objectMapper.writeValueAsString(jsonNode);
 
-		} catch (Exception e) {			
+		} catch (Exception e) {
 			return capitalize;
 		}
 	}

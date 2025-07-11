@@ -14,7 +14,11 @@ build:
 
 # Scheduling Task Configuration  
 scheduling:
-  cron: ${SCHEDULING_CRON_JOB_TASK:0 0 */3 * * ?} 
+  cron: ${SCHEDULING_CRON_JOB_TASK:0 0 */3 * * ?}
+
+# Billing - pay per use delayed days
+billing_pay_per_use:
+  delayed_days: ${PAY_PER_USE_DELATED_DAYS:2}
 
 # Logging Configuration
 logging:
