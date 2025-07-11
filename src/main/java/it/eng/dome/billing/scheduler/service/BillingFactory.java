@@ -22,7 +22,7 @@ public class BillingFactory implements InitializingBean {
 
     @Override
 	public void afterPropertiesSet() throws Exception {
-		log.info("Billing Proxy is using the following endpoint prefix: " + billinProxy);	
+		log.info("Billing Scheduler uses the following Billing Proxy endpoint prefix: {}", billinProxy);	
 	}
 
 }

@@ -2,13 +2,18 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
-### <code>1.2.1</code> :calendar: 01/07/2025 (WIP)
-**Improvements**
-* Update of the `basePath` for building TMForum API URLs with or without **envoy** usage.
-* Add `BillingPriceType` enum to provide a normalize `priceType` string for *recurring*, *recurring-prepaid*, *recurring-postpaid*, *pay-per-use*. 
-* Set of the `SCHEDULING_CRON_JOB_TASK` **env var**.
-* Add `delayed_days` **env var** to postpone the billing process for the **pay-per-use** task.
+### <code>1.3.0</code> :calendar: 11/07/2025
+**Feature**
+* Management of **pay per use** bill type.
+* Add `BillingPriceType` enumeration to provide a normalize `priceType` string for *recurring*, *recurring-prepaid*, *recurring-postpaid*, *pay-per-use*. 
 
+**BugFixing**
+* Update of the `basePath` for building TMForum API URLs with or without **envoy** usage.
+
+**Improvements**
+* Set of the `SCHEDULING_CRON_JOB_TASK` **env var**. Default value is `0 0 */3 * * ?`.
+* Add `PAY_PER_USE_DELATED_DAYS` **env var** (number of days) to postpone the beginning billing process for the only **pay-per-use** task. Default value is 2 days.
+* Display `ENV VARs` in the Listener at beginning.
 
 ### <code>1.2.0</code> :calendar: 11/06/2025
 **Improvements**

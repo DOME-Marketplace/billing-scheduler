@@ -50,7 +50,7 @@ public class BillingService implements InitializingBean {
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
 	private final static String SPACE = "- ";
 	
-    @Value("${payment_pay_per_use.delayed_days}")
+    @Value("${billing_pay_per_use.delayed_days}")
     public int delayedDays;
 		
 	@Autowired
