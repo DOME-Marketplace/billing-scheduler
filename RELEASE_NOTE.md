@@ -2,6 +2,11 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
+### <code>1.3.1</code> :calendar: 03/09/2025
+**Improvements**
+* Management of **pay per use** bill type.
+* Add reference to the `BillingPriceType` enumeration defined in the `brokerage-utils` library to provide a normalize `priceType` string for *recurring*, *recurring-prepaid*, *recurring-postpaid*, *pay-per-use*, *usage*. 
+
 ### <code>1.3.0</code> :calendar: 11/07/2025
 **Feature**
 * Management of **pay per use** bill type.
