@@ -27,10 +27,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import it.eng.dome.billing.scheduler.tmf.TmfApiFactory;
-import it.eng.dome.billing.scheduler.utils.Utils;
 import it.eng.dome.brokerage.api.AppliedCustomerBillRateApis;
 import it.eng.dome.brokerage.api.ProductApis;
 import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
+import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.brokerage.billing.utils.BillingUtils;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
@@ -118,11 +118,12 @@ public class BillingService implements InitializingBean {
 								
 								logger.info("{}PriceType {} found for the productPrice", getIndentation(2), pprice.getPriceType());
 													
-								String priceType = Utils.BillingPriceType.normalize(pprice.getPriceType());
+								//String priceType = Utils.BillingPriceType.normalize(pprice.getPriceType());
+								String priceType = BillingPriceType.normalize(pprice.getPriceType());
 								
 								// check priceTypes are complaint with service scheduler																
 								if (priceType != null) {
-									// we consider all priceType: recurring, recurring-prepaid, recurring-postpaid, pay-per-use 
+									// we consider all priceType: recurring, recurring-prepaid, recurring-postpaid, pay-per-use/usage 
 									logger.info("{}PriceType recognize: {}", getIndentation(2), priceType);
 									
 									// retrieve the RecurringPeriod
@@ -146,7 +147,7 @@ public class BillingService implements InitializingBean {
 											// Note: pay per use must be paid after 2 days
 											OffsetDateTime startTime = now;
 											OffsetDateTime nextTime = nextBillingTime;
-											if ("pay-per-use".equalsIgnoreCase(priceType)) {
+											if ("pay-per-use".equalsIgnoreCase(priceType) || "usage".equalsIgnoreCase(priceType)) {
 												logger.debug("{}The pay-per-use payment is delayed by {} days compared to now: {}",getIndentation(3), delayedDays, now);
 												//TODO check - decrease 2 days for pay-per-use for the scheduler task
 												startTime = now.minusDays(delayedDays);	
@@ -181,7 +182,7 @@ public class BillingService implements InitializingBean {
 										logger.debug("{}No RecurringPeriod found or product.startDate not valid", getIndentation(2));
 									}
 								} else {
-									logger.debug("{}No priceType recognized. Allowed priceType: {}", getIndentation(2), Utils.BillingPriceType.getAllowedValues());
+									logger.debug("{}No priceType recognized. Allowed priceType: {}", getIndentation(2), BillingPriceType.getAllowedValues());
 								}
 		
 							} else {
