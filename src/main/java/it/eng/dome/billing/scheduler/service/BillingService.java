@@ -34,6 +34,7 @@ import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.brokerage.billing.utils.BillingUtils;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
+import it.eng.dome.tmforum.tmf637.v4.model.ProductOfferingPriceRef;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductStatusType;
 import it.eng.dome.tmforum.tmf678.v4.JSON;
@@ -114,12 +115,16 @@ public class BillingService implements InitializingBean {
 						// product-price => only one
 						for (ProductPrice pprice : pprices) {
 	
-							if ((pprice.getPriceType() != null)) {
+							ProductOfferingPriceRef popRef=pprice.getProductOfferingPrice();
+							ProductOfferingPrice pop=productOfferingPrices.getProductOfferingPrice(popRef.getId(), null);
+							String popId=pop.getId();
+							
+							if ((popId != null)) {
 								
 								logger.info("{}PriceType {} found for the productPrice", getIndentation(2), pprice.getPriceType());
 													
 								//String priceType = Utils.BillingPriceType.normalize(pprice.getPriceType());
-								String priceType = BillingPriceType.normalize(pprice.getPriceType());
+								String priceType = BillingPriceType.normalize(popId);
 								
 								// check priceTypes are complaint with service scheduler																
 								if (priceType != null) {
