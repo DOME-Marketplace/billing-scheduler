@@ -30,4 +30,6 @@ public class BillingSchedulerControllerTest {
             .andExpect(jsonPath("$.version").value(buildProperties.getVersion()))
             .andExpect(jsonPath("$.name").value(buildProperties.getName()));
     }
+    
+    
 }

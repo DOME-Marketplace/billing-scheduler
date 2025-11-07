@@ -55,6 +55,10 @@ management:
 billing:
   billing_proxy: ${BILLING_PROXY:http://localhost:8280}
 
+# BillCycle
+billCycle:
+  billCycleSpec_enabled: ${BILLCYCLESPEC_ENABLED:false}
+
 # TMForum Endpoints
 tmforumapi:
   tmf_endpoint: ${TMF_ENDPOINT:http://tm-forum-api}
