@@ -34,6 +34,7 @@ import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.brokerage.billing.utils.BillingUtils;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
+import it.eng.dome.tmforum.tmf637.v4.model.ProductOfferingPriceRef;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductStatusType;
 import it.eng.dome.tmforum.tmf678.v4.JSON;
@@ -113,18 +114,19 @@ public class BillingService implements InitializingBean {
 					if (pprices != null && !pprices.isEmpty()) {
 						// product-price => only one
 						for (ProductPrice pprice : pprices) {
-	
-							if ((pprice.getPriceType() != null)) {
+							
+							String priceType = retrievePriceType(pprice);
+							
+							if ((priceType != null)) {
 								
-								logger.info("{}PriceType {} found for the productPrice", getIndentation(2), pprice.getPriceType());
-													
-								//String priceType = Utils.BillingPriceType.normalize(pprice.getPriceType());
-								String priceType = BillingPriceType.normalize(pprice.getPriceType());
+								logger.info("{}PriceType {} found for the productPrice", getIndentation(2), priceType);
+
+								String priceTypeNormalized = BillingPriceType.normalize(priceType);
 								
 								// check priceTypes are complaint with service scheduler																
-								if (priceType != null) {
+								if (priceTypeNormalized != null) {
 									// we consider all priceType: recurring, recurring-prepaid, recurring-postpaid, pay-per-use/usage 
-									logger.info("{}PriceType recognize: {}", getIndentation(2), priceType);
+									logger.info("{}PriceType recognize: {}", getIndentation(2), priceTypeNormalized);
 									
 									// retrieve the RecurringPeriod
 									String recurringPeriod = retrieveRecurringPeriod(pprice);
@@ -267,11 +269,40 @@ public class BillingService implements InitializingBean {
 		// Use Case 2 - RecurringPeriod from RecurringChargePeriod
 		if (recurringPeriod == null && pprice.getRecurringChargePeriod() != null) {
 			recurringPeriod = pprice.getRecurringChargePeriod();
-			logger.info("{}Get recurring period {} for RecurringChargePeriod", getIndentation(2), recurringPeriod);
+			logger.info("{}Get recurring period {} from RecurringChargePeriod", getIndentation(2), recurringPeriod);
 		}
 		
 		return recurringPeriod;
 	}
+	
+	/**
+	 *  Retrieve the PriceType => there are 2 use cases (in cascade mode):
+	 *   1. via ProductOfferingPrice 
+	 *   2. via ProductPrice (directly)
+	 * 
+	 * @param pprice
+	 * @return priceType
+	 */
+		private String retrievePriceType(ProductPrice pprice) {
+			String priceType = null;
+			
+			// Use Case 1 - PriceType from ProductOfferingPrice
+			if (pprice.getProductOfferingPrice() != null) { 			
+				ProductOfferingPriceRef popRef = pprice.getProductOfferingPrice();
+				ProductOfferingPrice pop = productOfferingPrices.getProductOfferingPrice(popRef.getId(), null);
+				
+				priceType = pop.getPriceType();
+				logger.debug("{}Get priceType {} from ProductOfferingPrice", getIndentation(2), priceType);
+			} 
+			
+			// Use Case 2 - PriceType from ProductPrice
+			if (priceType == null && pprice.getPriceType() != null) {
+				priceType = pprice.getPriceType();
+				logger.debug("{}Get priceType {} directly from ProductPrice", getIndentation(2), priceType);
+			}
+
+			return priceType;
+	 }
 	
 	/**
 	 * 

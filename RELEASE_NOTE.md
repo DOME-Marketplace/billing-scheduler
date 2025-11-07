@@ -2,6 +2,10 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
+### <code>1.3.2</code> :calendar: 19/09/2025
+**BugFixing**
+* Retrieve priceType from ProductOfferingPrice instead of the ProductPrice
+
 ### <code>1.3.1</code> :calendar: 03/09/2025
 **Improvements**
 * Management of **pay per use** bill type.
