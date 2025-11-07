@@ -19,3 +19,4 @@ tmp/
 *~.nib
 /.classpath
 /src/main/resources/application.yml
+/.classpath
