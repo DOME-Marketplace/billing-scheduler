@@ -165,6 +165,7 @@ public class BillingService {
 	 * @param now 
 	 */
 	private void calculateBillCycleFromBillCycleSpecs(OffsetDateTime now) {
+		logger.info("Calculation of BillCycle at: {}", now);
 		throw new UnsupportedOperationException("Method not supported yet!");
 	}
 	

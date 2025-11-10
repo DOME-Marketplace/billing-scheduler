@@ -35,7 +35,7 @@ public class BillingSchedulerController {
 	@PostMapping("/start")
 	public ResponseEntity<String> startScheduler(@RequestBody StartRequestDTO datetime) throws Throwable {
 
-		OffsetDateTime now = OffsetDateTime.now();
+		OffsetDateTime now; 
 		try {
 			String dt = datetime.getDatetime().toString();
 			logger.debug("Set datetime manually at {}", dt);

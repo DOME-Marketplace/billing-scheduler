@@ -59,7 +59,6 @@ public class BillCycleService implements InitializingBean{
 		Logger.info("Starting calculation of the billingPeriod end dates for BillCycleSpecification with recurring period '{}' and lenght '{}' and activation date '{}'",
 			billCycleSpec.getBillingPeriodType(),billCycleSpec.getBillingPeriodLength(), activationDate);
 		
-		List<OffsetDateTime> billPeriodEndDates=new ArrayList<OffsetDateTime>();
 		
 		RecurringPeriod billingPeriodType=billCycleSpec.getBillingPeriodType();
 		Integer billingPeriodLength=billCycleSpec.getBillingPeriodLength();
@@ -122,7 +121,7 @@ public class BillCycleService implements InitializingBean{
 				throw new IllegalArgumentException("Error in the BillCycleSpecification: unexpected value for billingPeriodType");
 			}
 			
-			billPeriodEndDates=streamData.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
+			List<OffsetDateTime> billPeriodEndDates = streamData.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
 			if(activationDate.isAfter(limitDate))
 		    	   Logger.warn("activationDate '{}' is after limitDate '{}'", activationDate, limitDate);
 		    Logger.info("Per {} billingPeriod END dates:{}",billingPeriodType,billPeriodEndDates);
@@ -152,8 +151,6 @@ public class BillCycleService implements InitializingBean{
 		
 		Logger.info("Calculation of the billingPeriod end dates for recurringPeriodLenght '{}' and recurringPeriodType '{}' and activation date '{}'",
 				recurringChargePeriod.getRecurringChargePeriodLenght(),recurringChargePeriod.getRecurringChargePeriodType(), activationDate);
-		
-		List<OffsetDateTime> billPeriodEndDates=new ArrayList<OffsetDateTime>();
 		
 		RecurringPeriod billingPeriodType=recurringChargePeriod.getRecurringChargePeriodType();
 		Integer billingPeriodLength=recurringChargePeriod.getRecurringChargePeriodLenght();
@@ -217,7 +214,7 @@ public class BillCycleService implements InitializingBean{
 				throw new IllegalArgumentException("Error in the RecurringChargePeriod: unexpected value for billingPeriodType");
 			}
 			
-			billPeriodEndDates=streamData.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
+			List<OffsetDateTime> billPeriodEndDates = streamData.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
 			if(activationDate.isAfter(limitDate))
 		    	   Logger.warn("activationDate '{}' is after limitDate '{}'", activationDate, limitDate);
 		    Logger.info("Per {} billingPeriod END dates:{}",billingPeriodType,billPeriodEndDates);
