@@ -73,8 +73,6 @@ tmforumapi:
    
   # TMF_ENVOY=true - internal paths used with envoy = true
   tmf620_catalog_path: tmf-api/productCatalogManagement/v4
-  tmf622_ordering_path: tmf-api/productOrderingManagement/v4
-  tmf632_party_management_path: tmf-api/party/v4
   tmf637_inventory_path: tmf-api/productInventory/v4
   tmf678_billing_path: tmf-api/customerBillManagement/v4
 

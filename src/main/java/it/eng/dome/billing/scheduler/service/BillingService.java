@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Component;
 import it.eng.dome.billing.scheduler.controller.BillingSchedulerController;
 import it.eng.dome.billing.scheduler.exception.BillingSchedulerValidationException;
 import it.eng.dome.billing.scheduler.model.BillCycleSpecification;
-import it.eng.dome.billing.scheduler.tmf.TmfApiFactory;
 import it.eng.dome.billing.scheduler.utils.ProductOfferingPriceUtils;
 import it.eng.dome.billing.scheduler.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
@@ -34,16 +32,10 @@ import jakarta.validation.constraints.NotNull;
 
 @Component(value = "billingService")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class BillingService implements InitializingBean {
+public class BillingService {
 
 	private final Logger logger = LoggerFactory.getLogger(BillingService.class);
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
-		
-	@Autowired
-	private TmfApiFactory tmfApiFactory;
-	
-	private ProductInventoryApis productInventoryAPIs;
-	private ProductCatalogManagementApis popApis;
 	
 	@Autowired
 	private BillCycleService billCycleService;
@@ -51,15 +43,18 @@ public class BillingService implements InitializingBean {
 	@Autowired
 	private TMFEntityValidator tmfEntityValidator;
 	
+	private final ProductInventoryApis productInventoryApis;
+	private final ProductCatalogManagementApis productCatalogManagementApis;
 	
-	private List<TimePeriod> billingPeriods;
+	private List<TimePeriod> billingPeriods = new ArrayList<TimePeriod>();
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		popApis = new ProductCatalogManagementApis(tmfApiFactory.getTMF620CatalogApiClient());
-		productInventoryAPIs = new ProductInventoryApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
-		billingPeriods = new ArrayList<TimePeriod>();
+	public BillingService(ProductInventoryApis productInventoryApis, 
+			ProductCatalogManagementApis productCatalogManagementApis) {
+		
+		this.productInventoryApis = productInventoryApis;
+		this.productCatalogManagementApis = productCatalogManagementApis;
 	}
+
 	
 	/**
 	 * Methods called by the {@link BillingSchedulerController} to start the calculation, for each ACTIVE Product stored in TMForum, of the latest billingPeriod that falls within the limit date.\n
@@ -81,7 +76,7 @@ public class BillingService implements InitializingBean {
 			
 			// Get all ACTIVE Product (100 at time)
 			FetchUtils.streamAll(
-			        productInventoryAPIs::listProducts,  // method reference
+					productInventoryApis::listProducts,  // method reference
 			        null,                     	// fields
 			        Map.of("status","active"),	// filter
 			        100                         // pageSize
@@ -134,7 +129,7 @@ public class BillingService implements InitializingBean {
 		
 		// Get billingPeriod end dates for each ProductPrice
 		for(ProductPrice pp: productPrices) {
-			ProductOfferingPrice pop= ProductOfferingPriceUtils.getProductOfferingPrice(pp, popApis);
+			ProductOfferingPrice pop= ProductOfferingPriceUtils.getProductOfferingPrice(pp, productCatalogManagementApis);
 			
 			// Validate POP
 			tmfEntityValidator.validateProductOfferingPrice(pop);

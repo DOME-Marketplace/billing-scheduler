@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import it.eng.dome.billing.scheduler.service.BillingService;
-import it.eng.dome.billing.scheduler.service.BillingService;
 
 @Component
 @EnableScheduling

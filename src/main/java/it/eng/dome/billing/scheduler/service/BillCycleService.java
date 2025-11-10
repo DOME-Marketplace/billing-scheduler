@@ -41,7 +41,7 @@ public class BillCycleService implements InitializingBean{
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		productCatalogManagementApis = new ProductCatalogManagementApis(tmfApiFactory.getTMF620CatalogApiClient());
+		productCatalogManagementApis = new ProductCatalogManagementApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
 	}
 
 
