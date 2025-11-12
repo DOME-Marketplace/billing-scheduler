@@ -429,22 +429,28 @@ public class BillingService {
 	 * @return List of AppliedCustomerBillingRates
 	 */
 	private ResponseEntity<String> getAppliedCustomerBillingRates(Product product, TimePeriod tp, List<ProductPrice> productPrices) {
-		logger.info("{}Calling bill proxy endpoint: {}", getIndentation(2), billing.billinProxy + "/billing/bill");
-		String payload = getBillRequestDTOtoJson(product, tp, productPrices);
+		try {
+			logger.info("{}Calling bill proxy endpoint: {}", getIndentation(2), billing.billinProxy + "/billing/bill");
+			String payload = getBillRequestDTOtoJson(product, tp, productPrices);
 
-		logger.debug("{}Payload to get appliedCustomerBillingRate: {}", getIndentation(3), payload);
+			logger.debug("{}Payload to get appliedCustomerBillingRate: {}", getIndentation(3), payload);
+			
+			/*HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			HttpEntity<String> request = new HttpEntity<>(payload, headers);
+			return restTemplate.postForEntity(billing.billinProxy + "/billing/bill", request, String.class);*/
+			
+			return restClient.post()
+		        .uri(billing.billinProxy + "/billing/bill")
+		        .contentType(MediaType.APPLICATION_JSON)
+		        .body(payload)
+		        .retrieve()
+		        .toEntity(String.class);
+		}catch(Exception e) {
+			logger.debug(e.getMessage());
+			return null;
+		}
 		
-		/*HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		HttpEntity<String> request = new HttpEntity<>(payload, headers);
-		return restTemplate.postForEntity(billing.billinProxy + "/billing/bill", request, String.class);*/
-		
-		return restClient.post()
-	        .uri(billing.billinProxy + "/billing/bill")
-	        .contentType(MediaType.APPLICATION_JSON)
-	        .body(payload)
-	        .retrieve()
-	        .toEntity(String.class);
 	}
 	
 	
