@@ -2,6 +2,17 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
+
+### <code>1.3.3</code> :calendar: 12/11/2025
+**Improvements**
+* Usage of the new `Brokerage Utils` version: `2.2.0`.
+* Add `TrailingSlashFilter` filter to remove trailing slash from request path.
+* Add `TmfApiConfig` class to avoid loading the **TMForum Apis** classes every time they are used in service classes.
+* Generate automatic `REST_APIs.md` file from **Swagger APIs** using the `generate-rest-apis` profile.
+* Add **JacksonModuleConfig** to *serialize* and *deserialize* the **TMForum enum types**.
+* Usage of `AbstractHealthService` class from `Brokerage Utils` to manage **getInfo()** and **getHealth()** features.
+
+
 ### <code>1.3.2</code> :calendar: 19/09/2025
 **BugFixing**
 * Retrieve priceType from ProductOfferingPrice instead of the ProductPrice

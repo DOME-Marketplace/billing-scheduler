@@ -13,7 +13,7 @@
 
     <groupId>it.eng.dome.billing</groupId>
     <artifactId>scheduler</artifactId>
-    <version>1.3.2</version>
+    <version>1.3.3</version>
     <name>Billing Scheduler</name>
     <description>Billing Scheduler for DOME project</description>
 
@@ -41,12 +41,16 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
+		<dependency>
+    		<groupId>org.springframework.boot</groupId>
+    		<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
         	
         <!-- Brokerage Utils dependencies -->
 		<dependency>
 			<groupId>it.eng.dome.brokerage</groupId>
 			<artifactId>brokerage-utils</artifactId>
-			<version>[2.1.0, 2.2.0)</version>
+			<version>[2.2.0, 2.3.0)</version>
 		</dependency>
 		
         <!-- TMForum SDK dependencies -->
@@ -111,5 +115,17 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+	    <profile>
+	        <id>generate-rest-apis</id>
+	        <activation>
+	            <activeByDefault>false</activeByDefault>
+	        </activation>
+	        <properties>
+	            <spring-boot.run.arguments>--rest_api_docs.generate_md=true</spring-boot.run.arguments>
+	        </properties>
+	    </profile>
+	</profiles>
 
 </project>

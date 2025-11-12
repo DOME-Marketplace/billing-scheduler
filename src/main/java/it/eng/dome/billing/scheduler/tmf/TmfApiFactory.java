@@ -42,7 +42,7 @@ public final class TmfApiFactory implements InitializingBean {
 	private String tmf678CustomerBillPath;
 	
 	@Value( "${tmforumapi.tmf620_catalog_path}" )
-	private String tmf620CatalogPath;
+	private String tmf620ProductCatalogPath;
 	
 	private it.eng.dome.tmforum.tmf637.v4.ApiClient apiClientTmf637;
 	private it.eng.dome.tmforum.tmf678.v4.ApiClient apiClientTmf678;
@@ -80,7 +80,7 @@ public final class TmfApiFactory implements InitializingBean {
 		return apiClientTmf678;
 	}
 	
-	public it.eng.dome.tmforum.tmf620.v4.ApiClient getTMF620CatalogApiClient() {
+	public it.eng.dome.tmforum.tmf620.v4.ApiClient getTMF620ProductCatalogApiClient() {
 		if (apiClientTmf620 == null) {
 			apiClientTmf620  = it.eng.dome.tmforum.tmf620.v4.Configuration.getDefaultApiClient();
 			
@@ -89,8 +89,8 @@ public final class TmfApiFactory implements InitializingBean {
 				basePath += TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
 			}
 			
-			apiClientTmf620.setBasePath(basePath + "/" + tmf620CatalogPath);
-			logger.debug("Invoke Catalog API at endpoint: " + apiClientTmf620.getBasePath());
+			apiClientTmf620.setBasePath(basePath + "/" + tmf620ProductCatalogPath);
+			logger.debug("Invoke Product Catalog API at endpoint: " + apiClientTmf620.getBasePath());
 		}
 		
 		return apiClientTmf620;
@@ -110,7 +110,7 @@ public final class TmfApiFactory implements InitializingBean {
 		
 		Assert.state(!StringUtils.isBlank(tmf637ProductInventoryPath), "Billing Scheduler not properly configured. The tmf637_inventory_path property has no value.");
 		Assert.state(!StringUtils.isBlank(tmf678CustomerBillPath), "Billing Scheduler not properly configured. The tmf678_customer_bill_path property has no value.");
-		Assert.state(!StringUtils.isBlank(tmf620CatalogPath), "Billing Scheduler not properly configured. The tmf620_catalog_path property has no value.");
+		Assert.state(!StringUtils.isBlank(tmf620ProductCatalogPath), "Billing Scheduler not properly configured. The tmf620_catalog_path property has no value.");
 		
 		if (tmfEndpoint.endsWith("/")) {
 			tmfEndpoint = UrlPathUtils.removeFinalSlash(tmfEndpoint);		
@@ -124,8 +124,8 @@ public final class TmfApiFactory implements InitializingBean {
 			tmf678CustomerBillPath = UrlPathUtils.removeInitialSlash(tmf678CustomerBillPath);
 		}
 		
-		if (tmf620CatalogPath.startsWith("/")) {
-			tmf620CatalogPath = UrlPathUtils.removeInitialSlash(tmf620CatalogPath);
+		if (tmf620ProductCatalogPath.startsWith("/")) {
+			tmf620ProductCatalogPath = UrlPathUtils.removeInitialSlash(tmf620ProductCatalogPath);
 		}
 			
 	}	

@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -26,12 +25,13 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import it.eng.dome.billing.scheduler.tmf.TmfApiFactory;
 import it.eng.dome.brokerage.api.AppliedCustomerBillRateApis;
-import it.eng.dome.brokerage.api.ProductApis;
-import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
+import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
+import it.eng.dome.brokerage.api.ProductInventoryApis;
+import it.eng.dome.brokerage.api.fetch.FetchUtils;
 import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.brokerage.billing.utils.BillingUtils;
+import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductOfferingPriceRef;
@@ -44,7 +44,7 @@ import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 
 @Component(value = "billingService")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class BillingService implements InitializingBean {
+public class BillingService {
 
 	private final Logger logger = LoggerFactory.getLogger(BillingService.class);
 	private final static String CONCAT_KEY = "|";
@@ -53,9 +53,7 @@ public class BillingService implements InitializingBean {
 	
     @Value("${billing_pay_per_use.delayed_days}")
     public int delayedDays;
-		
-	@Autowired
-	private TmfApiFactory tmfApiFactory;
+
 	
 	@Autowired
 	protected BillingFactory billing;
@@ -63,16 +61,19 @@ public class BillingService implements InitializingBean {
 	@Autowired
 	protected RestTemplate restTemplate;
 	
-	private ProductApis productApis;
-	private AppliedCustomerBillRateApis appliedCustomerBillRateApis;
-	private ProductOfferingPriceApis productOfferingPrices;
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		productApis = new ProductApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
-		productOfferingPrices = new ProductOfferingPriceApis(tmfApiFactory.getTMF620CatalogApiClient());
-		appliedCustomerBillRateApis = new AppliedCustomerBillRateApis(tmfApiFactory.getTMF678CustomerBillApiClient());
+	private final ProductInventoryApis productInventoryApis;
+	private final ProductCatalogManagementApis productCatalogManagementApis;
+	private final AppliedCustomerBillRateApis appliedCustomerBillRateApis;
+	
+	public BillingService(ProductInventoryApis productInventoryApis, 
+			ProductCatalogManagementApis productCatalogManagementApis,
+			AppliedCustomerBillRateApis appliedCustomerBillRateApis) {
+		
+		this.productInventoryApis = productInventoryApis;
+		this.productCatalogManagementApis = productCatalogManagementApis;
+		this.appliedCustomerBillRateApis = appliedCustomerBillRateApis;
 	}
+
 
 	/**
 	 * Method called by Scheduler process
@@ -91,7 +92,14 @@ public class BillingService implements InitializingBean {
 		filter.put("status", ProductStatusType.ACTIVE.getValue()); 
 		
 		// get only products with active status
-		List<Product> products = productApis.getAllProducts(null, filter);
+		//List<Product> products = productApis.getAllProducts(null, filter);		
+		List<Product> products = FetchUtils.streamAll(
+				productInventoryApis::listProducts,  // method reference
+		        null,                     	// fields
+		        filter,						// filter
+		        100                         // pageSize
+			).toList(); 
+		
 
 		if (products != null && !products.isEmpty()) { // verify if products list is not empty
 			
@@ -283,25 +291,30 @@ public class BillingService implements InitializingBean {
 	 * @param pprice
 	 * @return priceType
 	 */
-		private String retrievePriceType(ProductPrice pprice) {
-			String priceType = null;
-			
-			// Use Case 1 - PriceType from ProductOfferingPrice
-			if (pprice.getProductOfferingPrice() != null) { 			
-				ProductOfferingPriceRef popRef = pprice.getProductOfferingPrice();
-				ProductOfferingPrice pop = productOfferingPrices.getProductOfferingPrice(popRef.getId(), null);
-				
+	private String retrievePriceType(ProductPrice pprice) {
+		String priceType = null;
+		
+		// Use Case 1 - PriceType from ProductOfferingPrice
+		if (pprice.getProductOfferingPrice() != null) { 			
+			ProductOfferingPriceRef popRef = pprice.getProductOfferingPrice();
+			//ProductOfferingPrice pop = productOfferingPrices.getProductOfferingPrice(popRef.getId(), null);
+			try {
+				ProductOfferingPrice pop = productCatalogManagementApis.getProductOfferingPrice(popRef.getId(), null);
 				priceType = pop.getPriceType();
 				logger.debug("{}Get priceType {} from ProductOfferingPrice", getIndentation(2), priceType);
-			} 
-			
-			// Use Case 2 - PriceType from ProductPrice
-			if (priceType == null && pprice.getPriceType() != null) {
-				priceType = pprice.getPriceType();
-				logger.debug("{}Get priceType {} directly from ProductPrice", getIndentation(2), priceType);
+				
+			} catch (ApiException e) {
+				logger.error("Error: {}", e.getMessage());
 			}
+		} 
+		
+		// Use Case 2 - PriceType from ProductPrice
+		if (priceType == null && pprice.getPriceType() != null) {
+			priceType = pprice.getPriceType();
+			logger.debug("{}Get priceType {} directly from ProductPrice", getIndentation(2), priceType);
+		}
 
-			return priceType;
+		return priceType;
 	 }
 	
 	/**
@@ -325,15 +338,20 @@ public class BillingService implements InitializingBean {
 	private String getRecurringPeriod(String id) {
 		logger.info("{}Retrieve the RecurringPeriod for ProductOfferingPriceId: {}", getIndentation(3), id);
 
-		ProductOfferingPrice pop = productOfferingPrices.getProductOfferingPrice(id, null);
-		if (pop != null) {
-			logger.debug("{}Found RecurringChargePeriodLength: {} - RecurringChargePeriodType: {}", getIndentation(3), pop.getRecurringChargePeriodLength(), pop.getRecurringChargePeriodType());
-			return pop.getRecurringChargePeriodLength() + " " + pop.getRecurringChargePeriodType();
-		} else {
-			logger.warn("{}Cannot found the ProductOfferingPrice for productId: {}", getIndentation(3), id);
+		//ProductOfferingPrice pop = productOfferingPrices.getProductOfferingPrice(id, null);
+		try {
+			ProductOfferingPrice pop = productCatalogManagementApis.getProductOfferingPrice(id, null);
+			if (pop != null) {
+				logger.debug("{}Found RecurringChargePeriodLength: {} - RecurringChargePeriodType: {}", getIndentation(3), pop.getRecurringChargePeriodLength(), pop.getRecurringChargePeriodType());
+				return pop.getRecurringChargePeriodLength() + " " + pop.getRecurringChargePeriodType();
+			} else {
+				logger.warn("{}Cannot found the ProductOfferingPrice for productId: {}", getIndentation(3), id);
+				return null;
+			}
+		} catch (ApiException e) {
+			logger.error("Error: {}", e.getMessage());
 			return null;
 		}
-		
 	}
 
 	/**
@@ -356,7 +374,14 @@ public class BillingService implements InitializingBean {
 		filter.put("periodCoverage.startDateTime.eq", tp.getStartDateTime().toString());
 		filter.put("product.id", product.getId());
 		
-		List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("isBilled", filter);
+		//List<AppliedCustomerBillingRate> billed = appliedCustomerBillRateApis.getAllAppliedCustomerBillingRates("isBilled", filter);
+		List<AppliedCustomerBillingRate> billed = FetchUtils.streamAll(
+				appliedCustomerBillRateApis::listAppliedCustomerBillingRates,    // method reference
+		        "isBilled",                       		   // fields
+		        filter,    								  // filter
+		        100                                       // pageSize
+		).toList(); 
+		
 		logger.debug("{}Number of AppliedCustomerBillingRate found: {}", getIndentation(3), billed.size());
 		
 		if (billed.isEmpty()) {
@@ -388,9 +413,9 @@ public class BillingService implements InitializingBean {
 				// bill.setDescription("Billing Scheduler generated the bill for " + bill.getProduct().getId());
 
 				AppliedCustomerBillingRateCreate createApply = AppliedCustomerBillingRateCreate.fromJson(bill.toJson());
-				AppliedCustomerBillingRate created = appliedCustomerBillRateApis.createAppliedCustomerBillingRate(createApply);
-				logger.info("{}AppliedCustomerBillRate saved with id: {}", getIndentation(2), created.getId());
-				ids.add(created.getId());
+				String id = appliedCustomerBillRateApis.createAppliedCustomerBillingRate(createApply);
+				logger.info("{}AppliedCustomerBillRate saved with id: {}", getIndentation(2), id);
+				ids.add(id);
 			}
 
 		} catch (Exception e) {
