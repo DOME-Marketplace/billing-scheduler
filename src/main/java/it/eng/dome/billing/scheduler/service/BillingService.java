@@ -15,15 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.web.client.RestClient;
 
 import it.eng.dome.brokerage.api.AppliedCustomerBillRateApis;
 import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
@@ -59,7 +54,7 @@ public class BillingService {
 	protected BillingFactory billing;
 
 	@Autowired
-	protected RestTemplate restTemplate;
+	private RestClient restClient;
 	
 	private final ProductInventoryApis productInventoryApis;
 	private final ProductCatalogManagementApis productCatalogManagementApis;
@@ -439,10 +434,17 @@ public class BillingService {
 
 		logger.debug("{}Payload to get appliedCustomerBillingRate: {}", getIndentation(3), payload);
 		
-		HttpHeaders headers = new HttpHeaders();
+		/*HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> request = new HttpEntity<>(payload, headers);
-		return restTemplate.postForEntity(billing.billinProxy + "/billing/bill", request, String.class);
+		return restTemplate.postForEntity(billing.billinProxy + "/billing/bill", request, String.class);*/
+		
+		return restClient.post()
+	        .uri(billing.billinProxy + "/billing/bill")
+	        .contentType(MediaType.APPLICATION_JSON)
+	        .body(payload)
+	        .retrieve()
+	        .toEntity(String.class);
 	}
 	
 	
@@ -471,22 +473,9 @@ public class BillingService {
         }
 		productPriceListJson.append("]");
 
-		String billingJson = "{ \"product\": " + capitalizeStatus(productJson) + ", \"timePeriod\": "+ timePeriodJson + ", \"productPrice\": "+ productPriceListJson.toString() +"}";
+		String billingJson = "{ \"product\": " + productJson + ", \"timePeriod\": "+ timePeriodJson + ", \"productPrice\": "+ productPriceListJson.toString() +"}";
 		//logger.debug("Billing payload:\n" + billingJson);
 		return billingJson;
 	} 
-	
-	private String capitalizeStatus(String json) {
-		ObjectMapper objectMapper = new ObjectMapper();
-		String capitalize = json;
-		try {
-			ObjectNode jsonNode = (ObjectNode) objectMapper.readTree(json);
-			String status = jsonNode.get("status").asText();
-			jsonNode.put("status", status.toUpperCase());
-			return objectMapper.writeValueAsString(jsonNode);
 
-		} catch (Exception e) {
-			return capitalize;
-		}
-	}
 }
