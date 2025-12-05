@@ -52,7 +52,11 @@ public class StartupListener implements ApplicationListener<ApplicationReadyEven
 
 		try {
 
-			Info response = restClient.get().uri(url).accept(MediaType.APPLICATION_JSON).retrieve().body(Info.class);
+			Info response = restClient.get()
+			        .uri(url)
+			        .accept(MediaType.APPLICATION_JSON)
+			        .retrieve()
+			        .body(Info.class);
 
 			logger.info("Started the {} version: {} ", response.getName(), response.getVersion());
 

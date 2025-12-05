@@ -5,13 +5,6 @@ server:
   servlet:
     context-path:  ${BILLING_PREFIX:/}
 
-application:
-  name: "@project.artifactId@"
-
-build: 
-  version: "@project.version@"
-  timestamp: "@timestamp@"
-
 # Scheduling Task Configuration  
 scheduling:
   cron: ${SCHEDULING_CRON_JOB_TASK:0 0 */3 * * ?}
