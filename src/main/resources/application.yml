@@ -69,3 +69,10 @@ tmforumapi:
   tmf637_inventory_path: tmf-api/productInventory/v4
   tmf678_billing_path: tmf-api/customerBillManagement/v4
 
+# Persistence configurations
+persistence:
+  monthsBack: ${MONTHS_BACK:2}
+
+# BillingProxy Service
+billingProxy:
+  billingProxyService: ${BILLINGPROXY_SERVICE:http://localhost:8280}

@@ -2,8 +2,11 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
-### <code>2.0.0</code> :calendar: 05/12/2025 (WIP)
+### <code>2.0.0</code> :calendar: 12/12/2025 (WIP)
 **Improvements**
+* Updated code to manage BillCycle and invoke BillingProxy to calculate bills. 
+* Updated code to manage the persistence of the generated bills if not already present in the persistence layer.
+* Added `monthsBack` configuration to generate bills which fall in previous months and not persisted due to some unexpected event  
 * Usage of the last version of `Brokerage Utils`.
 * Add `TrailingSlashFilter` filter to remove trailing slash from request path.
 * Add `TmfApiConfig` class to avoid loading the **TMForum Apis** classes every time they are used in service classes.

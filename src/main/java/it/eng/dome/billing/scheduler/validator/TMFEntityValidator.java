@@ -8,9 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import it.eng.dome.billing.scheduler.exception.BillingSchedulerValidationException;
-import it.eng.dome.billing.scheduler.utils.ProductOfferingPriceUtils;
+import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
+import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
 import jakarta.validation.constraints.NotNull;
 
 @Component
@@ -18,6 +19,12 @@ public class TMFEntityValidator {
 	
 	private final static Logger logger=LoggerFactory.getLogger(TMFEntityValidator.class);
 	
+	/**
+	 * Validates the {@link ProductOfferingPrice}
+	 * 
+	 * @param pop {@link ProductOfferingPrice} to validate
+	 * @throws BillingSchedulerValidationException if some unexpected/missing values are find
+	 */
 	public void validateProductOfferingPrice(@NotNull ProductOfferingPrice pop) throws BillingSchedulerValidationException {
 		
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
@@ -61,6 +68,12 @@ public class TMFEntityValidator {
 		
 	}
 	
+	/**
+	 * Validates the {@link Product}
+	 * 
+	 * @param prod the {@link Product} to validate
+	 * @throws BillingSchedulerValidationException if some unexpected/missing values are find
+	 */
 	public void validateProduct(@NotNull Product prod) throws BillingSchedulerValidationException {
 		
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
@@ -83,6 +96,39 @@ public class TMFEntityValidator {
 		logger.debug("Validation of Product {} successful", prod.getId());
 		
 	}	
+	
+	/**
+	 * Validate a {@link ProductPrice}
+	 * 
+	 * @param prodPrice the {@link ProductPrice} to validate
+	 * @param prodId the identifier of the {@link Product} to which the ProductPrice belongs to
+	 * @throws BillingEngineValidationException if some unexpected/missing values are find
+	 */
+	public void validateProductPrice(@NotNull ProductPrice prodPrice, @NotNull String prodId) throws BillingSchedulerValidationException{
+		
+		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
+		
+		if(prodPrice.getProductOfferingPrice()==null) {
+			String msg=String.format("The ProductPrice of Product %s must have 'ProductOfferingPrice'", prodId);
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		
+		if(prodPrice.getProductOfferingPrice().getId()==null || prodPrice.getProductOfferingPrice().getId().isEmpty()) {
+			String msg=String.format("The ProductPrice f Product %s must have a 'ProductOfferingPrice' with a valorised 'id'", prodId);
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		
+		this.throwsErrorValidationIssuesIfAny(issues);
+		
+		logger.debug("Validation of ProductPrice successful");
+		
+	}
+	
+	private void throwsErrorValidationIssuesIfAny(List<ValidationIssue> issues) throws BillingSchedulerValidationException {
+		if (issues.stream().anyMatch(i -> i.getSeverity() == ValidationIssueSeverity.ERROR)) {
+	           throw new BillingSchedulerValidationException(issues);
+	        }
+	}
 	
 
 }

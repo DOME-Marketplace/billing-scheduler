@@ -8,41 +8,31 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import it.eng.dome.billing.scheduler.exception.BillingSchedulerValidationException;
-import it.eng.dome.billing.scheduler.model.BillCycleSpecification;
-import it.eng.dome.billing.scheduler.model.PriceType;
-import it.eng.dome.billing.scheduler.model.RecurringChargePeriod;
-import it.eng.dome.billing.scheduler.model.RecurringPeriod;
-import it.eng.dome.billing.scheduler.tmf.TmfApiFactory;
-import it.eng.dome.billing.scheduler.utils.ProductOfferingPriceUtils;
-import it.eng.dome.billing.scheduler.validator.TMFEntityValidator;
-import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
-import it.eng.dome.tmforum.tmf620.v4.ApiException;
-import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
+import it.eng.dome.brokerage.model.BillCycleSpecification;
+import it.eng.dome.brokerage.model.RecurringChargePeriod;
+import it.eng.dome.brokerage.model.RecurringPeriod;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 import jakarta.validation.constraints.NotNull;
 
 @Service
-public class BillCycleService implements InitializingBean{
+public class BillCycleService{
 	
 	private final static Logger Logger = LoggerFactory.getLogger(BillCycleService.class);
 	
-	@Autowired
-	private TmfApiFactory tmfApiFactory;
+	//@Autowired
+	//private TmfApiFactory tmfApiFactory;
 	
-	private ProductCatalogManagementApis productCatalogManagementApis;
+	//private ProductCatalogManagementApis productCatalogManagementApis;
 	
-	@Autowired
-	private TMFEntityValidator tmfEntityValidator;
+	//@Autowired
+	//private TMFEntityValidator tmfEntityValidator;
 	
-	@Override
+	/*@Override
 	public void afterPropertiesSet() throws Exception {
 		productCatalogManagementApis = new ProductCatalogManagementApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
-	}
+	}*/
 
 
 	/**
@@ -71,50 +61,33 @@ public class BillCycleService implements InitializingBean{
 			case DAY: {
 			
 				// Stream of dates every n DAY according to the BillCycleSpecification (the activation date is included)
-				//Stream<OffsetDateTime> streamPerDay = Stream.iterate(
 				streamData = Stream.iterate(
 						activationDate.plusDays( billCycleSpec.getBillingPeriodLength()- 1),          
 						d -> d.plusDays(billCycleSpec.getBillingPeriodLength())                    
 						);
-	       
-		       //billPeriodEndDates=streamPerDay.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
-		       //Logger.info("Per DAYs billingPeriod END dates:{}",billPeriodEndDates);
 		       break;
 			}
 			case WEEK: {
 			
 				// Stream of dates every n WEEK according to the BillCycleSpecification (the activation date is included)
-		        //Stream<OffsetDateTime> streamPerWeek = Stream.iterate(
 				streamData = Stream.iterate(
 		        		activationDate.plusDays((7 * billCycleSpec.getBillingPeriodLength())-1),          
 		                d -> d.plusDays(7 * billCycleSpec.getBillingPeriodLength())                    
 		        );
-		       
-		       //billPeriodEndDates=streamPerWeek.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
-		       //Logger.info("Per WEEKs billingPeriod END dates:{}",billPeriodEndDates);
 		       break;
 			}
 			case MONTH: {
 				// Stream of dates every n MONTH according to the BillCycleSpecification (the activation date is included)
-				//Stream<OffsetDateTime> streamPerMonth = Stream.iterate(
 				streamData = Stream.iterate(
 				        1, i -> i + 1
 				).map(i -> activationDate.plusMonths(i * billCycleSpec.getBillingPeriodLength()).minusDays(1));
-		       
-		       //billPeriodEndDates=streamPerMonth.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
-		       //Logger.info("Per MONTHs billingPeriod END dates:{}",billPeriodEndDates);
 		       break;
 			}
 			case YEAR: {
 				// Stream of dates every n YEAR according to the BillCycleSpecification (the activation date is included)
-		        //Stream<OffsetDateTime> streamPerYear = Stream.iterate(
 				streamData = Stream.iterate(
 				        1, i -> i + 1
 				).map(i -> activationDate.plusYears(i * billCycleSpec.getBillingPeriodLength()).minusDays(1));
-		       
-		       
-		      // billPeriodEndDates=streamPerYear.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
-		       //Logger.info("Per YEARs billingPeriod END dates:{}",billPeriodEndDates);
 		       break;
 			}
 			default:
@@ -131,103 +104,81 @@ public class BillCycleService implements InitializingBean{
 		}else {
 			throw new IllegalArgumentException("Error in the BillCycleSpecification: billingPeriodType must not be null, billingPeriodLength must be greater than 0");
 		}
-		
-		
-		
-	    //return billPeriodEndDates;
 
 	}
-	
 	/**
-	 * Calculates all the billingPeriod END dates of the BillCycle, included from an activation date and a limit date, according to the specified {@link RecurringChargePeriod} (e.g., 5 DAY, 2 WEEK; 1 MONTH, 1 YEAR) 
+	 * Calculates the billingPeriod END dates of the BillCycle, included from an activation {@link OffsetDateTime} and a limit {@link OffsetDateTime}, according to the specified {@link RecurringChargePeriod} (e.g., 5 DAY, 2 WEEK; 1 MONTH, 1 YEAR) 
 	 * 
 	 * @param recurringChargePeriod A {@link RecurringChargePeriod} specifying the recurringChargePeriodType and recurringChargePeriodLength  
-	 * @param activationDate A start date from which the billingPeriod end dates are calculated
-	 * @param limitDate A limit date to stop the calculation of billingPeriod end dates
-	 * @return The list of all billingPeriod END dates of the BillCycle that fall between the activation and limit dates
-	 * @throws IllegalArgumentException If the {@link RecurringChargePeriod} containes unexpected values
+	 * @param activationDate An {@link OffsetDateTime} representing a start date from which the billingPeriod end dates are calculated
+	 * @param limitDate An {@link OffsetDateTime} representing a limit date to stop the calculation of billingPeriod end dates
+	 * @return The list of {@link OffsetDateTime} representing all the billingPeriod END dates of the BillCycle that fall between the activation and limit dates
+	 * @throws IllegalArgumentException If the {@link RecurringChargePeriod} contains unexpected values
 	 */
 	public List<OffsetDateTime> calculateBillingPeriodEndDates(@NotNull RecurringChargePeriod recurringChargePeriod, @NotNull OffsetDateTime activationDate, @NotNull OffsetDateTime limitDate) throws IllegalArgumentException{
 		
-		Logger.info("Calculation of the billingPeriod end dates for recurringPeriodLenght '{}' and recurringPeriodType '{}' and activation date '{}'",
+		Logger.debug("Calculation of the billingPeriod end dates for recurringPeriodLenght '{}' and recurringPeriodType '{}' and activation date '{}'",
 				recurringChargePeriod.getRecurringChargePeriodLenght(),recurringChargePeriod.getRecurringChargePeriodType(), activationDate);
+		
+		List<OffsetDateTime> endDates=new ArrayList<OffsetDateTime>();
 		
 		RecurringPeriod billingPeriodType=recurringChargePeriod.getRecurringChargePeriodType();
 		Integer billingPeriodLength=recurringChargePeriod.getRecurringChargePeriodLenght();
 		
-		if(billingPeriodType!=null && billingPeriodLength!=null && billingPeriodLength>0) {
-			Stream<OffsetDateTime> streamData=Stream.empty();
-			
-			switch (recurringChargePeriod.getRecurringChargePeriodType()) {
-			case DAY: {
-				
-				// Stream of dates every n DAY according to the RecurringChargePeriod (the activation date is included)
-		        //Stream<OffsetDateTime> streamPerDay = Stream.iterate(
-				streamData = Stream.iterate(
-		                activationDate.plusDays(recurringChargePeriod.getRecurringChargePeriodLenght()- 1),          
-		                d -> d.plusDays(recurringChargePeriod.getRecurringChargePeriodLenght())                    
-		        );
-		       
-		       //billPeriodEndDates=streamPerDay.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
-		       //if(activationDate.isAfter(limitDate))
-		    	 //  Logger.warn("activationDate '{}' is after limitDate '{}'", activationDate, limitDate);
-		       //Logger.info("Per DAYs billingPeriod END dates:{}",billPeriodEndDates);
-		       break;
-			}
-			case WEEK: {
-				
-				// Stream of dates every n WEEK according to the RecurringChargePeriod (the activation date is included)
-		        //Stream<OffsetDateTime> streamPerWeek = Stream.iterate(
-				streamData = Stream.iterate(
-		        		activationDate.plusDays((7 * recurringChargePeriod.getRecurringChargePeriodLenght())-1),          
-		                d -> d.plusDays(7 * recurringChargePeriod.getRecurringChargePeriodLenght())                    
-		        );
-		       
-		       //billPeriodEndDates=streamPerWeek.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
-		       //Logger.info("Per WEEKs billingPeriod END dates:{}",billPeriodEndDates);
-		       break;
-			}
-			case MONTH: {
-				// Stream of dates every n MONTH according to the RecurringChargePeriod (the activation date is included)
-				//Stream<OffsetDateTime> streamPerMonth = Stream.iterate(
-				streamData = Stream.iterate(
-				        1, i -> i + 1
-				).map(i -> activationDate.plusMonths(i * recurringChargePeriod.getRecurringChargePeriodLenght()).minusDays(1));
-		       
-		       //billPeriodEndDates=streamPerMonth.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
-		       //Logger.info("Per MONTHs billingPeriod END dates:{}",billPeriodEndDates);
-		       break;
-			}
-			case YEAR: {
-				// Stream of dates every n YEAR according to the RecurringChargePeriod (the activation date is included)
-		        //Stream<OffsetDateTime> streamPerYear = Stream.iterate(
-				streamData = Stream.iterate(
-				        1, i -> i + 1
-				).map(i -> activationDate.plusYears(i * recurringChargePeriod.getRecurringChargePeriodLenght()).minusDays(1));
-		       
-		       
-		       //billPeriodEndDates=streamPerYear.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
-		       //Logger.info("Per YEARs billingPeriod END dates:{}",billPeriodEndDates);
-		       break;
-			}
-			default:
-				throw new IllegalArgumentException("Error in the RecurringChargePeriod: unexpected value for billingPeriodType");
-			}
-			
-			List<OffsetDateTime> billPeriodEndDates = streamData.takeWhile(d -> d.isBefore(limitDate) || d.isEqual(limitDate)).toList();
-			if(activationDate.isAfter(limitDate))
-		    	   Logger.warn("activationDate '{}' is after limitDate '{}'", activationDate, limitDate);
-		    Logger.info("Per {} billingPeriod END dates:{}",billingPeriodType,billPeriodEndDates);
-		    
-		    return billPeriodEndDates;
-			
-			
-		}else {
-			throw new IllegalArgumentException("Error in the RecurringChargePeriod: billingPeriodType must not be null, billingPeriodLength must be greater than 0");
-		}
-			
-	    //return billPeriodEndDates;
 
+	    if (activationDate.isAfter(limitDate)) {
+	        Logger.warn("activationDate '{}' is after limitDate '{}'", activationDate, limitDate);
+	        return endDates;
+	    }
+
+	    if (billingPeriodType == null || billingPeriodLength == null || billingPeriodLength <= 0) {
+	    	throw new IllegalArgumentException("Error in the RecurringChargePeriod: billingPeriodType must not be null, billingPeriodLength must be greater than 0");
+	    }
+			
+		Stream<OffsetDateTime> streamData=Stream.empty();
+		
+		switch (recurringChargePeriod.getRecurringChargePeriodType()) {
+		case DAY: {
+			
+			streamData = Stream.iterate(
+	                activationDate.plusDays(billingPeriodLength- 1),          
+	                d -> d.plusDays(billingPeriodLength)                    
+	        );
+	       break;
+		}
+		case WEEK: {
+			
+			streamData = Stream.iterate(
+	        		activationDate.plusDays((7 * billingPeriodLength)-1),          
+	                d -> d.plusDays(7 * billingPeriodLength)                    
+	        );
+	       break;
+		}
+		case MONTH: {
+
+			streamData = Stream.iterate(
+			        1, i -> i + 1
+			).map(i -> activationDate.plusMonths(i * billingPeriodLength).minusDays(1));
+	       break;
+		}
+		case YEAR: {
+
+			streamData = Stream.iterate(
+			        1, i -> i + 1
+			).map(i -> activationDate.plusYears(i * billingPeriodLength).minusDays(1));
+	       break;
+		}
+		default:
+			throw new IllegalArgumentException("Error in the RecurringChargePeriod: unexpected value for billingPeriodType");
+		}
+		
+		endDates=streamData
+	            .takeWhile(d -> !d.isAfter(limitDate))
+	            .toList(); // immutable → create new ArrayList
+	    
+		Logger.debug("Per {} {} billingPeriod END dates:{}",billingPeriodLength,billingPeriodType,endDates);
+	    
+	    return new ArrayList<>(endDates);
 	}
 	
 	/**
@@ -281,7 +232,7 @@ public class BillCycleService implements InitializingBean{
 	 * @return The list of all billingPeriod END dates of the {@link ProductOfferingPrice} with {@link PriceType} RECURRING_PREPAID or RECURRING_POSTPAID that fall between the activation and limit dates
 	 * @throws IllegalArgumentException If the {@link ProductOfferingPrice} refers to a not supported {@link PriceType}
 	 */
-	public List<OffsetDateTime> calculateBillingPeriodEndDates(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, @NotNull OffsetDateTime limitDate) throws IllegalArgumentException, ApiException, BillingSchedulerValidationException{
+	/*public List<OffsetDateTime> calculateBillingPeriodEndDates(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, @NotNull OffsetDateTime limitDate) throws IllegalArgumentException, ApiException, BillingSchedulerValidationException{
 		Logger.info("Calculation of billingPeriod(s) end dates for ProductOfferingPrice '{}' from activationDate '{}'", pop.getId(), activationDate);
 		
 		List<OffsetDateTime> billPeriodEndDates=new ArrayList<OffsetDateTime>();
@@ -320,6 +271,6 @@ public class BillCycleService implements InitializingBean{
 		}
 		
 		return billPeriodEndDates;
-	}
+	}*/
 
 }

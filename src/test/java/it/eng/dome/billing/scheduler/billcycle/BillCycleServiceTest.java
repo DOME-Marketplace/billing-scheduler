@@ -9,9 +9,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import it.eng.dome.billing.scheduler.model.RecurringChargePeriod;
-import it.eng.dome.billing.scheduler.model.RecurringPeriod;
 import it.eng.dome.billing.scheduler.service.BillCycleService;
+import it.eng.dome.brokerage.model.RecurringChargePeriod;
+import it.eng.dome.brokerage.model.RecurringPeriod;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 
 public class BillCycleServiceTest {
@@ -78,9 +78,7 @@ public class BillCycleServiceTest {
 		LocalDate date2=LocalDate.of(2025, 10, 03);
 		OffsetDateTime upTo=date2.atStartOfDay().atOffset(ZoneOffset.UTC);
 		
-		RecurringChargePeriod rcp=new RecurringChargePeriod();
-		rcp.setRecurringChargePeriodLenght(5);
-		rcp.setRecurringChargePeriodType(RecurringPeriod.DAY);
+		RecurringChargePeriod rcp=new RecurringChargePeriod(RecurringPeriod.DAY,5);
 		
 		return billCycleService.calculateBillingPeriodEndDates(rcp, activationDate, upTo);
 		
@@ -94,9 +92,7 @@ public class BillCycleServiceTest {
 		LocalDate date2=LocalDate.of(2025, 10, 03);
 		OffsetDateTime upTo=date2.atStartOfDay().atOffset(ZoneOffset.UTC);
 		
-		RecurringChargePeriod rcp=new RecurringChargePeriod();
-		rcp.setRecurringChargePeriodLenght(2);
-		rcp.setRecurringChargePeriodType(RecurringPeriod.WEEK);
+		RecurringChargePeriod rcp=new RecurringChargePeriod(RecurringPeriod.WEEK,2);
 				
 		return billCycleService.calculateBillingPeriodEndDates(rcp, activationDate, upTo);
 	}
@@ -109,9 +105,7 @@ public class BillCycleServiceTest {
 		LocalDate date2=LocalDate.of(2026, 10, 03);
 		OffsetDateTime upTo=date2.atStartOfDay().atOffset(ZoneOffset.UTC);
 		
-		RecurringChargePeriod rcp=new RecurringChargePeriod();
-		rcp.setRecurringChargePeriodLenght(1);
-		rcp.setRecurringChargePeriodType(RecurringPeriod.MONTH);
+		RecurringChargePeriod rcp=new RecurringChargePeriod(RecurringPeriod.MONTH,1);
 				
 		return billCycleService.calculateBillingPeriodEndDates(rcp, activationDate, upTo);
 	}
@@ -125,10 +119,7 @@ public class BillCycleServiceTest {
 		LocalDate date2=LocalDate.of(2028, 10, 03);
 		OffsetDateTime upTo=date2.atStartOfDay().atOffset(ZoneOffset.UTC);
 		
-		RecurringChargePeriod rcp=new RecurringChargePeriod();
-		rcp.setRecurringChargePeriodLenght(1);
-		rcp.setRecurringChargePeriodType(RecurringPeriod.YEAR);
-				
+		RecurringChargePeriod rcp=new RecurringChargePeriod(RecurringPeriod.YEAR,1);
 		return billCycleService.calculateBillingPeriodEndDates(rcp, activationDate, upTo);
 	}
 	

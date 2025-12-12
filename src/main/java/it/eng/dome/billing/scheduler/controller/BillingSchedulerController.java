@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.eng.dome.billing.scheduler.dto.StartRequestDTO;
-import it.eng.dome.billing.scheduler.service.BillingService;
+import it.eng.dome.billing.scheduler.service.BillingSchedulerService;
 import it.eng.dome.billing.scheduler.validator.TMFEntityValidator;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 
@@ -24,7 +24,7 @@ public class BillingSchedulerController {
 	private static final Logger logger = LoggerFactory.getLogger(BillingSchedulerController.class);
 
 	@Autowired
-	protected BillingService billingService;
+	protected BillingSchedulerService billingService;
 	
 	@Value("${billCycle.billCycleSpec_enabled}")
 	private boolean billCycleSpecEnabled;
@@ -36,26 +36,36 @@ public class BillingSchedulerController {
 	public ResponseEntity<String> startScheduler(@RequestBody StartRequestDTO datetime) throws Throwable {
 
 		OffsetDateTime now; 
-		try {
-			String dt = datetime.getDatetime().toString();
-			logger.debug("Set datetime manually at {}", dt);
-			now = OffsetDateTime.parse(dt);
-		} catch (Exception e) {
-			String errMsg="Cannot recognize the datetime attribute! Please use the yyyy-MM-dd'T'HH:mm:ss.SSS'Z' format";
-			logger.error(errMsg, e.getMessage(), e);
-			return new ResponseEntity<String>(errMsg, HttpStatus.BAD_REQUEST);
+		
+		if(datetime.getDatetime()==null) {
+			now=OffsetDateTime.now();
+		}else {
+
+			try {
+				
+				String dt = datetime.getDatetime().toString();
+				logger.debug("Set datetime manually at {}", dt);
+				now = OffsetDateTime.parse(dt);
+			} catch (Exception e) {
+				String errMsg="Cannot recognize the datetime attribute! Please use the yyyy-MM-dd'T'HH:mm:ss.SSS'Z' format";
+				logger.error(errMsg, e.getMessage(), e);
+				return new ResponseEntity<String>(errMsg, HttpStatus.BAD_REQUEST);
+			}
 		}
-
-		logger.info("Start BillingScheduler task via REST APIs to calculate the bill cycle");
+		
+		logger.info("Start BillingScheduler task via REST APIs to manage the BillCycle");
 
 		try {
-			billingService.calculateBillCycle(now, billCycleSpecEnabled);
-			return ResponseEntity.ok("Calculating the bill cycle from datetime: "+now);
+			billingService.manageBillCycle(now, billCycleSpecEnabled);
+			return ResponseEntity.ok("Managed BillCycle at datetime: "+now);
 			
 		}catch(UnsupportedOperationException e) {
 			String errMsg="Invocation of not supported method!";
 			logger.error(e.getMessage(), e);
 			return new ResponseEntity<String>(errMsg, HttpStatus.NOT_IMPLEMENTED);
+		}catch(Exception e) {
+			logger.error(e.getMessage(), e);
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 	}
