@@ -72,7 +72,3 @@ tmforumapi:
 # Persistence configurations
 persistence:
   monthsBack: ${MONTHS_BACK:2}
-
-# BillingProxy Service
-billingProxy:
-  billingProxyService: ${BILLINGPROXY_SERVICE:http://localhost:8280}

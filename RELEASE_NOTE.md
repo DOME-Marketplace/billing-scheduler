@@ -2,7 +2,16 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
-### <code>2.0.0</code> :calendar: 15/12/2025
+
+### <code>2.0.1</code> :calendar: 15/12/2025
+**Improvements**
+* Usage of the `Brokerage Utils 2.2.6`.
+
+**BugFixing**
+* Usage of the `BILLING_PROXY` env var (`billing.billing_proxy` in application.yaml) to invoke the **Billing Proxy** service. 
+
+
+### <code>2.0.0</code> :calendar: 12/12/2025
 **Improvements**
 * Updated code to manage BillCycle and invoke BillingProxy to calculate bills. 
 * Updated code to manage the persistence of the generated bills if not already present in the persistence layer.
