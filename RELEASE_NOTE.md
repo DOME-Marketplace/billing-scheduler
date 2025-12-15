@@ -2,20 +2,27 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
+### <code>2.0.0</code> :calendar: 15/12/2025
+**Improvements**
+* Updated code to manage BillCycle and invoke BillingProxy to calculate bills. 
+* Updated code to manage the persistence of the generated bills if not already present in the persistence layer.
+* Added `monthsBack` configuration to generate bills which fall in previous months and not persisted due to some unexpected event  
+* Usage of the last version of `Brokerage Utils`.
+* Add `TrailingSlashFilter` filter to remove trailing slash from request path.
+* Add `TmfApiConfig` class to avoid loading the **TMForum Apis** classes every time they are used in service classes.
+* Generate automatic `REST_APIs.md` file from **OpenAPI** using the `generate-rest-apis` profile.
+
 
 ### <code>1.3.3</code> :calendar: 12/11/2025
 **Improvements**
-* Usage of the new `Brokerage Utils` version: `2.2.0`.
-* Add `TrailingSlashFilter` filter to remove trailing slash from request path.
-* Add `TmfApiConfig` class to avoid loading the **TMForum Apis** classes every time they are used in service classes.
-* Generate automatic `REST_APIs.md` file from **Swagger APIs** using the `generate-rest-apis` profile.
-* Add **JacksonModuleConfig** to *serialize* and *deserialize* the **TMForum enum types**.
 * Usage of `AbstractHealthService` class from `Brokerage Utils` to manage **getInfo()** and **getHealth()** features.
+* Add **JacksonModuleConfig** to *serialize* and *deserialize* the **TMForum enum types**.
 
 
 ### <code>1.3.2</code> :calendar: 19/09/2025
 **BugFixing**
-* Retrieve priceType from ProductOfferingPrice instead of the ProductPrice
+* Retrieve `priceType` from **ProductOfferingPrice** instead of the ProductPrice.
+
 
 ### <code>1.3.1</code> :calendar: 03/09/2025
 **Improvements**
@@ -34,6 +41,7 @@
 * Set of the `SCHEDULING_CRON_JOB_TASK` **env var**. Default value is `0 0 */3 * * ?`.
 * Add `PAY_PER_USE_DELATED_DAYS` **env var** (number of days) to postpone the beginning billing process for the only **pay-per-use** task. Default value is 2 days.
 * Display `ENV VARs` in the Listener at beginning.
+
 
 ### <code>1.2.0</code> :calendar: 11/06/2025
 **Improvements**

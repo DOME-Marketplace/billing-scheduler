@@ -75,6 +75,26 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 		return buildResponseEntity(new ErrorResponse(request, HttpStatus.SERVICE_UNAVAILABLE, ex));
 	}	
 	
+	@ExceptionHandler(BillingSchedulerValidationException.class)
+	protected ResponseEntity<Object> handleValidationException(HttpServletRequest request, BillingSchedulerValidationException ex) {
+		return buildResponseEntity(new ErrorResponse(request, HttpStatus.BAD_REQUEST, ex));
+	}
+	
+	@ExceptionHandler(BillingSchedulerException.class)
+	protected ResponseEntity<Object> handleValidationException(HttpServletRequest request, BillingSchedulerException ex) {
+		return buildResponseEntity(new ErrorResponse(request, HttpStatus.INTERNAL_SERVER_ERROR, ex));
+	}
+	
+	@ExceptionHandler(ExternalServiceException.class)
+	protected ResponseEntity<Object> handleValidationException(HttpServletRequest request, ExternalServiceException ex) {
+		return buildResponseEntity(new ErrorResponse(request, HttpStatus.INTERNAL_SERVER_ERROR, ex));
+	}
+	
+	@ExceptionHandler(BadTmfDataException.class)
+	protected ResponseEntity<Object> handleValidationException(HttpServletRequest request, BadTmfDataException ex) {
+		return buildResponseEntity(new ErrorResponse(request, HttpStatus.BAD_REQUEST, ex));
+	}
+	
 	private ResponseEntity<Object> buildResponseEntity(ErrorResponse errorResponse) {
 		logger.error("{} - {}", errorResponse.getStatus(), errorResponse.getMessage());
 		return new ResponseEntity<>(errorResponse, errorResponse.getStatus());

@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Configuration;
 
 import it.eng.dome.billing.scheduler.tmf.TmfApiFactory;
 import it.eng.dome.brokerage.api.AppliedCustomerBillRateApis;
+import it.eng.dome.brokerage.api.CustomerBillApis;
 import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
 import it.eng.dome.brokerage.api.ProductInventoryApis;
-
 
 @Configuration
 public class TmfApiConfig {
@@ -40,5 +40,12 @@ private final Logger logger = LoggerFactory.getLogger(TmfApiConfig.class);
 		logger.info("Initializing of AppliedCustomerBillRateApis");
 		
 		return new AppliedCustomerBillRateApis(tmfApiFactory.getTMF678CustomerBillApiClient());
+	}
+	
+	@Bean
+    public CustomerBillApis customerBillApis() {
+		logger.info("Initializing of CustomerBillApi");
+		
+		return new CustomerBillApis(tmfApiFactory.getTMF678CustomerBillApiClient());
 	}
 }

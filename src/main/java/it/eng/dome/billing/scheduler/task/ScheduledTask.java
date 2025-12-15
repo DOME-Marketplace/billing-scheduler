@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import it.eng.dome.billing.scheduler.service.BillingService;
+import it.eng.dome.billing.scheduler.service.BillingSchedulerService;
 
 @Component
 @EnableScheduling
@@ -22,13 +22,13 @@ public class ScheduledTask {
 	private static final SimpleDateFormat dateformat = new SimpleDateFormat("HH:mm:ss");
 
 	@Autowired
-	protected BillingService billingService;
+	protected BillingSchedulerService billingService;
 
 	@Scheduled(cron = "${scheduling.cron}")
 	public void billingCycleTask() throws Exception {
 		logger.info("Scheduling the billing cycle process at {}", dateformat.format(new Date()));
 
-		billingService.calculateBill(OffsetDateTime.now());
+		billingService.manageBillCycle(OffsetDateTime.now(), false);
 	}
 
 }
