@@ -1,15 +1,11 @@
 package it.eng.dome.billing.scheduler.persistence;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -20,12 +16,9 @@ import org.slf4j.LoggerFactory;
 import it.eng.dome.billing.scheduler.exception.BadTmfDataException;
 import it.eng.dome.billing.scheduler.exception.ExternalServiceException;
 import it.eng.dome.billing.scheduler.model.Role;
-import it.eng.dome.billing.scheduler.service.TmfDataRetriever;
-import it.eng.dome.billing.scheduler.service.TmfPersistenceService;
 import it.eng.dome.brokerage.api.AppliedCustomerBillRateApis;
 import it.eng.dome.brokerage.api.CustomerBillApis;
 import it.eng.dome.brokerage.api.fetch.FetchUtils;
-import it.eng.dome.tmforum.tmf678.v4.model.RelatedParty;
 import it.eng.dome.tmforum.tmf678.v4.ApiClient;
 import it.eng.dome.tmforum.tmf678.v4.Configuration;
 import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRate;
@@ -33,6 +26,7 @@ import it.eng.dome.tmforum.tmf678.v4.model.BillingAccountRef;
 import it.eng.dome.tmforum.tmf678.v4.model.CustomerBill;
 import it.eng.dome.tmforum.tmf678.v4.model.Money;
 import it.eng.dome.tmforum.tmf678.v4.model.ProductRef;
+import it.eng.dome.tmforum.tmf678.v4.model.RelatedParty;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 import jakarta.validation.constraints.NotNull;
 

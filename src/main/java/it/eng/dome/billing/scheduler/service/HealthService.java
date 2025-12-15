@@ -72,10 +72,9 @@ public class HealthService extends AbstractHealthService {
 	    }
 
 		// 3: check self info
-	    for(Check c: getChecksOnSelf()) {
-	    	health.addCheck(c);
-	    	health.elevateStatus(c.getStatus());
-        }
+		Check selfInfo = getChecksOnSelf(SERVICE_NAME);
+		health.addCheck(selfInfo);
+		health.elevateStatus(selfInfo.getStatus());
 	    
 	    // 4: check of the TMForum APIs dependencies
  		for (Check c : getTMFChecks()) {
@@ -89,22 +88,6 @@ public class HealthService extends AbstractHealthService {
 		logger.debug("Health response: {}", toJson(health));
 
 		return health;
-	}
-	
-	private List<Check> getChecksOnSelf() {
-	    List<Check> out = new ArrayList<>();
-
-	    // Check getInfo API
-	    Info info = getInfo();
-	    HealthStatus infoStatus = (info != null) ? HealthStatus.PASS : HealthStatus.FAIL;
-	    String infoOutput = (info != null)
-	            ? SERVICE_NAME + " version: " + info.getVersion()
-	            : SERVICE_NAME + " getInfo returned unexpected response";
-	    
-	    Check infoCheck = createCheck("self", "get-info", "api", infoStatus, infoOutput);
-	    out.add(infoCheck);
-
-	    return out;
 	}
 	
 	private List<Check> getTMFChecks() {

@@ -2,7 +2,7 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
-### <code>2.0.0</code> :calendar: 12/12/2025 (WIP)
+### <code>2.0.0</code> :calendar: 15/12/2025
 **Improvements**
 * Updated code to manage BillCycle and invoke BillingProxy to calculate bills. 
 * Updated code to manage the persistence of the generated bills if not already present in the persistence layer.
