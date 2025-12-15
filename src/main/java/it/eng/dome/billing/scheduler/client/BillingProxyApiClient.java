@@ -41,7 +41,7 @@ public class BillingProxyApiClient {
 	 * 
 	 * @param baseUrl the base URL of the DOME BillingProxy component
 	 */
-    public BillingProxyApiClient(@Value("${billingProxy.billingProxyService}") String baseUrl) {
+    public BillingProxyApiClient(@Value("${billing.billing_proxy}") String baseUrl) {
     	this.billinProxyUrl = baseUrl;
     }
     
