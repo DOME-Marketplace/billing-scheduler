@@ -37,8 +37,7 @@ public class TmfDataRetriever {
      * @param consumer the consumer
      * @throws ExternalServiceException if an error occurs while fetching the CustomerBill(s)
      */
-
-    public void fetchCustomerBills(String fields, Map<String, String> filter, int batchSize, Consumer<CustomerBill> consumer) throws ExternalServiceException {
+     public void fetchCustomerBills(String fields, Map<String, String> filter, int batchSize, Consumer<CustomerBill> consumer) throws ExternalServiceException {
         try {
             FetchUtils.fetchByBatch(
                     (FetchUtils.ListedFetcher<CustomerBill>) (f, flt, size, offset) ->

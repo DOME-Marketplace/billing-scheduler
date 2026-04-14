@@ -128,12 +128,8 @@ public class BillingSchedulerService {
 						logger.debug("Total numeber of invoices generated in the interval [{}-{}]: {}",limitDate.minusMonths(monthsBack),limitDate,invoices.size());
 						
 						//Invoke persistence service to store invoices
-						List<Invoice> persistedInvoices= tmfPersistenceService.persistAllInvoices(invoices, product.getId());
-						String persistedInvoiceIdsString = persistedInvoices.stream()
-							    .map(invoice -> invoice.getCustomerBill().getId())
-							    .collect(Collectors.joining(", "));
-						logger.debug("Persisted Invoices: ", persistedInvoiceIdsString);
-						
+						tmfPersistenceService.persistAllInvoices(invoices, product.getId());
+		
 					}catch(Exception e) {
 						logger.error(e.getMessage());
 						logger.error("Product '{}' skipped",product.getId());
@@ -170,10 +166,20 @@ public class BillingSchedulerService {
 			
 			// Validate POP
 			tmfEntityValidator.validateProductOfferingPrice(pop);
+			
+			if(ProductOfferingPriceUtils.isBundled(pop)) {
+				List<ProductOfferingPrice> popRels= ProductOfferingPriceUtils.getBundledProductOfferingPrices(pop.getBundledPopRelationship(), productCatalogManagementApis);
+				for(ProductOfferingPrice popRel:popRels) {
+					tmfEntityValidator.validateProductOfferingPrice(popRel);
+					List<OffsetDateTime> popBillingPeriodEndDates= billCycleService.calculateBillingPeriodEndDates(ProductOfferingPriceUtils.getRecurringChargePeriod(popRel), product.getStartDate(), limitDate);
+					billingPeriodsEndDates.addAll(popBillingPeriodEndDates);
+				}
+			}else {
 	
-			List<OffsetDateTime> popBillingPeriodEndDates= billCycleService.calculateBillingPeriodEndDates(ProductOfferingPriceUtils.getRecurringChargePeriod(pop), product.getStartDate(), limitDate);
+				List<OffsetDateTime> popBillingPeriodEndDates= billCycleService.calculateBillingPeriodEndDates(ProductOfferingPriceUtils.getRecurringChargePeriod(pop), product.getStartDate(), limitDate);
 
-			billingPeriodsEndDates.addAll(popBillingPeriodEndDates);
+				billingPeriodsEndDates.addAll(popBillingPeriodEndDates);
+			}
 		}
 		
 		if(!billingPeriodsEndDates.isEmpty())

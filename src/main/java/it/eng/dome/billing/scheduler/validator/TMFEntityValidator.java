@@ -49,7 +49,7 @@ public class TMFEntityValidator {
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
-		if(ProductOfferingPriceUtils.isPriceTypeRecurring(pop)) {
+		if((pop.getIsBundle()!=null && !pop.getIsBundle()) && ProductOfferingPriceUtils.isPriceTypeRecurring(pop)) {
 			if(pop.getRecurringChargePeriodLength()==null){
 				String msg=String.format("The ProductOfferingPrice '%s' (recurring) must have 'recurringChargePeriodLength'", pop.getId());
 				issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
