@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import it.eng.dome.billing.scheduler.exception.ExternalServiceException;
 import it.eng.dome.billing.scheduler.model.Role;
+import it.eng.dome.billing.scheduler.utils.FilterUtils;
 import it.eng.dome.brokerage.api.AppliedCustomerBillRateApis;
 import it.eng.dome.brokerage.api.CustomerBillApis;
 import it.eng.dome.brokerage.model.Invoice;
@@ -162,9 +163,8 @@ public class TmfPersistenceService {
 
         try {
         	Map<String, String> filter = new HashMap<>();
-        	filter.put("billDate",cb.getBillDate().toString());
-            filter.put("billingPeriod.startDateTime", cb.getBillingPeriod().getStartDateTime().toString());
-            filter.put("billingPeriod.endDateTime",cb.getBillingPeriod().getEndDateTime().toString());
+        	
+        	filter=FilterUtils.buildCustomerBillFilter(cb);
             
             // Iterate all CustomerBills in TMF by batch ---
         	tmfDataRetriever.fetchCustomerBills(null, filter, 50, candidate -> {
@@ -198,7 +198,7 @@ public class TmfPersistenceService {
             throw new ExternalServiceException("Failed to search CustomerBill in TMF", e);
         }
         
-        return found[0];
+      return found[0];
     }
 
     /**
