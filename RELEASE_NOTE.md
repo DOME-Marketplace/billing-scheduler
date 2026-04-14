@@ -2,6 +2,10 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
+### <code>2.0.2</code> :calendar: 14/04/2026
+
+**BugFixing**
+* Improved filter map for CustomerBill queries based on day-level matching 
 
 ### <code>2.0.1</code> :calendar: 15/12/2025
 **Improvements**

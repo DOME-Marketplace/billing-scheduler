@@ -1,6 +1,6 @@
 # Billing Scheduler
 
-**Version:** 2.0.1  
+**Version:** 2.0.2  
 **Description:** Swagger REST APIs for the billing-scheduler software  
 
 
