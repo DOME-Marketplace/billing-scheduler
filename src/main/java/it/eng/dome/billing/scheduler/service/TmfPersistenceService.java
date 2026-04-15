@@ -162,9 +162,7 @@ public class TmfPersistenceService {
         final AtomicBoolean stop = new AtomicBoolean(false);
 
         try {
-        	Map<String, String> filter = new HashMap<>();
-        	
-        	filter=FilterUtils.buildCustomerBillFilter(cb);
+        	Map<String, String> filter = FilterUtils.buildCustomerBillFilter(cb);
             
             // Iterate all CustomerBills in TMF by batch ---
         	tmfDataRetriever.fetchCustomerBills(null, filter, 50, candidate -> {
