@@ -2,8 +2,12 @@
 
 **Release Notes** of the *Billing Scheduler* software:
 
-### <code>2.0.2</code> :calendar: 14/04/2026
+### <code>2.0.3</code> :calendar: 14/04/2026
+**Improvements**
+* Improved check during persistence of ACBR in the Data Persistence Layer (i.e., check also on the `popId` Characteristic of the `AppliedCustomerBillingRate`
+* Updated `BillCycleService` to manage BillingPeriod as semi-open intervals [startDate, endDate) where startDate is inclusive and endDate is exclusive.
 
+### <code>2.0.2</code> :calendar: 14/04/2026
 **BugFixing**
 * Improved filter map for CustomerBill queries based on day-level matching 
 

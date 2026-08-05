@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -11,12 +12,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import it.eng.dome.billing.scheduler.exception.BillingSchedulerValidationException;
 import it.eng.dome.billing.scheduler.exception.ExternalServiceException;
 import it.eng.dome.billing.scheduler.model.Role;
 import it.eng.dome.billing.scheduler.utils.FilterUtils;
+import it.eng.dome.billing.scheduler.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.api.AppliedCustomerBillRateApis;
 import it.eng.dome.brokerage.api.CustomerBillApis;
 import it.eng.dome.brokerage.model.Invoice;
+import it.eng.dome.tmforum.tmf678.v4.model.AppliedBillingRateCharacteristic;
 import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRate;
 import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRateCreate;
 import it.eng.dome.tmforum.tmf678.v4.model.BillRef;
@@ -40,6 +44,9 @@ public class TmfPersistenceService {
     
     @Autowired
     private TmfDataRetriever tmfDataRetriever;
+    
+    @Autowired
+    private TMFEntityValidator tmfEnityValidator;
     
     /**
      * Persists in TMF a list of Invoice related to a product
@@ -231,7 +238,10 @@ public class TmfPersistenceService {
 	         	//Compare appliedBillingRateType
 	         	boolean appliedBillingRateTypeMatch=acbr.getType().equalsIgnoreCase(candidate.getType());
 	         
-	            if (taxIncludedAmountMatch && appliedBillingRateTypeMatch) {
+	         	//Compare Characteristic name=popId
+	         	boolean popMatch=this.characteristicPopEquals(acbr, candidate);
+	         
+	            if (taxIncludedAmountMatch && appliedBillingRateTypeMatch && popMatch) {
 	                found[0] = candidate;
 	                stop.set(true);
 	                logger.debug("Matching AppliedCustomerBillingRate found in TMF: {}", candidate.getId());
@@ -253,6 +263,7 @@ public class TmfPersistenceService {
      *  @param acbr1 first ACBR
      *  @param acbr2 second ACBR
      *  @return true if match, false otherwise
+     * @throws BillingSchedulerValidationException 
      */
     /*private static boolean match(@NotNull AppliedCustomerBillingRate acbr1, @NotNull AppliedCustomerBillingRate acbr2) {
         Map<String, String> acbr1map = buildComparisonMap(acbr1);
@@ -260,7 +271,32 @@ public class TmfPersistenceService {
         return mapsMatch(acbr1map, acbr2map);
     }*/
 
-    /**
+    private boolean characteristicPopEquals(@NotNull AppliedCustomerBillingRate acbr1,
+    		@NotNull AppliedCustomerBillingRate acbr2){
+    	
+    	try {
+			tmfEnityValidator.validateAppliedBillingRateCharacteristic(acbr1);
+		} catch (BillingSchedulerValidationException e) {
+			logger.error(e.getMessage());
+			return false;
+			
+		}
+    	
+    	try {
+			tmfEnityValidator.validateAppliedBillingRateCharacteristic(acbr2);
+		} catch (BillingSchedulerValidationException e) {
+			logger.error(e.getMessage());
+			return false;
+		}
+    	
+
+    	Object popId1 = acbr1.getCharacteristic().get(0).getValue();
+    	Object popId2 = acbr2.getCharacteristic().get(0).getValue();
+
+    	return Objects.equals(popId1, popId2);
+	}
+
+	/**
      * Build a map of fields to compare for an ACBR.
      * @param acbr the AppliedCustomerBillingRate
      * @return map of fields to compare
