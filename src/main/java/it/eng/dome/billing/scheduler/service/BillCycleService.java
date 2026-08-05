@@ -20,23 +20,10 @@ import jakarta.validation.constraints.NotNull;
 public class BillCycleService{
 	
 	private final static Logger Logger = LoggerFactory.getLogger(BillCycleService.class);
-	
-	//@Autowired
-	//private TmfApiFactory tmfApiFactory;
-	
-	//private ProductCatalogManagementApis productCatalogManagementApis;
-	
-	//@Autowired
-	//private TMFEntityValidator tmfEntityValidator;
-	
-	/*@Override
-	public void afterPropertiesSet() throws Exception {
-		productCatalogManagementApis = new ProductCatalogManagementApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
-	}*/
-
 
 	/**
 	 * Calculates all the billingPeriod END dates of the BillCycle, included from an activation date and a limit date, according to a {@link BillCycleSpecification}. 
+	 * Billing periods are represented as semi-open intervals [startDate, endDate) where startDate is inclusive and endDate is exclusive.
 	 * 
 	 * @param billCycleSpec A {@link BillCycleSpecification} instance which specify the billingPeriodType and billingPeriodLength
 	 * @param activationDate A start date from which the billingPeriod end dates are calculated
@@ -62,7 +49,8 @@ public class BillCycleService{
 			
 				// Stream of dates every n DAY according to the BillCycleSpecification (the activation date is included)
 				streamData = Stream.iterate(
-						activationDate.plusDays( billCycleSpec.getBillingPeriodLength()- 1),          
+						//activationDate.plusDays( billCycleSpec.getBillingPeriodLength()- 1),
+						activationDate.plusDays( billCycleSpec.getBillingPeriodLength()),          
 						d -> d.plusDays(billCycleSpec.getBillingPeriodLength())                    
 						);
 		       break;
@@ -71,7 +59,8 @@ public class BillCycleService{
 			
 				// Stream of dates every n WEEK according to the BillCycleSpecification (the activation date is included)
 				streamData = Stream.iterate(
-		        		activationDate.plusDays((7 * billCycleSpec.getBillingPeriodLength())-1),          
+		        		//activationDate.plusDays((7 * billCycleSpec.getBillingPeriodLength())-1),
+						activationDate.plusDays((7 * billCycleSpec.getBillingPeriodLength())), 
 		                d -> d.plusDays(7 * billCycleSpec.getBillingPeriodLength())                    
 		        );
 		       break;
@@ -80,14 +69,16 @@ public class BillCycleService{
 				// Stream of dates every n MONTH according to the BillCycleSpecification (the activation date is included)
 				streamData = Stream.iterate(
 				        1, i -> i + 1
-				).map(i -> activationDate.plusMonths(i * billCycleSpec.getBillingPeriodLength()).minusDays(1));
+				//).map(i -> activationDate.plusMonths(i * billCycleSpec.getBillingPeriodLength()).minusDays(1));
+				).map(i -> activationDate.plusMonths(i * billCycleSpec.getBillingPeriodLength()));
 		       break;
 			}
 			case YEAR: {
 				// Stream of dates every n YEAR according to the BillCycleSpecification (the activation date is included)
 				streamData = Stream.iterate(
 				        1, i -> i + 1
-				).map(i -> activationDate.plusYears(i * billCycleSpec.getBillingPeriodLength()).minusDays(1));
+				//).map(i -> activationDate.plusYears(i * billCycleSpec.getBillingPeriodLength()).minusDays(1));
+				).map(i -> activationDate.plusYears(i * billCycleSpec.getBillingPeriodLength()));
 		       break;
 			}
 			default:
@@ -108,6 +99,7 @@ public class BillCycleService{
 	}
 	/**
 	 * Calculates the billingPeriod END dates of the BillCycle, included from an activation {@link OffsetDateTime} and a limit {@link OffsetDateTime}, according to the specified {@link RecurringChargePeriod} (e.g., 5 DAY, 2 WEEK; 1 MONTH, 1 YEAR) 
+	 * Billing periods are represented as semi-open intervals [startDate, endDate) where startDate is inclusive and endDate is exclusive.
 	 * 
 	 * @param recurringChargePeriod A {@link RecurringChargePeriod} specifying the recurringChargePeriodType and recurringChargePeriodLength  
 	 * @param activationDate An {@link OffsetDateTime} representing a start date from which the billingPeriod end dates are calculated
@@ -141,7 +133,8 @@ public class BillCycleService{
 		case DAY: {
 			
 			streamData = Stream.iterate(
-	                activationDate.plusDays(billingPeriodLength- 1),          
+	                //activationDate.plusDays(billingPeriodLength- 1),  
+					activationDate.plusDays(billingPeriodLength), 
 	                d -> d.plusDays(billingPeriodLength)                    
 	        );
 	       break;
@@ -149,7 +142,8 @@ public class BillCycleService{
 		case WEEK: {
 			
 			streamData = Stream.iterate(
-	        		activationDate.plusDays((7 * billingPeriodLength)-1),          
+	        		//activationDate.plusDays((7 * billingPeriodLength)-1),
+					activationDate.plusDays((7 * billingPeriodLength)), 
 	                d -> d.plusDays(7 * billingPeriodLength)                    
 	        );
 	       break;
@@ -158,14 +152,16 @@ public class BillCycleService{
 
 			streamData = Stream.iterate(
 			        1, i -> i + 1
-			).map(i -> activationDate.plusMonths(i * billingPeriodLength).minusDays(1));
+			//).map(i -> activationDate.plusMonths(i * billingPeriodLength).minusDays(1));
+			).map(i -> activationDate.plusMonths(i * billingPeriodLength));
 	       break;
 		}
 		case YEAR: {
 
 			streamData = Stream.iterate(
 			        1, i -> i + 1
-			).map(i -> activationDate.plusYears(i * billingPeriodLength).minusDays(1));
+			//).map(i -> activationDate.plusYears(i * billingPeriodLength).minusDays(1));
+			).map(i -> activationDate.plusYears(i * billingPeriodLength));
 	       break;
 		}
 		default:
@@ -183,6 +179,7 @@ public class BillCycleService{
 	
 	/**
 	 * Calculates all the billingPeriods (i.e., startDate - endDate) of the BillCycle, considering a list of billingPeriod end dates and an initial activation date (e.g., activation date of a Product) 
+	 * Billing periods are represented as semi-open intervals [startDate, endDate) where startDate is inclusive and endDate is exclusive.
 	 *
 	 * @param billingPeriodEndDates List of dates representing the end dates of the BillCycle
 	 * @param activationDate An activation date from which the billingPeriod(s) are calculated
@@ -221,56 +218,7 @@ public class BillCycleService{
 	 */
 	public boolean isBillDateWithinBillingPeriod(@NotNull OffsetDateTime billingDate, @NotNull TimePeriod billingPeriod) {
 		return (!billingDate.isBefore(billingPeriod.getStartDateTime())) && (!billingDate.isAfter(billingPeriod.getEndDateTime()));
+		//return (!billingDate.isBefore(billingPeriod.getStartDateTime())) && (billingDate.isBefore(billingPeriod.getEndDateTime()));
 	}
-	
-	/**
-	 * Calculates all the billingPeriod END dates for a {@link ProductOfferingPrice} with {@link PriceType} RECURRING_PREPAID or RECURRING_POSTPAID, included from an activation date and a limit date, according to its {@link RecurringChargePeriod} 
-	 * 
-	 * @param pop A {@link ProductOfferingPrice} to calculate billingPeriod END dates according to its {@link RecurringChargePeriod}
-	 * @param activationDate An activation date from which the billingPeriod end dates are calculated
-	 * @param limitDate A limit date to stop the calculation of billingPeriod end dates
-	 * @return The list of all billingPeriod END dates of the {@link ProductOfferingPrice} with {@link PriceType} RECURRING_PREPAID or RECURRING_POSTPAID that fall between the activation and limit dates
-	 * @throws IllegalArgumentException If the {@link ProductOfferingPrice} refers to a not supported {@link PriceType}
-	 */
-	/*public List<OffsetDateTime> calculateBillingPeriodEndDates(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, @NotNull OffsetDateTime limitDate) throws IllegalArgumentException, ApiException, BillingSchedulerValidationException{
-		Logger.info("Calculation of billingPeriod(s) end dates for ProductOfferingPrice '{}' from activationDate '{}'", pop.getId(), activationDate);
-		
-		List<OffsetDateTime> billPeriodEndDates=new ArrayList<OffsetDateTime>();
-		
-		if(pop.getIsBundle()) {
-			Logger.debug("POP is bundled...calculation of billingPeriod end dates for pop relationships...");
-			List<ProductOfferingPrice> popRels=ProductOfferingPriceUtils.getProductOfferingPrices(pop.getBundledPopRelationship(), productCatalogManagementApis);
-			for(ProductOfferingPrice popRel:popRels) {
-				
-				tmfEntityValidator.validateProductOfferingPrice(pop);
-				
-				if(ProductOfferingPriceUtils.isPriceTypeOneTime(popRel)) {
-					Logger.debug("POP relationship '{}' is ONE_TIME...skipped", popRel.getId());
-					continue;
-				}
-				if(ProductOfferingPriceUtils.isPriceTypeRecurring(popRel)) {
-					Logger.debug("POP relationship '{}' is RECURRING...", popRel.getId());
-					List<OffsetDateTime> popRelEndDates=calculateBillingPeriodEndDates(ProductOfferingPriceUtils.getRecurringChargePeriod(popRel), activationDate, limitDate);
-					billPeriodEndDates.addAll(popRelEndDates);
-				}else {
-					throw new IllegalArgumentException("Is not possible to calculate billingPeriod(s) for ProductOfferingPrice "+popRel.getId()+" - not supported priceType");
-				}
-			}
-			
-		}else {
-			if(ProductOfferingPriceUtils.isPriceTypeRecurring(pop)) {
-				Logger.debug("POP is RECURRING...");
-				List<OffsetDateTime> popEndDates=calculateBillingPeriodEndDates(ProductOfferingPriceUtils.getRecurringChargePeriod(pop), activationDate, limitDate);
-				billPeriodEndDates.addAll(popEndDates);
-			}else if (ProductOfferingPriceUtils.isPriceTypeOneTime(pop)) {
-				Logger.debug("POP is ONE_TIME...skipped");
-				return billPeriodEndDates;
-			}else {
-				throw new IllegalArgumentException("Is not possible to calculate billingPeriod(s) for ProductOfferingPrice "+pop.getId()+" - not supported priceType");
-			}
-		}
-		
-		return billPeriodEndDates;
-	}*/
 
 }

@@ -12,6 +12,8 @@ import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
+import it.eng.dome.tmforum.tmf678.v4.model.AppliedBillingRateCharacteristic;
+import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRate;
 import jakarta.validation.constraints.NotNull;
 
 @Component
@@ -116,6 +118,35 @@ public class TMFEntityValidator {
 		if(prodPrice.getProductOfferingPrice().getId()==null || prodPrice.getProductOfferingPrice().getId().isEmpty()) {
 			String msg=String.format("The ProductPrice f Product %s must have a 'ProductOfferingPrice' with a valorised 'id'", prodId);
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		
+		this.throwsErrorValidationIssuesIfAny(issues);
+		
+		logger.debug("Validation of ProductPrice successful");
+		
+	}
+	
+	/**
+	 * Validate the list of AppliedBillingRateCharacteristic in the {@link AppliedCustomerBillingRate}
+	 * 
+	 * @param abrc the {@link AppliedCustomerBillingRate} for which the list of AppliedBillingRateCharacteristic must be validated
+	 * @throws BillingEngineValidationException if some unexpected/missing values are find
+	 */
+	public void validateAppliedBillingRateCharacteristic(@NotNull AppliedCustomerBillingRate acbr) throws BillingSchedulerValidationException{
+		
+		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
+
+		if(acbr.getCharacteristic()==null || (acbr.getCharacteristic()!=null && acbr.getCharacteristic().isEmpty())) {
+			String msg=String.format("The AppliedCustomerBillingRate %s must have 'Characteristic'", acbr.getId());
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		
+		if(acbr.getCharacteristic()!=null && !acbr.getCharacteristic().isEmpty()) {
+			AppliedBillingRateCharacteristic ch=acbr.getCharacteristic().get(0);
+			if(!ch.getName().equalsIgnoreCase("popId")) {
+				String msg=String.format("the AppliedCustomerBillingRate %s must have a 'Characteristic' with name='popId'", acbr.getId());
+				issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+			}
 		}
 		
 		this.throwsErrorValidationIssuesIfAny(issues);
