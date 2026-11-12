@@ -203,7 +203,8 @@ public class BillCycleService{
 			
 			billingPeriods.add(tp);
 			
-			startDate=endDate.plusDays(1);
+			//startDate=endDate.plusDays(1);
+			startDate=endDate;
 		}
 		
 		return billingPeriods;
